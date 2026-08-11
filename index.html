@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17130f">
+  <title>Punjabi Rewind | Old Songs, Timeless Memories</title>
+  <meta name="description" content="Punjabi Rewind - an interactive archive of old Punjabi songs using YouTube as the playback source.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grain"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#">PUNJABI <span>REWIND</span></a>
+    <div class="top-actions">
+      <button class="text-btn" id="randomBtn">RANDOM CLASSIC</button>
+      <button class="icon-btn" id="libraryBtn" aria-label="Open library">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">A DIGITAL MUSIC ARCHIVE</p>
+        <h1>OLD SONGS.<br><em>FOREVER ALIVE.</em></h1>
+        <p class="intro">A rewind machine for Punjabi music. Pick a song, press play and let the memories run.</p>
+        <div class="hero-stats">
+          <span><b id="songCount">0</b> SONGS</span>
+          <span><b id="artistCount">0</b> ARTISTS</span>
+          <span><b>70s–00s</b> ERA</span>
+        </div>
+      </div>
+
+      <div class="deck-wrap">
+        <div class="deck">
+          <div class="deck-top">
+            <span>FCS AUDIO</span>
+            <span>STEREO</span>
+          </div>
+
+          <div class="cassette-window">
+            <div class="tape-label">
+              <small>TYPE I • NORMAL</small>
+              <strong id="cassetteArtist">PUNJABI REWIND</strong>
+              <span id="cassetteTitle">SELECT A SONG</span>
+              <i>CHROME / 60</i>
+            </div>
+            <div class="reel reel-left"><div class="hub"></div></div>
+            <div class="reel reel-right"><div class="hub"></div></div>
+            <div class="tape-line"></div>
+          </div>
+
+          <div class="deck-display">
+            <div>
+              <small>NOW PLAYING</small>
+              <strong id="displayTitle">Select a classic</strong>
+              <span id="displayArtist">YouTube source ready</span>
+            </div>
+            <div class="vu"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+
+          <div class="deck-controls">
+            <button id="prevBtn" title="Previous">◀◀</button>
+            <button id="playBtn" class="play" title="Play">▶</button>
+            <button id="nextBtn" title="Next">▶▶</button>
+            <button id="stopBtn" title="Stop">■</button>
+          </div>
+
+          <div class="deck-lower">
+            <button id="shuffleBtn">SHUFFLE <span>OFF</span></button>
+            <div class="counter"><span id="trackNo">01</span> / <span id="trackTotal">00</span></div>
+            <button id="libraryBtn2">LIBRARY</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="now">
+      <div class="youtube-shell" id="youtubeShell">
+        <div id="playerPlaceholder">
+          <span class="play-circle">▶</span>
+          <p>Choose a song from library</p>
+          <small>YouTube will play here</small>
+        </div>
+        <div id="player"></div>
+      </div>
+      <div class="now-meta">
+        <div>
+          <p class="eyebrow">NOW PLAYING</p>
+          <h2 id="nowTitle">Nothing selected</h2>
+          <p id="nowArtist">Select a classic from library below.</p>
+        </div>
+        <button class="outline-btn" id="youtubeBtn" disabled>OPEN ON YOUTUBE ↗</button>
+      </div>
+    </section>
+
+    <section class="archive" id="archive">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">THE ARCHIVE</p>
+          <h2>Pick a memory.</h2>
+        </div>
+        <div class="filters">
+          <button class="filter active" data-filter="all">ALL</button>
+          <button class="filter" data-filter="70s">70s</button>
+          <button class="filter" data-filter="80s">80s</button>
+          <button class="filter" data-filter="90s">90s</button>
+          <button class="filter" data-filter="2000s">2000s</button>
+        </div>
+      </div>
+
+      <div class="search-row">
+        <input id="search" type="search" placeholder="Search song or artist..." autocomplete="off">
+        <span id="resultCount">0 classics</span>
+      </div>
+
+      <div class="song-grid" id="songGrid"></div>
+    </section>
+
+    <section class="artists">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">THE VOICES</p>
+          <h2>Artists who stayed.</h2>
+        </div>
+      </div>
+      <div class="artist-grid" id="artistGrid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> PUNJABI REWIND</span>
+    <span>BUILT FOR THE MEMORIES</span>
+  </footer>
+
+  <aside class="drawer" id="drawer">
+    <div class="drawer-head">
+      <span>SONG LIBRARY</span>
+      <button id="closeDrawer">×</button>
+    </div>
+    <div class="drawer-list" id="drawerList"></div>
+  </aside>
+  <div class="drawer-backdrop" id="backdrop"></div>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="songs.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
