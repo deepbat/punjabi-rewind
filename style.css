@@ -382,9 +382,8 @@ footer { padding:25px 8vw; border-top:1px solid var(--line); display:flex; justi
   overflow: hidden;
   isolation: isolate;
   background:
-    linear-gradient(90deg, rgba(18,14,10,.88) 0%, rgba(18,14,10,.34) 45%, rgba(18,14,10,.20) 68%, rgba(18,14,10,.78) 100%),
-    linear-gradient(180deg, rgba(18,14,10,.12) 55%, rgba(18,14,10,.96) 100%),
-    url("assets/v3-punjab-village.png") center center / cover no-repeat;
+    linear-gradient(90deg, rgba(18,14,10,.45) 0%, rgba(18,14,10,.12) 48%, rgba(18,14,10,.42) 100%),
+    linear-gradient(180deg, rgba(18,14,10,.05) 55%, rgba(18,14,10,.96) 100%);
 }
 .hero::before {
   content:"";
@@ -543,3 +542,19 @@ footer { padding:25px 8vw; border-top:1px solid var(--line); display:flex; justi
 @media (prefers-reduced-motion: reduce) {
   .hero::before, .punjab-scene::before, .punjab-scene::after { animation:none; }
 }
+
+/* V3 SVG village scene, replacing composite screenshot background */
+.punjab-scene { opacity: 1; }
+.village-art { position:absolute; inset:0; width:100%; height:100%; opacity:.95; }
+.village-art .water-flow { stroke-dasharray:22 16; animation: waterMove .9s linear infinite; }
+.village-art .water-shine { animation: waterMove 1.1s linear infinite; }
+.village-art .dancer { transform-box: fill-box; transform-origin: 50% 100%; }
+.village-art .d1 { animation: bhangra1 1.1s ease-in-out infinite; }
+.village-art .d2 { animation: bhangra2 1.1s .15s ease-in-out infinite; }
+.village-art .d3 { animation: bhangra1 1.1s .3s ease-in-out infinite; }
+.village-art .tree-art { transform-origin: 220px 230px; animation: treeSway 5s ease-in-out infinite; }
+@keyframes waterMove { to { stroke-dashoffset:-76; } }
+@keyframes bhangra1 { 0%,100% { transform:rotate(-4deg) translateY(0); } 50% { transform:rotate(5deg) translateY(-8px); } }
+@keyframes bhangra2 { 0%,100% { transform:rotate(5deg) translateY(-4px); } 50% { transform:rotate(-5deg) translateY(5px); } }
+@keyframes treeSway { 0%,100% { transform:rotate(-.5deg); } 50% { transform:rotate(1.2deg); } }
+@media (prefers-reduced-motion: reduce) { .village-art * { animation:none !important; } }

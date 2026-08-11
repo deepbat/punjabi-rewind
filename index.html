@@ -23,9 +23,59 @@
     <section class="hero">
 
       <div class="punjab-scene" aria-hidden="true">
-        <div class="v3-water-glow"></div>
-        <div class="v3-fire-glow"></div>
-        <div class="v3-birds"></div>
+        <svg class="village-art" viewBox="0 0 1600 760" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b4d3c"/><stop offset=".58" stop-color="#d98b4d"/><stop offset="1" stop-color="#5b3927"/></linearGradient>
+            <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6c7139"/><stop offset="1" stop-color="#28351f"/></linearGradient>
+            <linearGradient id="house" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9b633d"/><stop offset="1" stop-color="#4b3024"/></linearGradient>
+            <linearGradient id="water" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#315f63"/><stop offset=".5" stop-color="#7cb3a7"/><stop offset="1" stop-color="#23484d"/></linearGradient>
+            <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
+          </defs>
+          <rect width="1600" height="760" fill="url(#sky)"/>
+          <circle cx="1050" cy="190" r="74" fill="#ffd27c" opacity=".7" filter="url(#soft)"/>
+          <circle cx="1050" cy="190" r="43" fill="#ffd995"/>
+          <path d="M0 390 Q260 300 520 390 T1060 370 T1600 350 V760 H0Z" fill="url(#field)" opacity=".9"/>
+          <g opacity=".35" fill="#e8bc69">
+            <path d="M0 470h420l-35 90H0z"/><path d="M1150 430h450v130h-450z"/>
+          </g>
+          <g class="village-house">
+            <path d="M470 390 L530 245 L850 220 L1010 360 L980 520 L460 520Z" fill="url(#house)" stroke="#c28a56" stroke-width="6"/>
+            <path d="M520 300 L760 180 L930 275 L850 315 L520 340Z" fill="#74452f"/>
+            <rect x="590" y="365" width="82" height="155" rx="3" fill="#211914" stroke="#bd8753" stroke-width="5"/>
+            <rect x="755" y="335" width="92" height="82" fill="#211914" stroke="#bd8753" stroke-width="5"/>
+            <rect x="900" y="350" width="62" height="66" fill="#211914" stroke="#bd8753" stroke-width="5"/>
+            <path d="M790 180 Q825 120 855 165" stroke="#d2c0a0" stroke-width="12" opacity=".35" fill="none"/>
+          </g>
+          <g class="tree-art">
+            <path d="M180 610 Q200 420 245 260 M220 420 Q125 320 55 295 M230 360 Q340 250 390 230" fill="none" stroke="#3d2b20" stroke-width="32" stroke-linecap="round"/>
+            <path d="M30 260 Q130 125 260 180 Q355 75 470 190 Q405 300 270 260 Q155 350 30 260Z" fill="#263b27" opacity=".94"/>
+            <circle cx="90" cy="205" r="85" fill="#334d2b"/><circle cx="270" cy="160" r="110" fill="#2c4427"/><circle cx="405" cy="215" r="80" fill="#344b2b"/>
+          </g>
+          <g class="well-art">
+            <ellipse cx="220" cy="570" rx="150" ry="45" fill="#171411" stroke="#b78a57" stroke-width="12"/>
+            <path d="M75 570 Q80 700 220 710 Q360 700 365 570" fill="#614331" stroke="#b78a57" stroke-width="12"/>
+            <ellipse cx="220" cy="570" rx="105" ry="25" fill="#151311" stroke="#8b6847" stroke-width="5"/>
+            <path d="M220 505 V410 M145 410 H295" stroke="#8f704c" stroke-width="12" stroke-linecap="round"/>
+            <path d="M220 425 Q250 485 280 535" fill="none" stroke="#c8a16b" stroke-width="5"/>
+            <path class="water-flow" d="M285 585 Q340 625 385 760" fill="none" stroke="url(#water)" stroke-width="38" stroke-linecap="round"/>
+          </g>
+          <path class="water-channel" d="M370 720 Q570 650 780 730 T1200 720" fill="none" stroke="#234b50" stroke-width="75" opacity=".85"/>
+          <path class="water-shine" d="M380 720 Q570 650 780 730 T1200 720" fill="none" stroke="#8cc6b5" stroke-width="5" stroke-dasharray="18 22"/>
+          <g class="charpai-art">
+            <path d="M690 590 L1010 590 L1060 690 L740 690Z" fill="#6d4b31" stroke="#c19a64" stroke-width="7"/>
+            <path d="M720 610 H990 M740 635 H1005 M760 660 H1020" stroke="#d2aa70" stroke-width="4" opacity=".7"/>
+          </g>
+          <g class="dancers-art" stroke="#f0c177" stroke-width="9" stroke-linecap="round" fill="none">
+            <g class="dancer d1"><circle cx="650" cy="390" r="20" fill="#e7ba71" stroke="none"/><path d="M650 415 L650 500 M650 440 L595 390 M650 440 L705 385 M650 500 L610 565 M650 500 L695 565"/></g>
+            <g class="dancer d2"><circle cx="790" cy="355" r="20" fill="#e7ba71" stroke="none"/><path d="M790 380 L790 480 M790 410 L735 355 M790 410 L850 350 M790 480 L750 550 M790 480 L835 550"/></g>
+            <g class="dancer d3"><circle cx="930" cy="390" r="20" fill="#e7ba71" stroke="none"/><path d="M930 415 L930 500 M930 440 L875 390 M930 440 L985 385 M930 500 L890 565 M930 500 L975 565"/></g>
+          </g>
+          <g class="folk-art" fill="#d9a866">
+            <circle cx="540" cy="505" r="12"/><circle cx="565" cy="505" r="12"/><circle cx="1060" cy="515" r="12"/>
+          </g>
+          <g class="birds-art" fill="none" stroke="#201913" stroke-width="5"><path d="M1180 135 q20 -18 40 0 q20 -18 40 0"/><path d="M1320 190 q18 -15 36 0 q18 -15 36 0"/></g>
+          <g class="lantern" transform="translate(420 340)"><rect x="0" y="0" width="28" height="48" rx="6" fill="#c18b4f"/><path d="M5 10h18v25H5z" fill="#ffd47a" opacity=".65"/><path d="M14 -12V0" stroke="#b5834c" stroke-width="5"/></g>
+        </svg>
         <div class="scene-caption">PUNJAB · BEFORE THE REWIND</div>
       </div>
 
