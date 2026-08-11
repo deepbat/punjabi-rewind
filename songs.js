@@ -11,7 +11,7 @@
   The website does not host MP3 files. YouTube is used as playback source.
 */
 
-const SONGS = [
+window.SONGS = [
   { title: "Tere Tille Ton", artist: "Kuldeep Manak", year: 1980, era: "80s", youtubeId: "xpu4TyohMVA" },
   { title: "Ik Kudi Jihda Naam Mohabbat", artist: "Shiv Kumar Batalvi", year: 1980, era: "80s", youtubeId: "" },
   { title: "Putt Jattan De", artist: "Surinder Shinda", year: 1981, era: "80s", youtubeId: "" },

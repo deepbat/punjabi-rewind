@@ -1,15 +1,21 @@
 let currentIndex = 0;
 let currentFilter = "all";
 let shuffle = false;
+const SONG_LIST = window.SONGS || [];
 let player = null;
 let playerReady = false;
 
 const $ = (id) => document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded", () => {
-  $("songCount").textContent = SONGS.length;
-  $("trackTotal").textContent = String(SONGS.length).padStart(2, "0");
-  $("artistCount").textContent = new Set(SONGS.map(s => s.artist)).size;
+  if (!Array.isArray(SONG_LIST) || SONG_LIST.length === 0) {
+    document.getElementById("songGrid").innerHTML =
+      '<div style="grid-column:1/-1;padding:50px 10px;color:#d85f32">Song database could not be loaded. Refresh the page or check songs.js.</div>';
+    return;
+  }
+  $("songCount").textContent = SONG_LIST.length;
+  $("trackTotal").textContent = String(SONG_LIST.length).padStart(2, "0");
+  $("artistCount").textContent = new Set(SONG_LIST.map(s => s.artist)).size;
   $("year").textContent = new Date().getFullYear();
 
   renderSongs();
@@ -40,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDrawer").onclick = closeDrawer;
   $("backdrop").onclick = closeDrawer;
   $("youtubeBtn").onclick = () => {
-    const song = SONGS[currentIndex];
+    const song = SONG_LIST[currentIndex];
     if (song?.youtubeId) window.open(`https://www.youtube.com/watch?v=${song.youtubeId}`, "_blank");
   };
 
@@ -54,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderSongs() {
   const q = $("search").value.toLowerCase().trim();
-  const filtered = SONGS.map((s, i) => ({...s, index:i})).filter(s => {
+  const filtered = SONG_LIST.map((s, i) => ({...s, index:i})).filter(s => {
     const eraOk = currentFilter === "all" || s.era === currentFilter;
     const textOk = !q || `${s.title} ${s.artist}`.toLowerCase().includes(q);
     return eraOk && textOk;
@@ -79,7 +85,7 @@ function renderSongs() {
 
 function renderArtists() {
   const map = new Map();
-  SONGS.forEach(s => map.set(s.artist, (map.get(s.artist) || 0) + 1));
+  SONG_LIST.forEach(s => map.set(s.artist, (map.get(s.artist) || 0) + 1));
   const artists = [...map.entries()].sort((a,b) => b[1]-a[1]);
   $("artistGrid").innerHTML = artists.map(([name,count]) => `
     <div class="artist" data-artist="${escapeAttr(name)}">
@@ -99,7 +105,7 @@ function renderArtists() {
 }
 
 function renderDrawer() {
-  $("drawerList").innerHTML = SONGS.map((s,i) => `
+  $("drawerList").innerHTML = SONG_LIST.map((s,i) => `
     <div class="drawer-song" data-index="${i}">
       <strong>${escapeHtml(s.title)}</strong>
       <span>${escapeHtml(s.artist)} · ${s.year}</span>
@@ -113,7 +119,7 @@ function renderDrawer() {
 
 function selectSong(index, autoplay=false) {
   currentIndex = index;
-  const s = SONGS[index];
+  const s = SONG_LIST[index];
 
   $("cassetteArtist").textContent = s.artist.toUpperCase();
   $("cassetteTitle").textContent = s.title.toUpperCase();
@@ -168,7 +174,7 @@ function onPlayerStateChange(e) {
 }
 
 function togglePlay() {
-  const s = SONGS[currentIndex];
+  const s = SONG_LIST[currentIndex];
   if (!s.youtubeId) { selectSong(currentIndex, false); return; }
   if (!playerReady) return;
   const state = player.getPlayerState();
@@ -185,20 +191,20 @@ function stop() {
 function next() {
   let nextIndex;
   if (shuffle) {
-    nextIndex = Math.floor(Math.random() * SONGS.length);
-    if (SONGS.length > 1 && nextIndex === currentIndex) nextIndex = (nextIndex + 1) % SONGS.length;
+    nextIndex = Math.floor(Math.random() * SONG_LIST.length);
+    if (SONG_LIST.length > 1 && nextIndex === currentIndex) nextIndex = (nextIndex + 1) % SONG_LIST.length;
   } else {
-    nextIndex = (currentIndex + 1) % SONGS.length;
+    nextIndex = (currentIndex + 1) % SONG_LIST.length;
   }
   selectSong(nextIndex, true);
 }
 
 function previous() {
-  selectSong((currentIndex - 1 + SONGS.length) % SONGS.length, true);
+  selectSong((currentIndex - 1 + SONG_LIST.length) % SONG_LIST.length, true);
 }
 
 function randomSong() {
-  const i = Math.floor(Math.random() * SONGS.length);
+  const i = Math.floor(Math.random() * SONG_LIST.length);
   selectSong(i, true);
   document.querySelector(".now").scrollIntoView({behavior:"smooth"});
 }
