@@ -2,75 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Punjabi Rewind | Old Songs, Timeless Memories</title>
-<meta name="description" content="Punjabi Rewind, a visual archive of old Punjabi songs using YouTube for playback.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deepak's Punjabi Songs | Old Songs, Timeless Memories</title>
+<meta name="description" content="Deepak's Punjabi Songs, a personal archive of classic Punjabi music played through YouTube embeds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=20">
 </head>
 <body>
 <div class="grain"></div>
-
 <header class="topbar">
-  <a class="brand" href="#"><span class="cassette-icon">▰</span><span>PUNJABI<br><b>REWIND</b></span></a>
-  <nav>
-    <a href="#archive">♫ SONGS</a><a href="#artists">♙ ARTISTS</a><a href="#archive">◷ ERA</a><a href="#about">♡ ABOUT</a>
-  </nav>
+  <a class="brand" href="#home"><span class="cassette-icon">▰</span><span>DEEPAK'S<br><b>PUNJABI SONGS</b></span></a>
+  <nav><a href="#archive">♫ SONGS</a><a href="#artists">♙ ARTISTS</a><a href="#archive">◷ ERA</a><a href="#about">♡ ABOUT</a></nav>
   <button id="randomBtn" class="random-top">RANDOM CLASSIC</button>
 </header>
-
 <main>
 <section class="hero" id="home">
-  <div class="hero-art" aria-hidden="true"></div>
-  <div class="hero-shade"></div>
-
-  <button id="exploreBtn" class="image-hotspot explore-hotspot" aria-label="Explore archive"></button>
-
-  <div class="hero-stats-hotspot" aria-hidden="true">
-    <span><b id="songCount">30</b><small>SONGS</small></span>
-    <span><b id="artistCount">21</b><small>ARTISTS</small></span>
-    <span><b>70s–90s</b><small>ERA</small></span>
-  </div>
-
+  <div class="hero-art"></div><div class="hero-shade"></div>
+  <div class="hero-copy"><span>A DIGITAL MUSIC ARCHIVE</span><h1>OLD SONGS.<br><em>FOREVER ALIVE.</em></h1><p>A rewind machine for Punjabi music. Pick a song, press play and let the memories run.</p><button id="exploreBtn" class="explore">◉ &nbsp; EXPLORE THE ARCHIVE</button></div>
+  <div class="hero-stats"><span><b id="songCount">30</b><small>SONGS</small></span><span><b id="artistCount">21</b><small>ARTISTS</small></span><span><b>70s–00s</b><small>ERA</small></span></div>
   <div class="deck-wrap">
     <div class="deck">
       <div class="deck-head"><span>NOW PLAYING</span><span class="vu"><i></i><i></i><i></i><i></i><i></i></span></div>
-      <div class="cassette-window">
-        <div class="tape-label"><small>TYPE I · NORMAL</small><strong id="cassetteTitle">DIL DA MAMLA HAI</strong><span id="cassetteArtist">GURDAS MAAN · 1984</span></div>
-        <div class="reel left"><i></i></div><div class="reel right"><i></i></div><div class="tape"></div>
-      </div>
-      <div class="deck-display"><div><strong id="displayArtist">Gurdas Maan</strong><span id="displayTitle">Dil Da Mamla Hai</span></div><div class="display-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
-      <div class="progress"><span></span></div><div class="time"><span>00:00</span><span>05:04</span></div>
-      <div class="deck-controls"><button id="shuffleBtn" title="Shuffle">⤨</button><button id="prevBtn">◀</button><button id="playBtn" class="play">▶</button><button id="nextBtn">▶</button><button id="stopBtn">↻</button></div>
-      <div class="deck-sources"><button id="heroYoutubeBtn">YOUTUBE ↗</button><button id="heroSpotifyBtn">SPOTIFY ↗</button></div>
+      <div class="cassette-window"><div class="tape-label"><small>TYPE I · NORMAL</small><strong id="cassetteTitle">SELECT A SONG</strong><span id="cassetteArtist">DEEPAK'S PUNJABI SONGS</span></div><div class="reel left"><i></i></div><div class="reel right"><i></i></div><div class="tape"></div></div>
+      <div class="deck-display"><div><strong id="displayArtist">Ready</strong><span id="displayTitle">Select a classic</span></div><div class="display-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="progress"><span id="progressBar"></span></div><div class="time"><span id="currentTime">00:00</span><span id="duration">--:--</span></div>
+      <div class="deck-controls"><button id="shuffleBtn" title="Shuffle">⤨</button><button id="prevBtn" title="Previous">◀</button><button id="playBtn" class="play" title="Play">▶</button><button id="nextBtn" title="Next">▶</button><button id="stopBtn" title="Stop">■</button></div>
+      <div class="deck-sources"><button id="heroYoutubeBtn">YOUTUBE</button><button id="heroSpotifyBtn">SPOTIFY</button></div>
       <div class="hidden-player"><div id="player"></div></div>
     </div>
   </div>
 </section>
-
 <section class="archive" id="archive">
-  <div class="search-row">
-    <div class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search songs, artists..." autocomplete="off"></div>
-    <select id="artistFilter"><option value="all">ALL ARTISTS</option></select>
-    <select id="eraFilter"><option value="all">ALL ERAS</option><option>70s</option><option>80s</option><option>90s</option><option>2000s</option></select>
-    <button id="clearFilters">CLEAR FILTERS</button>
-  </div>
-
+  <div class="search-row"><div class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search songs, artists..." autocomplete="off"></div><select id="artistFilter"><option value="all">ALL ARTISTS</option></select><select id="eraFilter"><option value="all">ALL ERAS</option><option>70s</option><option>80s</option><option>90s</option><option>2000s</option></select><button id="clearFilters">CLEAR FILTERS</button></div>
   <div class="archive-title"><span>♫</span><h2>ALL SONGS (<b id="resultCount">30</b>)</h2></div>
-  <div class="song-table-wrap"><table><thead><tr><th>#</th><th>SONG</th><th>ARTIST</th><th>YEAR</th><th>ERA</th><th>YOUTUBE</th><th>SPOTIFY</th><th></th></tr></thead><tbody id="songTable"></tbody></table></div>
+  <div class="song-table-wrap"><table><thead><tr><th>#</th><th>SONG</th><th>ARTIST</th><th>YEAR</th><th>ERA</th><th>PLAY</th><th>SPOTIFY</th></tr></thead><tbody id="songTable"></tbody></table></div>
 </section>
-
 <section class="artists" id="artists"><div class="section-title"><span>THE VOICES</span><h2>Artists who stayed.</h2></div><div id="artistGrid"></div></section>
-<section class="about" id="about"><span>ABOUT PUNJABI REWIND</span><p>A digital music archive built around old Punjabi songs and memories. Playback is provided through YouTube.</p></section>
+<section class="about" id="about"><span>ABOUT DEEPAK'S PUNJABI SONGS</span><p>A personal archive of Punjabi songs and memories. Music playback is provided through embedded YouTube videos. No music files are hosted here.</p></section>
 </main>
-
-<div class="now-mobile"><span>NOW PLAYING</span><b id="nowTitle">Nothing selected</b><small id="nowArtist">Choose a classic</small></div>
-<footer>© <span id="year"></span> PUNJABI REWIND · BUILT FOR THE MEMORIES</footer>
-
+<footer>© <span id="year"></span> DEEPAK'S PUNJABI SONGS · BUILT FOR THE MEMORIES</footer>
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=9"></script>
-<script src="script.js?v=9"></script>
+<script src="songs.js?v=20"></script>
+<script src="script.js?v=20"></script>
 </body>
 </html>
