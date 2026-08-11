@@ -26,3 +26,8 @@ Fallback YouTube sources have been removed. Player now uses only first explicitl
 
 ## Final playback safeguard
 When YouTube starts a video, the player reads YouTube's actual video title and compares it with selected song title. A mismatch is stopped instead of playing a different song. There is no YouTube search fallback and no automatic fallback to another ID.
+
+
+## Playlist update: 2000-2010
+
+Playlist has been rebuilt from scratch around famous Punjabi songs from 2000-2010. Every entry contains a fixed YouTube video ID. There is no YouTube search fallback and no automatic substitution to another song.

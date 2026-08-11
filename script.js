@@ -22,7 +22,7 @@ function renderSongs(){const q=$('search').value.toLowerCase().trim(),af=$('arti
 function renderArtists(){const m=new Map();SONG_LIST.forEach(s=>m.set(s.artist,(m.get(s.artist)||0)+1));$('artistGrid').className='artist-list';$('artistGrid').innerHTML=[...m.entries()].sort((a,b)=>b[1]-a[1]).map(([a,n])=>`<button class="artist-pill" data-a="${esc(a)}">${esc(a)} · ${n}</button>`).join('');document.querySelectorAll('.artist-pill').forEach(b=>b.onclick=()=>{$('artistFilter').value=b.dataset.a;$('archive').scrollIntoView({behavior:'smooth'});renderSongs()})}
 function selectSong(i,autoplay=false){if(!SONG_LIST[i])return;currentIndex=i;sourceIndex=0;failedSources.clear();const s=SONG_LIST[i];$('cassetteTitle').textContent=s.title.toUpperCase();$('cassetteArtist').textContent=`${s.artist.toUpperCase()} · ${s.year}`;$('displayArtist').textContent=s.artist;$('displayTitle').textContent=s.title;$('duration').textContent='--:--';$('currentTime').textContent='00:00';$('progressBar').style.width='0%';if(playerReady&&s.youtubeIds?.length){loadCurrentSource(autoplay)}else if(autoplay)showStatus('No YouTube source available')}
 function loadCurrentSource(autoplay){const s=SONG_LIST[currentIndex],id=s?.youtubeIds?.[0];if(!id){showStatus('Exact YouTube source not verified');return}if(failedSources.has(id)){showStatus('This exact source is unavailable');return}try{player.loadVideoById({videoId:id,startSeconds:0});if(!autoplay)player.pauseVideo();else player.playVideo()}catch(e){showStatus('Unable to load exact source')}}
-function onYouTubeIframeAPIReady(){player=new YT.Player('player',{height:'1',width:'1',videoId:'',playerVars:{autoplay:0,controls:0,rel:0,playsinline:1,modestbranding:1},events:{onReady:()=>{playerReady=true},onError:()=>{const id=SONG_LIST[currentIndex]?.youtubeIds?.[0];if(id)failedSources.add(id);showStatus('This exact YouTube source cannot be embedded.')},onStateChange:e=>{if(e.data===YT.PlayerState.PLAYING){if(!validateCurrentSource()){$('playBtn').textContent='▶';return}$('playBtn').textContent='Ⅱ';$('displayTitle').textContent=SONG_LIST[currentIndex].title}else if(e.data===YT.PlayerState.PAUSED){$('playBtn').textContent='▶'}else if(e.data===YT.PlayerState.ENDED){$('playBtn').textContent='▶';next()}},onPlaybackQualityChange:()=>{}}})}
+function onYouTubeIframeAPIReady(){player=new YT.Player('player',{height:'1',width:'1',videoId:'',playerVars:{autoplay:0,controls:0,rel:0,playsinline:1,modestbranding:1},events:{onReady:()=>{playerReady=true},onError:()=>{const id=SONG_LIST[currentIndex]?.youtubeIds?.[0];if(id)failedSources.add(id);showStatus('This exact YouTube source cannot be embedded.')},onStateChange:e=>{if(e.data===YT.PlayerState.PLAYING){$('playBtn').textContent='Ⅱ';$('displayTitle').textContent=SONG_LIST[currentIndex].title}else if(e.data===YT.PlayerState.PAUSED){$('playBtn').textContent='▶'}else if(e.data===YT.PlayerState.ENDED){$('playBtn').textContent='▶';next()}},onPlaybackQualityChange:()=>{}}})}
 function togglePlay(){if(!playerReady)return;const s=SONG_LIST[currentIndex];if(!s)return;if(player.getPlayerState()===YT.PlayerState.PLAYING)player.pauseVideo();else playCurrent(true)}
 function playCurrent(autoplay){if(!playerReady){showStatus('Player is loading...');return}if(!SONG_LIST[currentIndex]?.youtubeIds?.length){showStatus('YouTube source unavailable');return}loadCurrentSource(autoplay)}
 function stop(){if(playerReady)player.stopVideo();$('playBtn').textContent='▶';$('currentTime').textContent='00:00';$('progressBar').style.width='0%'}
@@ -31,26 +31,6 @@ function previous(){if(!SONG_LIST.length)return;selectSong((currentIndex-1+SONG_
 function randomSong(){if(SONG_LIST.length)selectSong(Math.floor(Math.random()*SONG_LIST.length),true)}
 function openSpotify(){openSpotifyFor(currentIndex)}
 function openSpotifyFor(i){const s=SONG_LIST[i];if(!s)return;window.open(`https://open.spotify.com/search/${encodeURIComponent(s.title+' '+s.artist)}`,'_blank','noopener')}
-function normalizeText(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()}
-function sourceMatchesSong(videoTitle,song){
-  const actual=normalizeText(videoTitle);
-  const expected=normalizeText(song?.title);
-  const words=expected.split(/\s+/).filter(w=>w.length>=3);
-  return words.length>=2 && words.every(w=>actual.includes(w));
-}
-function validateCurrentSource(){
-  const s=SONG_LIST[currentIndex];
-  if(!playerReady||!player||!s||!s.youtubeIds?.length)return true;
-  try{
-    const data=player.getVideoData();
-    if(!sourceMatchesSong(data?.title,s)){
-      player.stopVideo();
-      showStatus('Source mismatch: exact song not found');
-      return false;
-    }
-  }catch(e){}
-  return true;
-}
 function showStatus(message){$('displayTitle').textContent=message}
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 setInterval(()=>{if(!playerReady||!player||!SONG_LIST[currentIndex])return;try{if(player.getPlayerState()===YT.PlayerState.PLAYING){const t=player.getCurrentTime()||0,d=player.getDuration()||0;$('currentTime').textContent=fmt(t);$('duration').textContent=fmt(d);$('progressBar').style.width=d?`${Math.min(100,t/d*100)}%`:'0%'}}catch(e){}},500);
