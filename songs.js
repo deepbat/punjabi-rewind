@@ -31,7 +31,7 @@ window.SONGS = [
   {title: "Ho Jayegi Balle Balle", artist: "Daler Mehndi", year: 1995, era: "90s", youtubeId: "ymo3lvQEqhM", spotifyUrl: ""},
   {title: "Tunak Tunak Tun", artist: "Daler Mehndi", year: 1998, era: "90s", youtubeId: "yobkYjbcM7c", spotifyUrl: ""},
   {title: "Gur Nalon Ishq Mitha", artist: "Malkit Singh", year: 1990, era: "90s", youtubeId: "OAKag1aFDy8", spotifyUrl: ""},
-  {title: "Mundian To Bach Ke", artist: "Panjabi MC", year: 1998, era: "90s", youtubeId: "NEFNPcQR3mk", spotifyUrl: ""},
+  {title: "Mundian To Bach Ke", artist: "Panjabi MC", year: 1998, era: "90s", youtubeId: "x9WO2ieJMYk", spotifyUrl: ""},
   {title: "Kangna", artist: "Dr. Zeus", year: 2003, era: "2000s", youtubeId: "-CVD7PUBzLk", spotifyUrl: ""},
   {title: "Mitran Di Chhatri", artist: "Babbu Maan", year: 2001, era: "2000s", youtubeId: "ioWkx6WRH2I", spotifyUrl: ""},
   {title: "Sohniye", artist: "Harbhajan Mann", year: 2000, era: "2000s", youtubeId: "bwPbEJhKQZE", spotifyUrl: ""}

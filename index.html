@@ -1,218 +1,76 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#17130f">
-  <title>Punjabi Rewind | Old Songs, Timeless Memories</title>
-  <meta name="description" content="Punjabi Rewind - an interactive archive of old Punjabi songs using YouTube as the playback source.">
-  <link rel="stylesheet" href="style.css?v=6">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Punjabi Rewind | Old Songs, Timeless Memories</title>
+<meta name="description" content="Punjabi Rewind, a visual archive of old Punjabi songs using YouTube for playback.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
-  <div class="grain"></div>
+<div class="grain"></div>
 
-  <header class="topbar">
-    <a class="brand" href="#">PUNJABI <span>REWIND</span></a>
-    <div class="top-actions">
-      <button class="text-btn" id="randomBtn">RANDOM CLASSIC</button>
-      <button class="icon-btn" id="libraryBtn" aria-label="Open library">☰</button>
+<header class="topbar">
+  <a class="brand" href="#"><span class="cassette-icon">▰</span><span>PUNJABI<br><b>REWIND</b></span></a>
+  <nav>
+    <a href="#archive">♫ SONGS</a><a href="#artists">♙ ARTISTS</a><a href="#archive">◷ ERA</a><a href="#about">♡ ABOUT</a>
+  </nav>
+  <button id="randomBtn" class="random-top">RANDOM CLASSIC</button>
+</header>
+
+<main>
+<section class="hero" id="home">
+  <div class="hero-art" aria-hidden="true"></div>
+  <div class="hero-shade"></div>
+
+  <button id="exploreBtn" class="image-hotspot explore-hotspot" aria-label="Explore archive"></button>
+
+  <div class="hero-stats-hotspot" aria-hidden="true">
+    <span><b id="songCount">30</b><small>SONGS</small></span>
+    <span><b id="artistCount">21</b><small>ARTISTS</small></span>
+    <span><b>70s–90s</b><small>ERA</small></span>
+  </div>
+
+  <div class="deck-wrap">
+    <div class="deck">
+      <div class="deck-head"><span>NOW PLAYING</span><span class="vu"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="cassette-window">
+        <div class="tape-label"><small>TYPE I · NORMAL</small><strong id="cassetteTitle">DIL DA MAMLA HAI</strong><span id="cassetteArtist">GURDAS MAAN · 1984</span></div>
+        <div class="reel left"><i></i></div><div class="reel right"><i></i></div><div class="tape"></div>
+      </div>
+      <div class="deck-display"><div><strong id="displayArtist">Gurdas Maan</strong><span id="displayTitle">Dil Da Mamla Hai</span></div><div class="display-bars"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="progress"><span></span></div><div class="time"><span>00:00</span><span>05:04</span></div>
+      <div class="deck-controls"><button id="shuffleBtn" title="Shuffle">⤨</button><button id="prevBtn">◀</button><button id="playBtn" class="play">▶</button><button id="nextBtn">▶</button><button id="stopBtn">↻</button></div>
+      <div class="deck-sources"><button id="heroYoutubeBtn">YOUTUBE ↗</button><button id="heroSpotifyBtn">SPOTIFY ↗</button></div>
+      <div class="hidden-player"><div id="player"></div></div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <main>
-    <section class="hero">
+<section class="archive" id="archive">
+  <div class="search-row">
+    <div class="search-box"><span>⌕</span><input id="search" type="search" placeholder="Search songs, artists..." autocomplete="off"></div>
+    <select id="artistFilter"><option value="all">ALL ARTISTS</option></select>
+    <select id="eraFilter"><option value="all">ALL ERAS</option><option>70s</option><option>80s</option><option>90s</option><option>2000s</option></select>
+    <button id="clearFilters">CLEAR FILTERS</button>
+  </div>
 
-      <div class="punjab-scene" aria-hidden="true">
-        <svg class="village-art" viewBox="0 0 1600 760" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b4d3c"/><stop offset=".58" stop-color="#d98b4d"/><stop offset="1" stop-color="#5b3927"/></linearGradient>
-            <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6c7139"/><stop offset="1" stop-color="#28351f"/></linearGradient>
-            <linearGradient id="house" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9b633d"/><stop offset="1" stop-color="#4b3024"/></linearGradient>
-            <linearGradient id="water" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#315f63"/><stop offset=".5" stop-color="#7cb3a7"/><stop offset="1" stop-color="#23484d"/></linearGradient>
-            <filter id="soft"><feGaussianBlur stdDeviation="7"/></filter>
-          </defs>
-          <rect width="1600" height="760" fill="url(#sky)"/>
-          <circle cx="1050" cy="190" r="74" fill="#ffd27c" opacity=".7" filter="url(#soft)"/>
-          <circle cx="1050" cy="190" r="43" fill="#ffd995"/>
-          <path d="M0 390 Q260 300 520 390 T1060 370 T1600 350 V760 H0Z" fill="url(#field)" opacity=".9"/>
-          <g opacity=".35" fill="#e8bc69">
-            <path d="M0 470h420l-35 90H0z"/><path d="M1150 430h450v130h-450z"/>
-          </g>
-          <g class="village-house">
-            <path d="M470 390 L530 245 L850 220 L1010 360 L980 520 L460 520Z" fill="url(#house)" stroke="#c28a56" stroke-width="6"/>
-            <path d="M520 300 L760 180 L930 275 L850 315 L520 340Z" fill="#74452f"/>
-            <rect x="590" y="365" width="82" height="155" rx="3" fill="#211914" stroke="#bd8753" stroke-width="5"/>
-            <rect x="755" y="335" width="92" height="82" fill="#211914" stroke="#bd8753" stroke-width="5"/>
-            <rect x="900" y="350" width="62" height="66" fill="#211914" stroke="#bd8753" stroke-width="5"/>
-            <path d="M790 180 Q825 120 855 165" stroke="#d2c0a0" stroke-width="12" opacity=".35" fill="none"/>
-          </g>
-          <g class="tree-art">
-            <path d="M180 610 Q200 420 245 260 M220 420 Q125 320 55 295 M230 360 Q340 250 390 230" fill="none" stroke="#3d2b20" stroke-width="32" stroke-linecap="round"/>
-            <path d="M30 260 Q130 125 260 180 Q355 75 470 190 Q405 300 270 260 Q155 350 30 260Z" fill="#263b27" opacity=".94"/>
-            <circle cx="90" cy="205" r="85" fill="#334d2b"/><circle cx="270" cy="160" r="110" fill="#2c4427"/><circle cx="405" cy="215" r="80" fill="#344b2b"/>
-          </g>
-          <g class="well-art">
-            <ellipse cx="220" cy="570" rx="150" ry="45" fill="#171411" stroke="#b78a57" stroke-width="12"/>
-            <path d="M75 570 Q80 700 220 710 Q360 700 365 570" fill="#614331" stroke="#b78a57" stroke-width="12"/>
-            <ellipse cx="220" cy="570" rx="105" ry="25" fill="#151311" stroke="#8b6847" stroke-width="5"/>
-            <path d="M220 505 V410 M145 410 H295" stroke="#8f704c" stroke-width="12" stroke-linecap="round"/>
-            <path d="M220 425 Q250 485 280 535" fill="none" stroke="#c8a16b" stroke-width="5"/>
-            <path class="water-flow" d="M285 585 Q340 625 385 760" fill="none" stroke="url(#water)" stroke-width="38" stroke-linecap="round"/>
-          </g>
-          <path class="water-channel" d="M370 720 Q570 650 780 730 T1200 720" fill="none" stroke="#234b50" stroke-width="75" opacity=".85"/>
-          <path class="water-shine" d="M380 720 Q570 650 780 730 T1200 720" fill="none" stroke="#8cc6b5" stroke-width="5" stroke-dasharray="18 22"/>
-          <g class="charpai-art">
-            <path d="M690 590 L1010 590 L1060 690 L740 690Z" fill="#6d4b31" stroke="#c19a64" stroke-width="7"/>
-            <path d="M720 610 H990 M740 635 H1005 M760 660 H1020" stroke="#d2aa70" stroke-width="4" opacity=".7"/>
-          </g>
-          <g class="dancers-art" stroke="#f0c177" stroke-width="9" stroke-linecap="round" fill="none">
-            <g class="dancer d1"><circle cx="650" cy="390" r="20" fill="#e7ba71" stroke="none"/><path d="M650 415 L650 500 M650 440 L595 390 M650 440 L705 385 M650 500 L610 565 M650 500 L695 565"/></g>
-            <g class="dancer d2"><circle cx="790" cy="355" r="20" fill="#e7ba71" stroke="none"/><path d="M790 380 L790 480 M790 410 L735 355 M790 410 L850 350 M790 480 L750 550 M790 480 L835 550"/></g>
-            <g class="dancer d3"><circle cx="930" cy="390" r="20" fill="#e7ba71" stroke="none"/><path d="M930 415 L930 500 M930 440 L875 390 M930 440 L985 385 M930 500 L890 565 M930 500 L975 565"/></g>
-          </g>
-          <g class="folk-art" fill="#d9a866">
-            <circle cx="540" cy="505" r="12"/><circle cx="565" cy="505" r="12"/><circle cx="1060" cy="515" r="12"/>
-          </g>
-          <g class="birds-art" fill="none" stroke="#201913" stroke-width="5"><path d="M1180 135 q20 -18 40 0 q20 -18 40 0"/><path d="M1320 190 q18 -15 36 0 q18 -15 36 0"/></g>
-          <g class="lantern" transform="translate(420 340)"><rect x="0" y="0" width="28" height="48" rx="6" fill="#c18b4f"/><path d="M5 10h18v25H5z" fill="#ffd47a" opacity=".65"/><path d="M14 -12V0" stroke="#b5834c" stroke-width="5"/></g>
-        </svg>
-        <div class="scene-caption">PUNJAB · BEFORE THE REWIND</div>
-      </div>
+  <div class="archive-title"><span>♫</span><h2>ALL SONGS (<b id="resultCount">30</b>)</h2></div>
+  <div class="song-table-wrap"><table><thead><tr><th>#</th><th>SONG</th><th>ARTIST</th><th>YEAR</th><th>ERA</th><th>YOUTUBE</th><th>SPOTIFY</th><th></th></tr></thead><tbody id="songTable"></tbody></table></div>
+</section>
 
-      <div class="hero-copy">
-        <p class="eyebrow">A DIGITAL MUSIC ARCHIVE</p>
-        <h1>OLD SONGS.<br><em>FOREVER ALIVE.</em></h1>
-        <p class="intro">A rewind machine for Punjabi music. Pick a song, press play and let the memories run.</p>
-        <div class="hero-actions">
-          <button class="hero-explore" id="exploreBtn">EXPLORE THE ARCHIVE <span>↓</span></button>
-        </div>
-        <div class="hero-stats">
-          <span><b id="songCount">0</b> SONGS</span>
-          <span><b id="artistCount">0</b> ARTISTS</span>
-          <span><b>70s–00s</b> ERA</span>
-        </div>
-      </div>
+<section class="artists" id="artists"><div class="section-title"><span>THE VOICES</span><h2>Artists who stayed.</h2></div><div id="artistGrid"></div></section>
+<section class="about" id="about"><span>ABOUT PUNJABI REWIND</span><p>A digital music archive built around old Punjabi songs and memories. Playback is provided through YouTube.</p></section>
+</main>
 
-      <div class="deck-wrap">
-        <div class="deck">
-          <div class="deck-top">
-            <span>FCS AUDIO</span>
-            <span>STEREO</span>
-          </div>
+<div class="now-mobile"><span>NOW PLAYING</span><b id="nowTitle">Nothing selected</b><small id="nowArtist">Choose a classic</small></div>
+<footer>© <span id="year"></span> PUNJABI REWIND · BUILT FOR THE MEMORIES</footer>
 
-          <div class="cassette-window">
-            <div class="tape-label">
-              <small>TYPE I • NORMAL</small>
-              <strong id="cassetteArtist">PUNJABI REWIND</strong>
-              <span id="cassetteTitle">SELECT A SONG</span>
-              <i>CHROME / 60</i>
-            </div>
-            <div class="reel reel-left"><div class="hub"></div></div>
-            <div class="reel reel-right"><div class="hub"></div></div>
-            <div class="tape-line"></div>
-          </div>
-
-          <div class="deck-display">
-            <div>
-              <small>NOW PLAYING</small>
-              <strong id="displayTitle">Select a classic</strong>
-              <span id="displayArtist">YouTube source ready</span>
-            </div>
-            <div class="vu"><span></span><span></span><span></span><span></span><span></span><span></span></div>
-          </div>
-
-          <div class="deck-controls">
-            <button id="prevBtn" title="Previous">◀◀</button>
-            <button id="playBtn" class="play" title="Play">▶</button>
-            <button id="nextBtn" title="Next">▶▶</button>
-            <button id="stopBtn" title="Stop">■</button>
-          </div>
-
-          <div class="deck-sources">
-            <button id="heroYoutubeBtn" disabled>YOUTUBE ↗</button>
-            <button id="heroSpotifyBtn" disabled>SPOTIFY ↗</button>
-          </div>
-          <div class="deck-lower">
-            <button id="shuffleBtn">SHUFFLE <span>OFF</span></button>
-            <div class="counter"><span id="trackNo">01</span> / <span id="trackTotal">00</span></div>
-            <button id="libraryBtn2">LIBRARY</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="now">
-      <div class="player-stage">
-        <div class="player-copy">
-          <p class="eyebrow">NOW PLAYING</p>
-          <h2 id="nowTitle">Nothing selected</h2>
-          <p id="nowArtist">Choose a classic from the archive.</p>
-          <div class="source-links">
-            <button class="source-btn youtube" id="youtubeBtn" disabled>YOUTUBE ↗</button>
-            <button class="source-btn spotify" id="spotifyBtn" disabled>SPOTIFY ↗</button>
-          </div>
-        </div>
-        <div class="source-window">
-          <div class="source-label">VIDEO SOURCE</div>
-          <div id="player"></div>
-          <div id="playerPlaceholder" class="source-placeholder">
-            <span>YT</span>
-            <small>SELECT A SONG</small>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="archive" id="archive">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">THE ARCHIVE</p>
-          <h2>Pick a memory.</h2>
-        </div>
-        <div class="filters">
-          <button class="filter active" data-filter="all">ALL</button>
-          <button class="filter" data-filter="70s">70s</button>
-          <button class="filter" data-filter="80s">80s</button>
-          <button class="filter" data-filter="90s">90s</button>
-          <button class="filter" data-filter="2000s">2000s</button>
-        </div>
-      </div>
-
-      <div class="search-row">
-        <input id="search" type="search" placeholder="Search song or artist..." autocomplete="off">
-        <span id="resultCount">0 classics</span>
-      </div>
-
-      <div class="song-grid" id="songGrid"></div>
-    </section>
-
-    <section class="artists">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">THE VOICES</p>
-          <h2>Artists who stayed.</h2>
-        </div>
-      </div>
-      <div class="artist-grid" id="artistGrid"></div>
-    </section>
-  </main>
-
-  <footer>
-    <span>© <span id="year"></span> PUNJABI REWIND</span>
-    <span>BUILT FOR THE MEMORIES</span>
-  </footer>
-
-  <aside class="drawer" id="drawer">
-    <div class="drawer-head">
-      <span>SONG LIBRARY</span>
-      <button id="closeDrawer">×</button>
-    </div>
-    <div class="drawer-list" id="drawerList"></div>
-  </aside>
-  <div class="drawer-backdrop" id="backdrop"></div>
-
-  <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="songs.js?v=6"></script>
-  <script src="script.js?v=6"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="songs.js?v=9"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>
