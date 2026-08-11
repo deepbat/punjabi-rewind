@@ -17,7 +17,7 @@ window.SONGS = [
   {title: "Sada Chirhiyan Da Chamba", artist: "Narinder Biba", year: 1975, era: "70s", youtubeId: "Q-hs-X59g2A", spotifyUrl: ""},
   {title: "Ki Banu Duniya Da", artist: "Gurdas Maan", year: 1989, era: "80s", youtubeId: "pjQyBF2gwjQ", spotifyUrl: ""},
   {title: "Apna Punjab Hove", artist: "Gurdas Maan", year: 1990, era: "90s", youtubeId: "RUyQ1PlEdDw", spotifyUrl: ""},
-  {title: "Lak Hile Majajan Jandi Da", artist: "Amar Singh Chamkila", year: 1987, era: "80s", youtubeId: "", spotifyUrl: ""},
+  {title: "Lak Hile Majajan Jandi Da", artist: "Amar Singh Chamkila", year: 1987, era: "80s", youtubeId: "EQw3fpx71oU", spotifyUrl: ""},
   {title: "Pehle Lalkare Naal", artist: "Amar Singh Chamkila", year: 1980, era: "80s", youtubeId: "aV1aBEGXd04", spotifyUrl: ""},
   {title: "Baba Tera Nankana", artist: "Amar Singh Chamkila", year: 1980, era: "80s", youtubeId: "O9XfPHvGk1M", spotifyUrl: ""},
   {title: "Mera Pind", artist: "Hans Raj Hans", year: 1993, era: "90s", youtubeId: "fSY9z9G2QW8", spotifyUrl: ""},

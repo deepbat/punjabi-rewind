@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#17130f">
   <title>Punjabi Rewind | Old Songs, Timeless Memories</title>
   <meta name="description" content="Punjabi Rewind - an interactive archive of old Punjabi songs using YouTube as the playback source.">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <div class="grain"></div>
@@ -21,6 +21,70 @@
 
   <main>
     <section class="hero">
+
+      <div class="punjab-scene" aria-hidden="true">
+        <svg viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="skyFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6f5433" stop-opacity=".08"/>
+              <stop offset="1" stop-color="#d8a45f" stop-opacity=".02"/>
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="420" fill="url(#skyFade)"/>
+          <g class="field-lines" opacity=".28">
+            <path d="M0 355 Q210 300 430 350 T850 340 T1200 350" />
+            <path d="M0 380 Q220 325 450 375 T850 365 T1200 375" />
+          </g>
+
+          <!-- old village well -->
+          <g class="well" transform="translate(770 190)">
+            <ellipse cx="120" cy="165" rx="112" ry="25"/>
+            <path d="M15 105 L30 160 Q120 188 210 160 L225 105 Q120 130 15 105Z"/>
+            <ellipse cx="120" cy="105" rx="105" ry="27"/>
+            <ellipse cx="120" cy="105" rx="78" ry="17"/>
+            <path d="M15 105 L15 55 Q120 28 225 55 L225 105" fill="none"/>
+            <path d="M28 55 Q120 82 212 55" fill="none"/>
+            <path d="M42 49 L42 18 M198 49 L198 18" />
+            <path class="well-rope" d="M120 31 L120 105"/>
+            <path class="well-bucket" d="M112 103 Q120 111 128 103 L126 118 Q120 124 114 118Z"/>
+            <path class="water-stream" d="M128 118 C150 150 158 162 180 166"/>
+            <circle class="water-drop" cx="180" cy="166" r="4"/>
+          </g>
+
+          <!-- village tree -->
+          <g class="tree" transform="translate(300 125)">
+            <path d="M92 215 C95 145 102 90 110 38" />
+            <path d="M110 78 C78 54 48 50 18 68 M105 104 C140 72 171 70 205 88" />
+            <g class="leaves">
+              <circle cx="55" cy="52" r="42"/><circle cx="110" cy="36" r="50"/>
+              <circle cx="165" cy="61" r="46"/><circle cx="195" cy="92" r="36"/>
+              <circle cx="35" cy="93" r="32"/>
+            </g>
+          </g>
+
+          <!-- dancers -->
+          <g class="dancers" transform="translate(470 235)">
+            <g class="dancer dancer-a">
+              <circle cx="0" cy="-45" r="10"/><path d="M0 -34 L0 5 M0 -25 L-28 -2 M0 -25 L30 -4 M0 5 L-22 40 M0 5 L22 38"/>
+            </g>
+            <g class="dancer dancer-b" transform="translate(85 4)">
+              <circle cx="0" cy="-45" r="10"/><path d="M0 -34 L0 5 M0 -25 L-30 -5 M0 -25 L28 -1 M0 5 L-25 38 M0 5 L20 42"/>
+            </g>
+            <g class="dancer dancer-c" transform="translate(170 -2)">
+              <circle cx="0" cy="-45" r="10"/><path d="M0 -34 L0 5 M0 -25 L-25 -4 M0 -25 L32 -8 M0 5 L-20 42 M0 5 L25 36"/>
+            </g>
+          </g>
+
+          <!-- charpai -->
+          <g class="charpai" transform="translate(150 310)">
+            <path d="M0 30 L180 0 L220 45 L35 76Z"/>
+            <path d="M20 42 L10 105 M198 35 L215 91 M52 67 L45 112 M178 50 L192 91"/>
+            <path d="M25 34 L190 8 M39 40 L205 15 M54 47 L215 24"/>
+          </g>
+        </svg>
+        <div class="scene-caption">PUNJAB · BEFORE THE REWIND</div>
+      </div>
+
       <div class="hero-copy">
         <p class="eyebrow">A DIGITAL MUSIC ARCHIVE</p>
         <h1>OLD SONGS.<br><em>FOREVER ALIVE.</em></h1>
@@ -147,7 +211,7 @@
   <div class="drawer-backdrop" id="backdrop"></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="songs.js?v=4"></script>
-  <script src="script.js?v=4"></script>
+  <script src="songs.js?v=5"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
