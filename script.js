@@ -1,7 +1,7 @@
 /* Punjabi Rewind — Player Logic with Fallback Support */
 const SONG_LIST = Array.isArray(window.SONGS) ? window.SONGS : [];
 let currentIndex = 0;
-let currentVideoIdIndex = 0; // Track which fallback ID we're trying
+let currentVideoIdIndex = 0;
 let player = null;
 let playerReady = false;
 let isPlaying = false;
@@ -13,7 +13,7 @@ let sleepTimer = null;
 let sleepTimeout = null;
 let lastPlayedIndices = [];
 const MAX_HISTORY = 5;
-let isRecovering = false; // Prevent recursive error handling
+let isRecovering = false;
 
 const $ = (id) => document.getElementById(id);
 const $$ = (sel, ctx = document) => ctx.querySelectorAll(sel);
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function preloadHeroArtwork() {
   if (SONG_LIST[0]?.youtubeIds?.[0]) {
     els.heroImg.src = `https://i.ytimg.com/vi/${SONG_LIST[0].youtubeIds[0]}/maxresdefault.jpg`;
-    els.heroImg.onload = () => els.heroArtwork.style.opacity = '1';
+    els.heroImg.onload = () => { els.heroArtwork.style.opacity = '1'; };
   }
 }
 
@@ -156,7 +156,7 @@ function setupEventListeners() {
   els.panelClose.addEventListener('click', closePlaylist);
   els.panelBackdrop.addEventListener('click', closePlaylist);
   els.upNextClose.addEventListener('click', () => els.upNext.classList.remove('visible'));
-  els.upNextTrack?.addEventListener('click', () => { playNext(); els.upNext.classList.remove('visible'); });
+  if (els.upNextTrack) els.upNextTrack.addEventListener('click', () => { playNext(); els.upNext.classList.remove('visible'); });
   $('#homeBtn').addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
@@ -202,7 +202,6 @@ function enterListeningRoom() {
   }, 400);
 }
 
-// Get current video ID for the current song (with fallback index)
 function getCurrentVideoId() {
   const song = SONG_LIST[currentIndex];
   if (!song?.youtubeIds?.length) return null;
@@ -210,9 +209,8 @@ function getCurrentVideoId() {
   return song.youtubeIds[idx];
 }
 
-// Load video with current fallback index
 function loadVideo(videoId, autoplay) {
-  if (!videoId) return;
+  if (!videoId || !playerReady) return;
   try {
     if (autoplay) {
       player.loadVideoById({ videoId, startSeconds: 0 });
@@ -229,7 +227,6 @@ function loadVideo(videoId, autoplay) {
 function selectSong(index, autoplay = false) {
   if (index < 0 || index >= SONG_LIST.length) return;
   
-  // Reset fallback index for new song
   currentVideoIdIndex = 0;
   isRecovering = false;
   
@@ -480,21 +477,35 @@ function closePlaylist() {
   setTimeout(() => { els.playlistPanel.hidden = true; }, 400);
 }
 
-// YouTube Player Events
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('ytPlayer', {
-    height: '1', width: '1', videoId: '',
-    playerVars: {
-      autoplay: 0, controls: 0, rel: 0, playsinline: 1,
-      modestbranding: 1, iv_load_policy: 3, disablekb: 1, fs: 0, cc_load_policy: 0,
-    },
-    events: {
-      onReady: onPlayerReady,
-      onStateChange: onPlayerStateChange,
-      onError: onPlayerError,
-      onPlaybackQualityChange: onQualityChange,
-    }
-  });
+// YouTube Player Events - exposed globally for IFrame API
+window.onYouTubeIframeAPIReady = function onYouTubeIframeAPIReady() {
+  const container = document.getElementById('ytPlayer');
+  if (!container) {
+    console.error('ytPlayer container not found');
+    return;
+  }
+  try {
+    player = new YT.Player('ytPlayer', {
+      height: '1', width: '1', videoId: '',
+      playerVars: {
+        autoplay: 0, controls: 0, rel: 0, playsinline: 1,
+        modestbranding: 1, iv_load_policy: 3, disablekb: 1, fs: 0, cc_load_policy: 0,
+      },
+      events: {
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange,
+        onError: onPlayerError,
+        onPlaybackQualityChange: onQualityChange,
+      }
+    });
+  } catch (e) {
+    console.error('Failed to create YT.Player:', e);
+  }
+};
+
+// Fallback: if API already loaded before this script
+if (window.YT && window.YT.Player) {
+  window.onYouTubeIframeAPIReady();
 }
 
 function onPlayerReady() {
@@ -529,7 +540,6 @@ function onPlayerStateChange(event) {
   }
 }
 
-// Enhanced error handling with fallback IDs
 function onPlayerError(event) {
   const errorCode = event.data;
   console.error('YT Player Error:', errorCode);
@@ -542,7 +552,6 @@ function onPlayerError(event) {
     150: 'Embedding not allowed (same as 101)',
   };
   
-  // Error codes that indicate we should try fallback IDs
   const retryableErrors = [2, 5, 100, 101, 150];
   
   if (retryableErrors.includes(errorCode) && !isRecovering) {
@@ -555,7 +564,6 @@ function onPlayerError(event) {
       const nextVideoId = song.youtubeIds[currentVideoIdIndex];
       showToast(`Trying alternative source... (${currentVideoIdIndex + 1}/${song.youtubeIds.length})`, 2000);
       
-      // Small delay then try next fallback
       setTimeout(() => {
         if (playerReady && nextVideoId) {
           try {
@@ -564,7 +572,6 @@ function onPlayerError(event) {
             if (!wasPlaying) player.pauseVideo();
           } catch (e) {
             console.error('Fallback load failed:', e);
-            // Will trigger onPlayerError again, which will try next fallback
           }
         }
       }, 500);
@@ -572,7 +579,6 @@ function onPlayerError(event) {
     }
   }
   
-  // No more fallbacks or non-retryable error — skip to next song
   showToast(messages[errorCode] || 'Playback error — skipping', 3000);
   setTimeout(() => {
     isRecovering = false;
