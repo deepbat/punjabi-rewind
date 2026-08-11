@@ -285,3 +285,144 @@ footer { padding:25px 8vw; border-top:1px solid var(--line); display:flex; justi
   .punjab-scene { height:42%; opacity:.18; }
   .scene-caption { display:none; }
 }
+
+
+/* PUNJABI CULTURAL SCENE */
+.punjab-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: 100%;
+  min-height: 720px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: .92;
+  background:
+    radial-gradient(circle at 78% 30%, rgba(214,164,95,.12), transparent 23%),
+    linear-gradient(180deg, rgba(95,70,42,.18), transparent 55%);
+  border-bottom: 1px solid rgba(215,200,170,.08);
+}
+.punjab-scene svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.punjab-scene .field-lines path {
+  fill: none;
+  stroke: #a9824d;
+  stroke-width: 2;
+}
+.punjab-scene .well {
+  fill: rgba(105,82,54,.72);
+  stroke: #c39a62;
+  stroke-width: 3;
+  filter: drop-shadow(0 12px 20px rgba(0,0,0,.35));
+}
+.punjab-scene .well ellipse:first-child {
+  fill: rgba(8,7,5,.65);
+  stroke: #c39a62;
+}
+.punjab-scene .well-rope,
+.punjab-scene .well-bucket {
+  fill: none;
+  stroke: #d6b57c;
+  stroke-width: 3;
+}
+.punjab-scene .water-stream {
+  fill: none;
+  stroke: #8fc0bd;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 8 12;
+  animation: waterFlow 1.2s linear infinite;
+}
+.punjab-scene .water-drop {
+  fill: #9ed3d0;
+  animation: waterDrop 1.6s ease-in-out infinite;
+}
+.punjab-scene .tree path {
+  fill: none;
+  stroke: #755632;
+  stroke-width: 12;
+  stroke-linecap: round;
+}
+.punjab-scene .tree .leaves {
+  fill: #59613d;
+  stroke: #7b8050;
+  stroke-width: 2;
+  transform-origin: 110px 60px;
+  animation: leavesSway 4s ease-in-out infinite;
+}
+.punjab-scene .dancer {
+  fill: none;
+  stroke: #d9b478;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.punjab-scene .dancer circle {
+  fill: #d9b478;
+  stroke: none;
+}
+.punjab-scene .dancer-a { animation: bhangraA 1.1s ease-in-out infinite; }
+.punjab-scene .dancer-b { animation: bhangraB 1.1s .18s ease-in-out infinite; }
+.punjab-scene .dancer-c { animation: bhangraA 1.1s .36s ease-in-out infinite; }
+.punjab-scene .charpai {
+  fill: none;
+  stroke: #8c7049;
+  stroke-width: 5;
+  opacity: .85;
+}
+.scene-caption {
+  position: absolute;
+  left: 8vw;
+  bottom: 22px;
+  font: 8px "DM Mono", monospace;
+  letter-spacing: .22em;
+  color: rgba(215,200,170,.32);
+}
+.hero {
+  position: relative;
+  isolation: isolate;
+}
+.hero-copy, .deck-wrap {
+  position: relative;
+  z-index: 2;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(23,19,15,.96) 0%, rgba(23,19,15,.62) 42%, rgba(23,19,15,.18) 72%, rgba(23,19,15,.72) 100%);
+}
+@keyframes waterFlow {
+  to { stroke-dashoffset: -40; }
+}
+@keyframes waterDrop {
+  0%, 100% { transform: translate(0,0); opacity: .15; }
+  35% { transform: translate(7px,10px); opacity: 1; }
+  70% { transform: translate(13px,20px); opacity: .25; }
+}
+@keyframes leavesSway {
+  0%, 100% { transform: rotate(-1deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes bhangraA {
+  0%,100% { transform: rotate(-5deg) translateY(0); }
+  50% { transform: rotate(7deg) translateY(-8px); }
+}
+@keyframes bhangraB {
+  0%,100% { transform: rotate(7deg) translateY(-2px); }
+  50% { transform: rotate(-7deg) translateY(7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .punjab-scene * { animation: none !important; }
+}
+@media (max-width: 900px) {
+  .punjab-scene { min-height: 900px; }
+}
