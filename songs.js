@@ -5,7 +5,7 @@ window.SONGS = [
 {title:"Jind Mahi",artist:"Surinder Shinda",year:1980,era:"80s",youtubeIds:["ceQfgU062jY","Z9IoFMdmsoA"]},
 {title:"Challa",artist:"Gurdas Maan",year:1983,era:"80s",youtubeIds:["Nfa0oXVAs3U","I0lsDLbH1TI"]},
 {title:"Dil Da Mamla Hai",artist:"Gurdas Maan",year:1984,era:"80s",youtubeIds:["DuAKzZGcc1A","jiwKVciHJxM","Fp0WEiptu2o"]},
-{title:"Mitra Ne Dil Mangeya",artist:"Kuldeep Manak",year:1980,era:"80s",youtubeIds:["Y0-uxXH7ePk"]},
+{title:"Mitra Ne Dil Mangeya",artist:"Rajvir Jawanda & Gurlez Akhtar",year:2019,era:"2010s",youtubeIds:["2FAjtFPBysI"]},
 {title:"Yaar Mera Titliyan Warga",artist:"Surinder Kaur",year:1970,era:"70s",youtubeIds:["oy-khB66u38"]},
 {title:"Jutti Kasuri",artist:"Surinder Kaur",year:1970,era:"70s",youtubeIds:["i61jXn-x91k"]},
 {title:"Sada Chirhiyan Da Chamba",artist:"Narinder Biba",year:1975,era:"70s",youtubeIds:["Q-hs-X59g2A","vbB5scfDOVA"]},
