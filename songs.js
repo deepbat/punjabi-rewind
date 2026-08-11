@@ -16,7 +16,7 @@ window.SONGS = [
   {title: "Jutti Kasuri", artist: "Surinder Kaur", year: 1970, era: "70s", youtubeId: "i61jXn-x91k", spotifyUrl: ""},
   {title: "Sada Chirhiyan Da Chamba", artist: "Narinder Biba", year: 1975, era: "70s", youtubeId: "Q-hs-X59g2A", spotifyUrl: ""},
   {title: "Ki Banu Duniya Da", artist: "Gurdas Maan", year: 1989, era: "80s", youtubeId: "pjQyBF2gwjQ", spotifyUrl: ""},
-  {title: "Apna Punjab Hove", artist: "Gurdas Maan", year: 1990, era: "90s", youtubeId: "RUyQ1PlEdDw", spotifyUrl: ""},
+  {title: "Apna Punjab Hove", artist: "Gurdas Maan", year: 1990, era: "90s", youtubeId: "1cHLSWmVnTE", spotifyUrl: ""},
   {title: "Lak Hile Majajan Jandi Da", artist: "Amar Singh Chamkila", year: 1987, era: "80s", youtubeId: "EQw3fpx71oU", spotifyUrl: ""},
   {title: "Pehle Lalkare Naal", artist: "Amar Singh Chamkila", year: 1980, era: "80s", youtubeId: "aV1aBEGXd04", spotifyUrl: ""},
   {title: "Baba Tera Nankana", artist: "Amar Singh Chamkila", year: 1980, era: "80s", youtubeId: "O9XfPHvGk1M", spotifyUrl: ""},
