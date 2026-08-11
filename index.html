@@ -3,102 +3,184 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deepak's Punjabi Songs</title>
-<meta name="description" content="Deepak's Punjabi Songs. A small digital rewind of famous Punjabi songs from 2000 to 2010.">
+<title>PUNJABI REWIND — 2023+ Listening Room</title>
+<meta name="description" content="Punjabi Rewind — A cinematic listening room for the biggest Punjabi hits from 2023 onwards. AP Dhillon, Karan Aujla, Diljit Dosanjh, Sidhu Moose Wala, Shubh & more.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=40">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <div class="scene" id="scene">
-  <div class="sky-glow"></div>
-  <div class="film-grain"></div>
-  <div class="dust dust-a"></div><div class="dust dust-b"></div><div class="dust dust-c"></div>
+  <div class="bg-layer" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
-  <header class="top">
-    <a class="logo" href="#" id="homeBtn">
-      <span class="logo-mark">▰</span>
-      <span><b>DEEPAK'S</b><strong>PUNJABI SONGS</strong></span>
-    </a>
-    <div class="route">PIND 01 · 2000—2010</div>
-    <button class="mute" id="muteBtn">SOUND ON</button>
+  <header class="top-bar" role="banner">
+    <div class="left">
+      <a href="#" class="logo" id="homeBtn" aria-label="Home">
+        <span class="logo-mark" aria-hidden="true">♪</span>
+        <span class="logo-text"><b>PUNJABI</b> REWIND</span>
+      </a>
+      <span class="era-badge" aria-label="Era">2023+</span>
+    </div>
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <button class="nav-btn" id="playlistBtn" aria-label="Open playlist" title="Playlist (L)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 5H3"/><path d="M11 12H3"/><path d="M11 19H3"/><path d="M21 16V5"/><circle cx="18" cy="16" r="3"/></svg>
+        <span class="nav-label">Playlist</span>
+      </button>
+      <button class="nav-btn" id="shuffleBtn" aria-label="Toggle shuffle" title="Shuffle (S)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/></svg>
+        <span class="nav-label">Shuffle</span>
+      </button>
+      <button class="nav-btn" id="videoBtn" aria-label="Toggle video view" title="Video (V)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="nav-label">Video</span>
+      </button>
+      <a class="nav-btn external" href="https://open.spotify.com/search/Punjabi%202023" target="_blank" rel="noopener noreferrer" aria-label="Open on Spotify">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <span class="nav-label">Spotify</span>
+      </a>
+      <a class="nav-btn external" href="https://music.youtube.com/playlist?list=RDAMVM" target="_blank" rel="noopener noreferrer" aria-label="Open on YouTube Music">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <span class="nav-label">YouTube</span>
+      </a>
+    </nav>
+    <div class="right">
+      <button class="icon-btn" id="muteBtn" aria-label="Toggle mute" title="Mute (M)">
+        <svg class="icon-volume" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+        <svg class="icon-muted" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="23" x2="1" y1="1" y2="23"/></svg>
+      </button>
+      <button class="icon-btn" id="sleepBtn" aria-label="Sleep timer" title="Sleep Timer">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </button>
+    </div>
   </header>
 
-  <main class="experience">
-    <section class="intro">
-      <p class="kicker">ਪਿੰਡ ਤੋਂ ਆਵਾਜ਼ ਆ ਰਹੀ ਏ…</p>
-      <h1>DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
-      <p class="sub">Purane geet. Pind di hawa. Te oh gallan jo ajj vi yaad ne.</p>
-      <button class="enter" id="enterBtn"><span>▶</span> CHALA DO</button>
+  <main class="main-content" role="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="hero-kicker" aria-hidden="true">LATE NIGHT LISTENING ROOM</p>
+        <h1 id="hero-title" class="hero-title">PUNJABI<br><em>REWIND</em></h1>
+        <p class="hero-sub">The biggest Punjabi hits from 2023 onwards. Curated for late nights.</p>
+        <button class="hero-enter" id="enterBtn" aria-label="Enter the listening room">
+          <span class="enter-arrow" aria-hidden="true">→</span>
+          <span>ENTER</span>
+        </button>
+      </div>
+      <div class="hero-artwork" id="heroArtwork" aria-hidden="true">
+        <div class="artwork-inner">
+          <img id="heroImg" src="" alt="" loading="lazy">
+          <div class="artwork-glow"></div>
+          <div class="artwork-ring"></div>
+        </div>
+      </div>
     </section>
 
-    <section class="tape-machine" aria-label="Punjabi music player">
-      <div class="machine-label">FCS AUDIO · PIND REWIND</div>
-      <div class="cassette">
-        <div class="cassette-top">
-          <span>NOW PLAYING</span>
-          <span class="levels"><i></i><i></i><i></i><i></i><i></i></span>
+    <section class="player-section" id="playerSection" aria-label="Music player" hidden>
+      <div class="player-card">
+        <div class="player-artwork" id="playerArtwork">
+          <img id="playerImg" src="" alt="" loading="lazy">
+          <div class="player-glow"></div>
+          <button class="player-play" id="playerPlayBtn" aria-label="Play" title="Play (Space)">
+            <svg class="icon-play" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+            <svg class="icon-pause" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
         </div>
-        <div class="label">
-          <small>TYPE I · NORMAL</small>
-          <strong id="cassetteTitle">SELECT A SONG</strong>
-          <span id="cassetteMeta">DEEPAK'S PUNJABI SONGS</span>
+
+        <div class="player-info">
+          <p class="player-artist" id="playerArtist">Select a track</p>
+          <h2 class="player-title" id="playerTitle">Punjabi Rewind</h2>
+          <p class="player-meta" id="playerMeta">2023+ • 35 Tracks</p>
         </div>
-        <div class="reel reel-left"><i></i></div>
-        <div class="reel reel-right"><i></i></div>
-        <div class="tape-window"></div>
+
+        <div class="player-progress" role="slider" aria-label="Playback progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0" id="progressBar">
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-handle" id="progressHandle"></div>
+          </div>
+          <div class="progress-time">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <div class="player-controls">
+          <button class="control-btn" id="prevBtn" aria-label="Previous track" title="Previous (←)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z"/><path d="M3 20V4"/></svg>
+          </button>
+          <button class="control-btn" id="rewindBtn" aria-label="Rewind 10s" title="Rewind 10s">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 16v-4a4 4 0 0 1 4-4h6"/><polyline points="10 12 6 16 10 20"/></svg>
+          </button>
+          <button class="control-btn main" id="playBtn" aria-label="Play" title="Play/Pause (Space)">
+            <svg class="icon-play" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"/></svg>
+            <svg class="icon-pause" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <button class="control-btn" id="forwardBtn" aria-label="Forward 10s" title="Forward 10s">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 16v-4a4 4 0 0 0-4-4H4"/><polyline points="14 12 18 16 14 20"/></svg>
+          </button>
+          <button class="control-btn" id="nextBtn" aria-label="Next track" title="Next (→)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 4v16"/><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"/></svg>
+          </button>
+        </div>
+
+        <div class="player-extras">
+          <button class="extra-btn" id="youtubeBtn" aria-label="Open on YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814z"/><path d="M9.545 15.568l6.277-3.636a.5.5 0 0 0 0-.864L9.545 8.432a.5.5 0 0 0-.793.424v6.712a.5.5 0 0 0 .793.424z"/></svg>
+            <span>YouTube</span>
+          </button>
+          <button class="extra-btn" id="spotifyBtn" aria-label="Search on Spotify">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            <span>Spotify</span>
+          </button>
+          <button class="extra-btn" id="shareBtn" aria-label="Share track">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+            <span>Share</span>
+          </button>
+        </div>
       </div>
 
-      <div class="player-display">
-        <small id="displayArtist">READY</small>
-        <strong id="displayTitle">Pick a song below</strong>
-        <div class="meter"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="up-next" id="upNext" aria-label="Up next">
+        <div class="up-next-header">
+          <span class="up-next-label">UP NEXT</span>
+          <button class="up-next-close" id="upNextClose" aria-label="Close up next">×</button>
+        </div>
+        <div class="up-next-track" id="upNextTrack">
+          <img id="upNextImg" src="" alt="" loading="lazy">
+          <div class="up-next-info">
+            <p class="up-next-artist" id="upNextArtist">—</p>
+            <h4 class="up-next-title" id="upNextTitle">—</h4>
+          </div>
+        </div>
       </div>
-
-      <div class="controls">
-        <button id="prevBtn" title="Previous">⏮</button>
-        <button id="playBtn" class="main-control" title="Play">▶</button>
-        <button id="nextBtn" title="Next">⏭</button>
-      </div>
-
-      <div class="time-line">
-        <span id="currentTime">0:00</span>
-        <div class="progress"><span id="progressBar"></span></div>
-        <span id="duration">0:00</span>
-      </div>
-
-      <div class="tape-picker">
-        <div class="picker-caption"><span>KHICHO TE GHUMAO</span><b id="songNumber">01 / 18</b></div>
-        <input id="songSlider" type="range" min="0" max="17" value="0" aria-label="Choose song">
-      </div>
-
-      <div class="source-row">
-        <button id="youtubeBtn">YOUTUBE ↗</button>
-        <button id="spotifyBtn">SPOTIFY ↗</button>
-      </div>
-
-      <div class="hidden-player"><div id="player"></div></div>
     </section>
   </main>
 
-  <section class="songs-panel" id="songsPanel">
-    <div class="panel-head">
-      <div><span class="kicker">THE TAPE COLLECTION</span><h2>2000s PUNJABI CLASSICS</h2></div>
-      <button id="closePanel">CLOSE ×</button>
+  <aside class="playlist-panel" id="playlistPanel" role="dialog" aria-modal="true" aria-label="Playlist" hidden>
+    <div class="panel-backdrop" id="panelBackdrop" aria-hidden="true"></div>
+    <div class="panel-content">
+      <header class="panel-header">
+        <div>
+          <p class="panel-kicker">THE COLLECTION</p>
+          <h2 class="panel-title">35 TRACKS · 2023+</h2>
+        </div>
+        <button class="panel-close" id="panelClose" aria-label="Close playlist">×</button>
+      </header>
+      <div class="panel-list" id="panelList" role="listbox" aria-label="Song list"></div>
     </div>
-    <div class="song-grid" id="songGrid"></div>
-  </section>
+  </aside>
 
-  <footer>
-    <span>18 SONGS · 2000—2010</span>
-    <button id="browseBtn">OPEN SONG LIST</button>
-    <span>YOUTUBE PLAYBACK · NO MUSIC FILES HOSTED</span>
+  <footer class="footer" role="contentinfo">
+    <p class="footer-text">PUNJABI REWIND — 35 TRACKS · 2023+ · YOUTUBE PLAYBACK · NO MUSIC FILES HOSTED</p>
   </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </div>
 
+<div id="ytPlayer" class="yt-player-hidden" aria-hidden="true"></div>
+
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=40"></script>
-<script src="script.js?v=40"></script>
+<script src="songs.js?v=2"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>
