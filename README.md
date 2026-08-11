@@ -67,3 +67,13 @@ The website does not host music files. Playback is provided through YouTube's em
 
 ## YouTube verification
 YouTube IDs in this version were checked against search results. Songs without a reliable exact match are intentionally left without a source rather than pointing to an unrelated recording.
+
+
+## Version 3
+
+- Illustrated Punjabi village hero scene
+- Sunset village, well, fields, dancers, charpai and cooking hearth
+- Functional HTML cassette player remains separate from artwork
+- Animated atmospheric water/fire effects and gentle camera movement
+- YouTube and Spotify actions remain functional
+- Existing archive/search/filter functionality retained

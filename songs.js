@@ -9,7 +9,7 @@ window.SONGS = [
   {title: "Ik Kudi Jihda Naam Mohabbat", artist: "Shiv Kumar Batalvi", year: 1980, era: "80s", youtubeId: "", spotifyUrl: ""},
   {title: "Putt Jattan De", artist: "Surinder Shinda", year: 1981, era: "80s", youtubeId: "oUDCr6auJ8w", spotifyUrl: ""},
   {title: "Jind Mahi", artist: "Surinder Shinda", year: 1980, era: "80s", youtubeId: "Z9IoFMdmsoA", spotifyUrl: ""},
-  {title: "Challa", artist: "Gurdas Maan", year: 1986, era: "80s", youtubeId: "", spotifyUrl: ""},
+  {title: "Challa", artist: "Gurdas Maan", year: 1986, era: "80s", youtubeId: "oWceG6AACyI", spotifyUrl: ""},
   {title: "Dil Da Mamla Hai", artist: "Gurdas Maan", year: 1984, era: "80s", youtubeId: "HBOHkD1DHX8", spotifyUrl: ""},
   {title: "Mitra Ne Dil Mangeya", artist: "Kuldeep Manak", year: 1980, era: "80s", youtubeId: "", spotifyUrl: ""},
   {title: "Yaar Mera Titliyan Warga", artist: "Surinder Kaur", year: 1970, era: "70s", youtubeId: "", spotifyUrl: ""},
@@ -34,5 +34,5 @@ window.SONGS = [
   {title: "Mundian To Bach Ke", artist: "Panjabi MC", year: 1998, era: "90s", youtubeId: "NEFNPcQR3mk", spotifyUrl: ""},
   {title: "Kangna", artist: "Dr. Zeus", year: 2003, era: "2000s", youtubeId: "-CVD7PUBzLk", spotifyUrl: ""},
   {title: "Mitran Di Chhatri", artist: "Babbu Maan", year: 2001, era: "2000s", youtubeId: "ioWkx6WRH2I", spotifyUrl: ""},
-  {title: "Sohniye", artist: "Harbhajan Mann", year: 2000, era: "2000s", youtubeId: "", spotifyUrl: ""}
+  {title: "Sohniye", artist: "Harbhajan Mann", year: 2000, era: "2000s", youtubeId: "bwPbEJhKQZE", spotifyUrl: ""}
 ];

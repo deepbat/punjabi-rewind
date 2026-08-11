@@ -47,15 +47,23 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeDrawer").onclick = closeDrawer;
   $("backdrop").onclick = closeDrawer;
 
-  $("youtubeBtn").onclick = () => {
+  const openYoutube = () => {
     const song = SONG_LIST[currentIndex];
     if (song?.youtubeId) window.open(`https://www.youtube.com/watch?v=${song.youtubeId}`, "_blank");
+    else if (song) window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(song.title + " " + song.artist)}`, "_blank");
   };
+  $("youtubeBtn").onclick = openYoutube;
+  $("heroYoutubeBtn").onclick = openYoutube;
 
-  $("spotifyBtn").onclick = () => {
+  const openSpotify = () => {
     const song = SONG_LIST[currentIndex];
     if (song?.spotifyUrl) window.open(song.spotifyUrl, "_blank");
+    else if (song) window.open(`https://open.spotify.com/search/${encodeURIComponent(song.title + " " + song.artist)}`, "_blank");
   };
+  $("spotifyBtn").onclick = openSpotify;
+  $("heroSpotifyBtn").onclick = openSpotify;
+
+  $("exploreBtn").onclick = () => $("archive").scrollIntoView({behavior:"smooth"});
 
   document.addEventListener("keydown", e => {
     if (e.target.matches("input")) return;
@@ -144,14 +152,16 @@ function selectSong(index, autoplay=false) {
   $("nowArtist").textContent = `${s.artist} · ${s.year}`;
   $("trackNo").textContent = String(index+1).padStart(2,"0");
 
-  $("youtubeBtn").disabled = !s.youtubeId;
-  $("spotifyBtn").disabled = !s.spotifyUrl;
+  $("youtubeBtn").disabled = false;
+  $("heroYoutubeBtn").disabled = false;
+  $("spotifyBtn").disabled = false;
+  $("heroSpotifyBtn").disabled = false;
 
   document.querySelector(".deck").classList.toggle("playing", autoplay);
 
   if (!s.youtubeId) {
     $("playerPlaceholder").style.display = "flex";
-    $("playerPlaceholder").innerHTML = `<span>YT</span><small>NO SOURCE</small>`;
+    $("playerPlaceholder").innerHTML = `<span>YT</span><small>SOURCE SEARCH</small>`;
     return;
   }
 
