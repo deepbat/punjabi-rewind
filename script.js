@@ -1,6 +1,7 @@
-/* Punjabi Rewind — Player Logic */
+/* Punjabi Rewind — Player Logic with Fallback Support */
 const SONG_LIST = Array.isArray(window.SONGS) ? window.SONGS : [];
 let currentIndex = 0;
+let currentVideoIdIndex = 0; // Track which fallback ID we're trying
 let player = null;
 let playerReady = false;
 let isPlaying = false;
@@ -12,17 +13,15 @@ let sleepTimer = null;
 let sleepTimeout = null;
 let lastPlayedIndices = [];
 const MAX_HISTORY = 5;
+let isRecovering = false; // Prevent recursive error handling
 
 const $ = (id) => document.getElementById(id);
 const $$ = (sel, ctx = document) => ctx.querySelectorAll(sel);
 
 const els = {
-  // Hero
   enterBtn: $('#enterBtn'),
   heroImg: $('#heroImg'),
   heroArtwork: $('#heroArtwork'),
-  
-  // Player
   playerSection: $('#playerSection'),
   playerImg: $('#playerImg'),
   playerArtwork: $('#playerArtwork'),
@@ -35,8 +34,6 @@ const els = {
   progressHandle: $('#progressHandle'),
   currentTime: $('#currentTime'),
   duration: $('#duration'),
-  
-  // Controls
   playBtn: $('#playBtn'),
   prevBtn: $('#prevBtn'),
   nextBtn: $('#nextBtn'),
@@ -49,29 +46,20 @@ const els = {
   youtubeBtn: $('#youtubeBtn'),
   spotifyBtn: $('#spotifyBtn'),
   shareBtn: $('#shareBtn'),
-  
-  // Playlist
   playlistBtn: $('#playlistBtn'),
   playlistPanel: $('#playlistPanel'),
   panelBackdrop: $('#panelBackdrop'),
   panelClose: $('#panelClose'),
   panelList: $('#panelList'),
-  
-  // Up Next
   upNext: $('#upNext'),
   upNextClose: $('#upNextClose'),
   upNextImg: $('#upNextImg'),
   upNextArtist: $('#upNextArtist'),
   upNextTitle: $('#upNextTitle'),
-  
-  // Toast
   toast: $('#toast'),
-  
-  // YT Player container
   ytPlayer: $('#ytPlayer'),
 };
 
-// Format time
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const m = Math.floor(seconds / 60);
@@ -79,7 +67,6 @@ const formatTime = (seconds) => {
   return `${m}:${String(s).padStart(2, '0')}`;
 };
 
-// Toast notification
 const showToast = (message, duration = 3000) => {
   const { toast } = els;
   toast.textContent = message;
@@ -92,7 +79,6 @@ const showToast = (message, duration = 3000) => {
   }, duration);
 };
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
   renderPlaylist();
   setupEventListeners();
@@ -100,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
   preloadHeroArtwork();
 });
 
-// Preload first track artwork for hero
 function preloadHeroArtwork() {
   if (SONG_LIST[0]?.youtubeIds?.[0]) {
     els.heroImg.src = `https://i.ytimg.com/vi/${SONG_LIST[0].youtubeIds[0]}/maxresdefault.jpg`;
@@ -108,7 +93,6 @@ function preloadHeroArtwork() {
   }
 }
 
-// Render playlist panel
 function renderPlaylist() {
   const { panelList } = els;
   panelList.innerHTML = SONG_LIST.map((song, index) => `
@@ -125,7 +109,6 @@ function renderPlaylist() {
     </button>
   `).join('');
   
-  // Add click listeners
   $$('.song-item', panelList).forEach(btn => {
     btn.addEventListener('click', (e) => {
       if (e.target.closest('.song-play')) return;
@@ -144,7 +127,6 @@ function renderPlaylist() {
   updatePlaylistSelection();
 }
 
-// Update playlist visual selection
 function updatePlaylistSelection() {
   $$('.song-item', els.panelList).forEach((btn, i) => {
     const isCurrent = i === currentIndex;
@@ -153,12 +135,8 @@ function updatePlaylistSelection() {
   });
 }
 
-// Event Listeners
 function setupEventListeners() {
-  // Hero enter
   els.enterBtn.addEventListener('click', enterListeningRoom);
-  
-  // Player controls
   els.playBtn.addEventListener('click', togglePlay);
   els.playerPlayBtn.addEventListener('click', togglePlay);
   els.prevBtn.addEventListener('click', playPrevious);
@@ -172,90 +150,33 @@ function setupEventListeners() {
   els.youtubeBtn.addEventListener('click', openYouTube);
   els.spotifyBtn.addEventListener('click', openSpotify);
   els.shareBtn.addEventListener('click', shareTrack);
-  
-  // Progress bar
   els.progressBar.addEventListener('click', (e) => seekFromClick(e));
   els.progressBar.addEventListener('keydown', (e) => seekFromKeyboard(e));
-  
-  // Playlist panel
   els.playlistBtn.addEventListener('click', openPlaylist);
   els.panelClose.addEventListener('click', closePlaylist);
   els.panelBackdrop.addEventListener('click', closePlaylist);
-  
-  // Up next
   els.upNextClose.addEventListener('click', () => els.upNext.classList.remove('visible'));
-  els.upNextTrack?.addEventListener('click', () => {
-    playNext();
-    els.upNext.classList.remove('visible');
-  });
-  
-  // Home button
-  $('#homeBtn').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-  
-  // Handle visibility change
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && isPlaying && playerReady) {
-      // Optionally pause when tab hidden
-    }
-  });
+  els.upNextTrack?.addEventListener('click', () => { playNext(); els.upNext.classList.remove('visible'); });
+  $('#homeBtn').addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
 
-// Keyboard shortcuts
 function setupKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    // Ignore if typing in input
     if (e.target.matches('input, textarea, [contenteditable]')) return;
     
     switch (e.code) {
-      case 'Space':
-        e.preventDefault();
-        togglePlay();
-        break;
-      case 'ArrowLeft':
-        if (e.shiftKey) seekRelative(-10);
-        else playPrevious();
-        break;
-      case 'ArrowRight':
-        if (e.shiftKey) seekRelative(10);
-        else playNext();
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        if (playerReady) setVolume(Math.min(1, (player.getVolume() || 50) / 100 + 0.1));
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        if (playerReady) setVolume(Math.max(0, (player.getVolume() || 50) / 100 - 0.1));
-        break;
-      case 'KeyM':
-        toggleMute();
-        break;
-      case 'KeyS':
-        toggleShuffle();
-        break;
-      case 'KeyV':
-        toggleVideo();
-        break;
-      case 'KeyL':
-        openPlaylist();
-        break;
-      case 'Escape':
-        closePlaylist();
-        els.upNext.classList.remove('visible');
-        break;
-      case 'Digit0':
-      case 'Digit1':
-      case 'Digit2':
-      case 'Digit3':
-      case 'Digit4':
-      case 'Digit5':
-      case 'Digit6':
-      case 'Digit7':
-      case 'Digit8':
-      case 'Digit9':
+      case 'Space': e.preventDefault(); togglePlay(); break;
+      case 'ArrowLeft': e.shiftKey ? seekRelative(-10) : playPrevious(); break;
+      case 'ArrowRight': e.shiftKey ? seekRelative(10) : playNext(); break;
+      case 'ArrowUp': e.preventDefault(); if (playerReady) setVolume(Math.min(1, (player.getVolume() || 50) / 100 + 0.1)); break;
+      case 'ArrowDown': e.preventDefault(); if (playerReady) setVolume(Math.max(0, (player.getVolume() || 50) / 100 - 0.1)); break;
+      case 'KeyM': toggleMute(); break;
+      case 'KeyS': toggleShuffle(); break;
+      case 'KeyV': toggleVideo(); break;
+      case 'KeyL': openPlaylist(); break;
+      case 'Escape': closePlaylist(); els.upNext.classList.remove('visible'); break;
+      case 'Digit0': case 'Digit1': case 'Digit2': case 'Digit3': case 'Digit4':
+      case 'Digit5': case 'Digit6': case 'Digit7': case 'Digit8': case 'Digit9':
         if (playerReady) {
           const percent = e.code === 'Digit0' ? 0 : parseInt(e.code.replace('Digit', '')) * 10;
           seekPercent(percent);
@@ -265,63 +186,33 @@ function setupKeyboardShortcuts() {
   });
 }
 
-// Enter listening room
 function enterListeningRoom() {
   els.enterBtn.style.pointerEvents = 'none';
   els.enterBtn.style.opacity = '0.5';
-  
-  // Animate hero out
-  document.querySelector('.hero').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-  document.querySelector('.hero').style.opacity = '0';
-  document.querySelector('.hero').style.transform = 'translateY(-30px)';
+  const hero = document.querySelector('.hero');
+  hero.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  hero.style.opacity = '0';
+  hero.style.transform = 'translateY(-30px)';
   
   setTimeout(() => {
-    document.querySelector('.hero').style.display = 'none';
+    hero.style.display = 'none';
     els.playerSection.hidden = false;
-    requestAnimationFrame(() => {
-      els.playerSection.classList.add('visible');
-    });
+    requestAnimationFrame(() => els.playerSection.classList.add('visible'));
     selectSong(0, false);
   }, 400);
 }
 
-// Select song
-function selectSong(index, autoplay = false) {
-  if (index < 0 || index >= SONG_LIST.length) return;
-  
-  // Add to history
-  lastPlayedIndices.push(currentIndex);
-  if (lastPlayedIndices.length > MAX_HISTORY) lastPlayedIndices.shift();
-  
-  currentIndex = index;
-  const song = SONG_LIST[index];
-  
-  // Update player UI
-  els.playerArtist.textContent = song.artist;
-  els.playerTitle.textContent = song.title;
-  els.playerMeta.textContent = `${song.year}+ · ${song.sourceType}`;
-  
-  // Update artwork
-  const imgUrl = `https://i.ytimg.com/vi/${song.youtubeIds[0]}/maxresdefault.jpg`;
-  els.playerImg.src = imgUrl;
-  els.heroImg.src = imgUrl;
-  
-  // Update up next
-  updateUpNext();
-  
-  // Update playlist selection
-  updatePlaylistSelection();
-  
-  // Load in player
-  if (playerReady) {
-    loadVideo(song.youtubeIds[0], autoplay);
-  }
-  
-  showToast(`Now playing: ${song.title}`);
+// Get current video ID for the current song (with fallback index)
+function getCurrentVideoId() {
+  const song = SONG_LIST[currentIndex];
+  if (!song?.youtubeIds?.length) return null;
+  const idx = Math.min(currentVideoIdIndex, song.youtubeIds.length - 1);
+  return song.youtubeIds[idx];
 }
 
-// Load video in YT player
+// Load video with current fallback index
 function loadVideo(videoId, autoplay) {
+  if (!videoId) return;
   try {
     if (autoplay) {
       player.loadVideoById({ videoId, startSeconds: 0 });
@@ -335,23 +226,51 @@ function loadVideo(videoId, autoplay) {
   }
 }
 
-// Play current
+function selectSong(index, autoplay = false) {
+  if (index < 0 || index >= SONG_LIST.length) return;
+  
+  // Reset fallback index for new song
+  currentVideoIdIndex = 0;
+  isRecovering = false;
+  
+  lastPlayedIndices.push(currentIndex);
+  if (lastPlayedIndices.length > MAX_HISTORY) lastPlayedIndices.shift();
+  
+  currentIndex = index;
+  const song = SONG_LIST[index];
+  
+  els.playerArtist.textContent = song.artist;
+  els.playerTitle.textContent = song.title;
+  els.playerMeta.textContent = `${song.year}+ · ${song.sourceType}`;
+  
+  const imgUrl = `https://i.ytimg.com/vi/${song.youtubeIds[0]}/maxresdefault.jpg`;
+  els.playerImg.src = imgUrl;
+  els.heroImg.src = imgUrl;
+  
+  updateUpNext();
+  updatePlaylistSelection();
+  
+  if (playerReady) {
+    const videoId = getCurrentVideoId();
+    loadVideo(videoId, autoplay);
+  }
+  
+  showToast(`Now playing: ${song.title}`);
+}
+
 function playCurrent() {
   if (!playerReady) return;
-  const song = SONG_LIST[currentIndex];
-  if (!song?.youtubeIds?.[0]) return;
-  
+  const videoId = getCurrentVideoId();
+  if (!videoId) return;
   try {
-    player.playVideo();
+    player.loadVideoById({ videoId, startSeconds: 0 });
   } catch (e) {
     console.error('Play error:', e);
   }
 }
 
-// Toggle play/pause
 function togglePlay() {
   if (!playerReady) return;
-  
   const state = player.getPlayerState();
   if (state === YT.PlayerState.PLAYING) {
     player.pauseVideo();
@@ -360,7 +279,6 @@ function togglePlay() {
   }
 }
 
-// Play previous
 function playPrevious() {
   let newIndex;
   if (isShuffled) {
@@ -371,7 +289,6 @@ function playPrevious() {
   selectSong(newIndex, true);
 }
 
-// Play next
 function playNext() {
   let newIndex;
   if (isShuffled) {
@@ -382,7 +299,6 @@ function playNext() {
   selectSong(newIndex, true);
 }
 
-// Get random index (not current)
 function getRandomIndex() {
   let newIndex;
   do {
@@ -391,7 +307,6 @@ function getRandomIndex() {
   return newIndex;
 }
 
-// Seek relative
 function seekRelative(seconds) {
   if (!playerReady) return;
   const current = player.getCurrentTime() || 0;
@@ -401,7 +316,6 @@ function seekRelative(seconds) {
   updateTimeDisplay(newTime, duration);
 }
 
-// Seek from progress bar click
 function seekFromClick(e) {
   if (!playerReady) return;
   const rect = els.progressBar.getBoundingClientRect();
@@ -409,7 +323,6 @@ function seekFromClick(e) {
   seekPercent(percent * 100);
 }
 
-// Seek from keyboard
 function seekFromKeyboard(e) {
   if (!playerReady) return;
   const duration = player.getDuration() || 0;
@@ -417,27 +330,17 @@ function seekFromKeyboard(e) {
   let newTime = current;
   
   switch (e.key) {
-    case 'ArrowLeft':
-      newTime = Math.max(0, current - 5);
-      break;
-    case 'ArrowRight':
-      newTime = Math.min(duration, current + 5);
-      break;
-    case 'Home':
-      newTime = 0;
-      break;
-    case 'End':
-      newTime = duration;
-      break;
-    default:
-      return;
+    case 'ArrowLeft': newTime = Math.max(0, current - 5); break;
+    case 'ArrowRight': newTime = Math.min(duration, current + 5); break;
+    case 'Home': newTime = 0; break;
+    case 'End': newTime = duration; break;
+    default: return;
   }
   e.preventDefault();
   player.seekTo(newTime, true);
   updateTimeDisplay(newTime, duration);
 }
 
-// Seek by percentage
 function seekPercent(percent) {
   if (!playerReady) return;
   const duration = player.getDuration() || 0;
@@ -446,7 +349,6 @@ function seekPercent(percent) {
   updateTimeDisplay(newTime, duration);
 }
 
-// Update time display and progress
 function updateTimeDisplay(current, duration) {
   els.currentTime.textContent = formatTime(current);
   els.duration.textContent = formatTime(duration);
@@ -455,31 +357,23 @@ function updateTimeDisplay(current, duration) {
   els.progressBar.setAttribute('aria-valuenow', Math.round(percent));
 }
 
-// Start progress timer
 function startProgressTimer() {
   stopProgressTimer();
   progressTimer = setInterval(() => {
     if (!playerReady) return;
     const current = player.getCurrentTime();
     const duration = player.getDuration();
-    if (Number.isFinite(current)) {
-      updateTimeDisplay(current, duration);
-    }
+    if (Number.isFinite(current)) updateTimeDisplay(current, duration);
   }, 250);
 }
 
 function stopProgressTimer() {
-  if (progressTimer) {
-    clearInterval(progressTimer);
-    progressTimer = null;
-  }
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
 }
 
-// Update up next
 function updateUpNext() {
   const nextIndex = isShuffled ? getRandomIndex() : (currentIndex + 1) % SONG_LIST.length;
   const nextSong = SONG_LIST[nextIndex];
-  
   if (nextSong) {
     els.upNextImg.src = `https://i.ytimg.com/vi/${nextSong.youtubeIds[0]}/hqdefault.jpg`;
     els.upNextArtist.textContent = nextSong.artist;
@@ -488,11 +382,10 @@ function updateUpNext() {
   }
 }
 
-// Toggle mute
 function toggleMute() {
   if (!playerReady) return;
   isMuted = !isMuted;
-  if (isMuted) player.mute(); else player.unMute();
+  isMuted ? player.mute() : player.unMute();
   updateMuteUI();
   showToast(isMuted ? 'Muted' : 'Unmuted', 1500);
 }
@@ -500,30 +393,18 @@ function toggleMute() {
 function updateMuteUI() {
   const volumeIcon = els.muteBtn.querySelector('.icon-volume');
   const mutedIcon = els.muteBtn.querySelector('.icon-muted');
-  if (isMuted) {
-    volumeIcon.style.display = 'none';
-    mutedIcon.style.display = 'block';
-  } else {
-    volumeIcon.style.display = 'block';
-    mutedIcon.style.display = 'none';
-  }
+  if (isMuted) { volumeIcon.style.display = 'none'; mutedIcon.style.display = 'block'; }
+  else { volumeIcon.style.display = 'block'; mutedIcon.style.display = 'none'; }
 }
 
-// Set volume
 function setVolume(volume) {
   if (!playerReady) return;
   const vol = Math.round(volume * 100);
   player.setVolume(vol);
-  if (vol > 0 && isMuted) {
-    isMuted = false;
-    updateMuteUI();
-  } else if (vol === 0 && !isMuted) {
-    isMuted = true;
-    updateMuteUI();
-  }
+  if (vol > 0 && isMuted) { isMuted = false; updateMuteUI(); }
+  else if (vol === 0 && !isMuted) { isMuted = true; updateMuteUI(); }
 }
 
-// Toggle shuffle
 function toggleShuffle() {
   isShuffled = !isShuffled;
   els.shuffleBtn.classList.toggle('active', isShuffled);
@@ -531,55 +412,36 @@ function toggleShuffle() {
   showToast(isShuffled ? 'Shuffle on' : 'Shuffle off', 1500);
 }
 
-// Toggle video
 function toggleVideo() {
   showVideo = !showVideo;
   els.videoBtn.classList.toggle('active', showVideo);
-  // Note: YouTube IFrame API doesn't easily support toggling video/audio only
-  // This would require reloading the player or using a different approach
   showToast(showVideo ? 'Video mode' : 'Audio only', 1500);
 }
 
-// Open YouTube
 function openYouTube() {
   const song = SONG_LIST[currentIndex];
-  if (song?.youtubeIds?.[0]) {
-    window.open(`https://www.youtube.com/watch?v=${song.youtubeIds[0]}`, '_blank', 'noopener,noreferrer');
-  }
+  if (song?.youtubeIds?.[0]) window.open(`https://www.youtube.com/watch?v=${song.youtubeIds[0]}`, '_blank', 'noopener,noreferrer');
 }
 
-// Open Spotify
 function openSpotify() {
   const song = SONG_LIST[currentIndex];
-  if (song) {
-    const query = encodeURIComponent(`${song.title} ${song.artist}`);
-    window.open(`https://open.spotify.com/search/${query}`, '_blank', 'noopener,noreferrer');
-  }
+  if (song) window.open(`https://open.spotify.com/search/${encodeURIComponent(`${song.title} ${song.artist}`)}`, '_blank', 'noopener,noreferrer');
 }
 
-// Share track
 async function shareTrack() {
   const song = SONG_LIST[currentIndex];
   if (!song) return;
-  
   const url = `https://www.youtube.com/watch?v=${song.youtubeIds[0]}`;
   const title = `${song.title} — ${song.artist}`;
-  
   if (navigator.share) {
-    try {
-      await navigator.share({ title, text: title, url });
-    } catch (e) {
-      if (e.name !== 'AbortError') copyToClipboard(url);
-    }
-  } else {
-    copyToClipboard(url);
-  }
+    try { await navigator.share({ title, text: title, url }); }
+    catch (e) { if (e.name !== 'AbortError') copyToClipboard(url); }
+  } else { copyToClipboard(url); }
   showToast('Link copied!', 1500);
 }
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).catch(() => {
-    // Fallback
     const input = document.createElement('input');
     input.value = text;
     document.body.appendChild(input);
@@ -589,7 +451,6 @@ function copyToClipboard(text) {
   });
 }
 
-// Sleep timer
 function showSleepOptions() {
   const options = [
     { label: '15 min', ms: 15 * 60 * 1000 },
@@ -597,33 +458,21 @@ function showSleepOptions() {
     { label: '60 min', ms: 60 * 60 * 1000 },
     { label: 'Off', ms: 0 },
   ];
-  
-  // Simple implementation - cycle through
   const currentSleep = sleepTimer ? sleepTimer.label : null;
-  const currentIndex = options.findIndex(o => o.label === currentSleep);
-  const nextIndex = (currentIndex + 1) % options.length;
-  const next = options[nextIndex];
-  
+  const currentIdx = options.findIndex(o => o.label === currentSleep);
+  const next = options[(currentIdx + 1) % options.length];
   if (sleepTimeout) clearTimeout(sleepTimeout);
   sleepTimer = next.ms > 0 ? next : null;
-  
   if (sleepTimer) {
-    sleepTimeout = setTimeout(() => {
-      if (isPlaying) togglePlay();
-      showToast('Sleep timer: paused playback');
-      sleepTimer = null;
-    }, sleepTimer.ms);
+    sleepTimeout = setTimeout(() => { if (isPlaying) togglePlay(); showToast('Sleep timer: paused playback'); sleepTimer = null; }, sleepTimer.ms);
     showToast(`Sleep timer: ${sleepTimer.label}`);
-  } else {
-    showToast('Sleep timer: off');
-  }
+  } else { showToast('Sleep timer: off'); }
 }
 
-// Playlist panel
 function openPlaylist() {
   els.playlistPanel.hidden = false;
   requestAnimationFrame(() => els.playlistPanel.classList.add('open'));
-  els.panelList.scrollTop = currentIndex * 72; // Approximate scroll to current
+  els.panelList.scrollTop = currentIndex * 72;
 }
 
 function closePlaylist() {
@@ -631,22 +480,13 @@ function closePlaylist() {
   setTimeout(() => { els.playlistPanel.hidden = true; }, 400);
 }
 
-// YouTube API Ready
+// YouTube Player Events
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('ytPlayer', {
-    height: '1',
-    width: '1',
-    videoId: '',
+    height: '1', width: '1', videoId: '',
     playerVars: {
-      autoplay: 0,
-      controls: 0,
-      rel: 0,
-      playsinline: 1,
-      modestbranding: 1,
-      iv_load_policy: 3,
-      disablekb: 1,
-      fs: 0,
-      cc_load_policy: 0,
+      autoplay: 0, controls: 0, rel: 0, playsinline: 1,
+      modestbranding: 1, iv_load_policy: 3, disablekb: 1, fs: 0, cc_load_policy: 0,
     },
     events: {
       onReady: onPlayerReady,
@@ -660,7 +500,6 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady() {
   playerReady = true;
   player.setVolume(70);
-  // Load first song
   if (SONG_LIST[0]?.youtubeIds?.[0]) {
     player.cueVideoById({ videoId: SONG_LIST[0].youtubeIds[0], startSeconds: 0 });
   }
@@ -668,78 +507,94 @@ function onPlayerReady() {
 
 function onPlayerStateChange(event) {
   const state = event.data;
-  
   switch (state) {
     case YT.PlayerState.PLAYING:
-      isPlaying = true;
-      updatePlayUI(true);
-      startProgressTimer();
-      els.playerArtwork.classList.add('playing');
+      isPlaying = true; isRecovering = false;
+      updatePlayUI(true); startProgressTimer(); els.playerArtwork.classList.add('playing');
       break;
-      
     case YT.PlayerState.PAUSED:
       isPlaying = false;
-      updatePlayUI(false);
-      stopProgressTimer();
-      els.playerArtwork.classList.remove('playing');
+      updatePlayUI(false); stopProgressTimer(); els.playerArtwork.classList.remove('playing');
       break;
-      
     case YT.PlayerState.ENDED:
       isPlaying = false;
-      updatePlayUI(false);
-      stopProgressTimer();
-      els.playerArtwork.classList.remove('playing');
+      updatePlayUI(false); stopProgressTimer(); els.playerArtwork.classList.remove('playing');
       playNext();
       break;
-      
     case YT.PlayerState.BUFFERING:
-      // Could show loading state
       break;
-      
     case YT.PlayerState.CUED:
       updateTimeDisplay(0, player.getDuration() || 0);
       break;
   }
 }
 
+// Enhanced error handling with fallback IDs
 function onPlayerError(event) {
-  console.error('YT Player Error:', event.data);
+  const errorCode = event.data;
+  console.error('YT Player Error:', errorCode);
+  
   const messages = {
     2: 'Invalid video ID',
     5: 'HTML5 player error',
     100: 'Video not found',
-    101: 'Embedding not allowed',
-    150: 'Embedding not allowed',
+    101: 'Embedding not allowed by owner',
+    150: 'Embedding not allowed (same as 101)',
   };
-  showToast(messages[event.data] || 'Playback error', 4000);
-  // Try next song on error
-  setTimeout(() => playNext(), 1500);
+  
+  // Error codes that indicate we should try fallback IDs
+  const retryableErrors = [2, 5, 100, 101, 150];
+  
+  if (retryableErrors.includes(errorCode) && !isRecovering) {
+    const song = SONG_LIST[currentIndex];
+    const hasMoreFallbacks = song?.youtubeIds && currentVideoIdIndex < song.youtubeIds.length - 1;
+    
+    if (hasMoreFallbacks) {
+      isRecovering = true;
+      currentVideoIdIndex++;
+      const nextVideoId = song.youtubeIds[currentVideoIdIndex];
+      showToast(`Trying alternative source... (${currentVideoIdIndex + 1}/${song.youtubeIds.length})`, 2000);
+      
+      // Small delay then try next fallback
+      setTimeout(() => {
+        if (playerReady && nextVideoId) {
+          try {
+            const wasPlaying = isPlaying;
+            player.loadVideoById({ videoId: nextVideoId, startSeconds: 0 });
+            if (!wasPlaying) player.pauseVideo();
+          } catch (e) {
+            console.error('Fallback load failed:', e);
+            // Will trigger onPlayerError again, which will try next fallback
+          }
+        }
+      }, 500);
+      return;
+    }
+  }
+  
+  // No more fallbacks or non-retryable error — skip to next song
+  showToast(messages[errorCode] || 'Playback error — skipping', 3000);
+  setTimeout(() => {
+    isRecovering = false;
+    playNext();
+  }, 1000);
 }
 
-function onQualityChange(event) {
-  // Quality changed
-}
+function onQualityChange(event) {}
 
 function updatePlayUI(playing) {
-  const playIcons = document.querySelectorAll('.icon-play');
-  const pauseIcons = document.querySelectorAll('.icon-pause');
-  
-  playIcons.forEach(icon => icon.style.display = playing ? 'none' : 'block');
-  pauseIcons.forEach(icon => icon.style.display = playing ? 'block' : 'none');
+  document.querySelectorAll('.icon-play').forEach(icon => icon.style.display = playing ? 'none' : 'block');
+  document.querySelectorAll('.icon-pause').forEach(icon => icon.style.display = playing ? 'block' : 'none');
 }
 
-// Escape HTML
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
 }
 
-// Handle page unload
 window.addEventListener('beforeunload', () => {
-  if (playerReady && player) {
-    try { player.destroy(); } catch (e) {}
-  }
+  if (playerReady && player) { try { player.destroy(); } catch (e) {} }
   if (progressTimer) clearInterval(progressTimer);
   if (sleepTimeout) clearTimeout(sleepTimeout);
 });
