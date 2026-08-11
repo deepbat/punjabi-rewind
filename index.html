@@ -77,21 +77,24 @@
     </section>
 
     <section class="now">
-      <div class="youtube-shell" id="youtubeShell">
-        <div id="playerPlaceholder">
-          <span class="play-circle">▶</span>
-          <p>Choose a song from library</p>
-          <small>YouTube will play here</small>
-        </div>
-        <div id="player"></div>
-      </div>
-      <div class="now-meta">
-        <div>
+      <div class="player-stage">
+        <div class="player-copy">
           <p class="eyebrow">NOW PLAYING</p>
           <h2 id="nowTitle">Nothing selected</h2>
-          <p id="nowArtist">Select a classic from library below.</p>
+          <p id="nowArtist">Choose a classic from the archive.</p>
+          <div class="source-links">
+            <button class="source-btn youtube" id="youtubeBtn" disabled>YOUTUBE ↗</button>
+            <button class="source-btn spotify" id="spotifyBtn" disabled>SPOTIFY ↗</button>
+          </div>
         </div>
-        <button class="outline-btn" id="youtubeBtn" disabled>OPEN ON YOUTUBE ↗</button>
+        <div class="source-window">
+          <div class="source-label">VIDEO SOURCE</div>
+          <div id="player"></div>
+          <div id="playerPlaceholder" class="source-placeholder">
+            <span>YT</span>
+            <small>SELECT A SONG</small>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -144,7 +147,7 @@
   <div class="drawer-backdrop" id="backdrop"></div>
 
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="songs.js?v=3"></script>
-  <script src="script.js?v=3"></script>
+  <script src="songs.js?v=4"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>

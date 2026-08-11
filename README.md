@@ -54,3 +54,12 @@ The site can then be opened at:
 ## Notes
 
 The website does not host music files. Playback is provided through YouTube's embedded player. Use YouTube videos that are available for embedding and respect applicable rights and platform rules.
+
+
+## Version 2
+
+- Compact integrated YouTube source window
+- No large video section
+- Cassette deck is primary player interface
+- Spotify links can be added per song using `spotifyUrl`
+- YouTube remains the playback source

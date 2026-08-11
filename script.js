@@ -1,18 +1,17 @@
-let currentIndex = 0;
-let currentFilter = "all";
-let shuffle = false;
 const SONG_LIST = window.SONGS || [];
+let currentIndex = 0;
+let shuffle = false;
 let player = null;
 let playerReady = false;
 
-const $ = (id) => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (!Array.isArray(SONG_LIST) || SONG_LIST.length === 0) {
-    document.getElementById("songGrid").innerHTML =
-      '<div style="grid-column:1/-1;padding:50px 10px;color:#d85f32">Song database could not be loaded. Refresh the page or check songs.js.</div>';
+  if (!SONG_LIST.length) {
+    $("songGrid").innerHTML = `<div style="grid-column:1/-1;padding:50px 10px;color:#d85f32">Song database could not be loaded.</div>`;
     return;
   }
+
   $("songCount").textContent = SONG_LIST.length;
   $("trackTotal").textContent = String(SONG_LIST.length).padStart(2, "0");
   $("artistCount").textContent = new Set(SONG_LIST.map(s => s.artist)).size;
@@ -23,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDrawer();
 
   $("search").addEventListener("input", renderSongs);
+
   document.querySelectorAll(".filter").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".filter").forEach(x => x.classList.remove("active"));
@@ -41,13 +41,20 @@ document.addEventListener("DOMContentLoaded", () => {
     shuffle = !shuffle;
     $("shuffleBtn").innerHTML = `SHUFFLE <span>${shuffle ? "ON" : "OFF"}</span>`;
   };
+
   $("libraryBtn").onclick = openDrawer;
   $("libraryBtn2").onclick = openDrawer;
   $("closeDrawer").onclick = closeDrawer;
   $("backdrop").onclick = closeDrawer;
+
   $("youtubeBtn").onclick = () => {
     const song = SONG_LIST[currentIndex];
     if (song?.youtubeId) window.open(`https://www.youtube.com/watch?v=${song.youtubeId}`, "_blank");
+  };
+
+  $("spotifyBtn").onclick = () => {
+    const song = SONG_LIST[currentIndex];
+    if (song?.spotifyUrl) window.open(song.spotifyUrl, "_blank");
   };
 
   document.addEventListener("keydown", e => {
@@ -58,6 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+let currentFilter = "all";
+
 function renderSongs() {
   const q = $("search").value.toLowerCase().trim();
   const filtered = SONG_LIST.map((s, i) => ({...s, index:i})).filter(s => {
@@ -67,6 +76,7 @@ function renderSongs() {
   });
 
   $("resultCount").textContent = `${filtered.length} classic${filtered.length === 1 ? "" : "s"}`;
+
   $("songGrid").innerHTML = filtered.length ? filtered.map((s, n) => `
     <article class="song-card" data-index="${s.index}">
       <span class="song-number">${String(n + 1).padStart(2,"0")}</span>
@@ -87,12 +97,14 @@ function renderArtists() {
   const map = new Map();
   SONG_LIST.forEach(s => map.set(s.artist, (map.get(s.artist) || 0) + 1));
   const artists = [...map.entries()].sort((a,b) => b[1]-a[1]);
+
   $("artistGrid").innerHTML = artists.map(([name,count]) => `
     <div class="artist" data-artist="${escapeAttr(name)}">
       ${escapeHtml(name)}
       <small>${count} ${count === 1 ? "song" : "songs"}</small>
     </div>
   `).join("");
+
   document.querySelectorAll(".artist").forEach(el => {
     el.onclick = () => {
       $("search").value = el.dataset.artist;
@@ -111,9 +123,12 @@ function renderDrawer() {
       <span>${escapeHtml(s.artist)} · ${s.year}</span>
     </div>
   `).join("");
-  document.querySelectorAll(".drawer-song").forEach(el => el.onclick = () => {
-    selectSong(Number(el.dataset.index), true);
-    closeDrawer();
+
+  document.querySelectorAll(".drawer-song").forEach(el => {
+    el.onclick = () => {
+      selectSong(Number(el.dataset.index), true);
+      closeDrawer();
+    };
   });
 }
 
@@ -128,15 +143,15 @@ function selectSong(index, autoplay=false) {
   $("nowTitle").textContent = s.title;
   $("nowArtist").textContent = `${s.artist} · ${s.year}`;
   $("trackNo").textContent = String(index+1).padStart(2,"0");
+
   $("youtubeBtn").disabled = !s.youtubeId;
+  $("spotifyBtn").disabled = !s.spotifyUrl;
 
   document.querySelector(".deck").classList.toggle("playing", autoplay);
 
   if (!s.youtubeId) {
     $("playerPlaceholder").style.display = "flex";
-    $("playerPlaceholder").innerHTML = `<span class="play-circle">▶</span><p>${escapeHtml(s.title)}</p><small>Add YouTube ID in songs.js to play this track.</small>`;
-    $("playBtn").textContent = "▶";
-    if (player && player.stopVideo) player.stopVideo();
+    $("playerPlaceholder").innerHTML = `<span>YT</span><small>NO SOURCE</small>`;
     return;
   }
 
@@ -146,7 +161,6 @@ function selectSong(index, autoplay=false) {
     player.loadVideoById(s.youtubeId);
     if (!autoplay) player.pauseVideo();
   }
-  $("playBtn").textContent = autoplay ? "Ⅱ" : "▶";
 }
 
 function onYouTubeIframeAPIReady() {
@@ -154,13 +168,18 @@ function onYouTubeIframeAPIReady() {
     videoId: "",
     playerVars: {
       autoplay: 0,
-      controls: 1,
+      controls: 0,
       rel: 0,
       modestbranding: 1,
       playsinline: 1
     },
     events: {
-      onReady: () => { playerReady = true; },
+      onReady: () => {
+        playerReady = true;
+        if (SONG_LIST[currentIndex]?.youtubeId) {
+          player.cueVideoById(SONG_LIST[currentIndex].youtubeId);
+        }
+      },
       onStateChange: onPlayerStateChange
     }
   });
@@ -175,8 +194,8 @@ function onPlayerStateChange(e) {
 
 function togglePlay() {
   const s = SONG_LIST[currentIndex];
-  if (!s.youtubeId) { selectSong(currentIndex, false); return; }
-  if (!playerReady) return;
+  if (!s?.youtubeId || !playerReady) return;
+
   const state = player.getPlayerState();
   if (state === YT.PlayerState.PLAYING) player.pauseVideo();
   else player.playVideo();
