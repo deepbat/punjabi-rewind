@@ -63,3 +63,7 @@ The website does not host music files. Playback is provided through YouTube's em
 - Cassette deck is primary player interface
 - Spotify links can be added per song using `spotifyUrl`
 - YouTube remains the playback source
+
+
+## YouTube verification
+YouTube IDs in this version were checked against search results. Songs without a reliable exact match are intentionally left without a source rather than pointing to an unrelated recording.
