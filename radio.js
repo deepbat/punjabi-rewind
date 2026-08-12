@@ -1,87 +1,102 @@
-/* Pind Rewind — Live Radio. Direct audio streams, verified, play IN-PAGE (no new tabs, no popups). */
-window.RADIO_STATIONS = [
-  {
-    name: "Sri Darbar Sahib – Live Gurbani",
-    tagline: "Live kirtan from the Golden Temple, Amritsar — 24/7.",
-    area: "Amritsar, Punjab · SGPC",
-    tags: ["KIRTAN", "GURBANI"],
-    stream: "https://live.sgpc.net:8443/;stream.mp3"
-  },
-  {
-    name: "Sher-e-Punjab Radio",
-    tagline: "Punjabi classics, talk and community — AM 600.",
-    area: "Canada · 600 AM",
-    tags: ["PUNJABI", "MUSIC"],
-    stream: "https://ais-sa1.streamon.fm/7676_48k.aac"
-  },
-  {
-    name: "RED FM",
-    tagline: "Toronto's Punjabi voice — bhangra, hits and more.",
-    area: "Toronto, Canada · CKYE",
-    tags: ["PUNJABI", "HITS"],
-    stream: "https://ice24.securenetsystems.net/CKYE"
-  },
-  {
-    name: "Khalsa FM",
-    tagline: "Sikh radio — gurbani and uplifting vibes.",
-    area: "Canada",
-    tags: ["KIRTAN", "SALOK"],
-    stream: "http://198.178.123.8:7798/;stream.mp3"
-  },
-  {
-    name: "MyRadio 580 AM",
-    tagline: "Evergreen Punjabi hits across the Prairies.",
-    area: "Canada · 580 AM",
-    tags: ["PUNJABI", "OLD GOLD"],
-    stream: "http://ais-sa1.streamon.fm/7681_64k.mp3"
-  },
-  {
-    name: "Akash Radio",
-    tagline: "London's desi community station.",
-    area: "London, UK",
-    tags: ["PUNJABI", "COMMUNITY"],
-    stream: "http://radio.canstream.co.uk:8161/stream"
-  },
-  {
-    name: "Radio Panj",
-    tagline: "Punjabi music and talk from the UK.",
-    area: "United Kingdom",
-    tags: ["PUNJABI", "MUSIC"],
-    stream: "http://s3.voscast.com:11264/stream"
-  },
-  {
-    name: "XL:UK Radio",
-    tagline: "Desi mix — bhangra, urban and anthems.",
-    area: "United Kingdom",
-    tags: ["BHANGRA", "DESI"],
-    stream: "https://s3.radio.co/s113a5dc46/listen"
-  },
-  {
-    name: "Harman Radio",
-    tagline: "Non-stop Punjabi from down under.",
-    area: "Australia",
-    tags: ["PUNJABI", "HITS"],
-    stream: "http://harmanradio.net:8000/main_48.mp3"
-  },
-  {
-    name: "Radio Central 24",
-    tagline: "Desi beats round the clock.",
-    area: "United Kingdom",
-    tags: ["DESI", "MUSIC"],
-    stream: "http://138.201.52.248:8459/stream"
-  },
-  {
-    name: "Radio Chann Pardesi",
-    tagline: "Pardesi hamara — Punjabi soul from the US.",
-    area: "United States · Mehra Media",
-    tags: ["PUNJABI", "FOLK"],
-    stream: "http://mehramedia.com:8021/;"
-  },
-  {
-    name: "Glenwood Gurdwara Live",
-    tagline: "Live kirtan from the Glenwood Sikh temple.",
-    area: "Sydney, Australia",
-    tags: ["KIRTAN", "GURBANI"],
-    stream: "http://radio2.sikhnet.com:8047/live"
-  }
+/* Live Punjabi radio: independent internet-radio streams with automatic fail-over.
+   These are third-party community streams (not run by this site) — small stations
+   go up and down over time, so if one fails to connect within RADIO_TIMEOUT_MS,
+   we silently advance to the next one in the list instead of just breaking.
+   To add/remove/reorder stations, edit RADIO_STATIONS only. */
+const RADIO_STATIONS = [
+  {name:'Punjabi Radio USA', desc:'24/7 Punjabi music & talk, streamed via Voscast.', url:'https://s5.voscast.com:9281/stream'},
+  {name:'CMR Punjabi HD', desc:'Punjabi hits from the CMR24 network.', url:'https://live.cmr24.net/CMR/Punjabi-MQ/icecast.audio'},
+  {name:'Radio Chann Pardesi', desc:'Punjabi, Hindi, English & Gurbani mix.', url:'https://mehramedia.in:3021/'},
 ];
+const RADIO_TIMEOUT_MS = 6000;
+
+(function(){
+  const $=id=>document.getElementById(id);
+  let audio=null, stationIndex=0, isLive=false, connectTimer=null, userStopped=false;
+
+  function init(){
+    audio=new Audio();
+    audio.preload='none';
+    renderStationButtons();
+    $('radioPlayBtn').onclick=()=>{isLive?stopRadio():startRadio(stationIndex)};
+    $('radioJumpBtn')?.addEventListener('click',e=>{
+      e.preventDefault();
+      document.getElementById('radioSection').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    audio.addEventListener('playing',onConnected);
+    audio.addEventListener('error',()=>tryNext('stream error'));
+    audio.addEventListener('stalled',()=>tryNext('stalled'));
+  }
+
+  function renderStationButtons(){
+    const wrap=$('radioStationList');
+    wrap.innerHTML=RADIO_STATIONS.map((s,i)=>`<button class="radio-station-btn" data-i="${i}" type="button">${esc(s.name)}</button>`).join('');
+    wrap.querySelectorAll('button').forEach(b=>b.onclick=()=>startRadio(+b.dataset.i));
+  }
+
+  function setActiveButton(i){
+    document.querySelectorAll('.radio-station-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
+  }
+
+  function startRadio(i){
+    if(i>=RADIO_STATIONS.length){
+      setStatus('ALL STATIONS UNREACHABLE RIGHT NOW');
+      setTuning(false);
+      return;
+    }
+    userStopped=false;
+    stationIndex=i;
+    const s=RADIO_STATIONS[i];
+    setActiveButton(i);
+    $('radioStationName').textContent=s.name;
+    $('radioDesc').textContent=s.desc;
+    setStatus('TUNING IN…');
+    setTuning(true);
+    isLive=false;
+    clearTimeout(connectTimer);
+    try{
+      audio.pause();
+      audio.src=s.url;
+      audio.load();
+      audio.play().catch(()=>{});
+    }catch(e){tryNext('exception');return}
+    connectTimer=setTimeout(()=>{ if(!isLive) tryNext('timeout') },RADIO_TIMEOUT_MS);
+  }
+
+  function tryNext(reason){
+    if(userStopped)return;
+    clearTimeout(connectTimer);
+    startRadio(stationIndex+1);
+  }
+
+  function onConnected(){
+    isLive=true;
+    clearTimeout(connectTimer);
+    setTuning(false);
+    setStatus('LIVE NOW');
+    $('liveDot').style.display='inline-block';
+    $('radioPlayBtn').textContent='Ⅱ';
+    $('radioPlayBtn').setAttribute('aria-label','Pause live radio');
+    // pause any YouTube song playback so audio doesn't overlap
+    if(window.__pauseSongPlayback) window.__pauseSongPlayback();
+  }
+
+  function stopRadio(){
+    userStopped=true;
+    clearTimeout(connectTimer);
+    audio.pause();
+    isLive=false;
+    setTuning(false);
+    setStatus('OFFLINE · TAP TO TUNE IN');
+    $('liveDot').style.display='none';
+    $('radioPlayBtn').textContent='▶';
+    $('radioPlayBtn').setAttribute('aria-label','Play live radio');
+  }
+
+  function setStatus(t){$('radioStatus').textContent=t}
+  function setTuning(on){$('radioDial').classList.toggle('tuning',on)}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
+  window.__pauseRadio=stopRadio;
+  document.addEventListener('DOMContentLoaded',init);
+})();
