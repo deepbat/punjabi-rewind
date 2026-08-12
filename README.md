@@ -1,32 +1,43 @@
-# Deepak's Punjabi Songs — Truck-Art Edition
+# Deepak's Punjabi Songs — Multi-World Edition
 
-A Punjabi music & culture mini-hub: kinetic-typography hero, hand-painted-truck visual
-frame (all CSS/SVG, no heavy photo assets), 35 trending hits (2024-2026), and a live
-Punjabi internet-radio dial with automatic station fail-over.
+A Punjabi music & culture hub with **four switchable visual worlds**, a kinetic-type
+hero with mouse parallax, live Punjabi radio with fail-over, a shareable "Now
+Jamming" card generator, and 30 freshly-verified 2024–2026 hits.
 
-## What changed from v1
-- Full visual redesign: truck-art ornamental borders/rails + kinetic typography hero
-  (song title/artist becomes the "visualizer", pulsing while playing)
-- No more 3MB hero photo — background is pure CSS/gradient/SVG, much lighter to load
-- New "Live Punjabi Radio" module (radio.js) — see RADIO_STATIONS in radio.js to edit
-- Active song highlighted in the list while playing
-- If a song's primary YouTube ID fails, the player now tries a listed backup ID
-  before giving up
-- Escape key closes the song list panel
+## What's new in this pass
+- **Theme switcher ("worlds")** — top pill dock, 4 full visual identities sharing
+  the same layout/content: Truck Art, Cinema Dhaba (1970s marquee), Phulkari Loom
+  (embroidery), Basera Night (village night sky). Persisted via localStorage, and
+  shareable as a link (`#world=cinema`) so you can send someone a specific look.
+- **Parallax hero** — on desktop, the kinetic title tilts in 3D toward your cursor.
+- **Shareable "Now Jamming" card** — SHARE button in the player bar renders a
+  branded canvas image of the current song and downloads it (or opens the native
+  share sheet on mobile via Web Share API where supported).
+- **Fixed the motif-leak bug** from the opencode build (decorative SVGs were
+  `position:fixed` and bled through every section on scroll — now properly scoped).
+- **Fixed the "cannot be played here" dead-end** — embedding-disabled errors now
+  point you to the YouTube button instead of just failing silently.
+- **Song list refreshed**: 30 tracks, filtered to genuine 2024–2026 releases only.
+  `410` was removed — confirmed broken (label blocks embedding on that upload).
+  6 tracks are freshly cross-verified this session (Dapper Dan, For A Reason, Low
+  Fade, Jackpot, CEO, Ambarsaria); the rest carry over from the prior verified batch.
 
-## Live radio — please read before publishing
-The three stations in `radio.js` are independent, third-party internet-radio streams
-found via public radio directories (not run by this site). Small stream servers do
-go offline over time. I could not live-test these from my sandbox (no general network
-access there), so **please open the site once and click each station to confirm they
-still play for you** before you publish. If one is dead, just delete or replace its
-line in `RADIO_STATIONS` — the fail-over logic will keep working with whatever's left.
-To add a station: paste its direct stream URL (must be `https://`, not `http://`, or
-browsers will block it as mixed content on a https-served GitHub Pages site).
+## Please verify before publishing
+- **Radio stations** (`radio.js`): 4 independent third-party streams. I can't
+  live-test arbitrary streaming servers from my sandbox — please click each once.
+- **Song IDs** (`songs.js`): every ID was checked against search results and
+  official-channel credit blocks, but YouTube embedding permissions can change.
+  If anything shows "Can't play here," the graceful fallback now points to the
+  YouTube button automatically — no dead ends.
+- **Fonts**: Bungee/Mukta/Outfit won't load in network-restricted sandboxes (you'll
+  see serif fallback in any screenshots I send) — this is sandbox-only and resolves
+  normally on GitHub Pages.
+
+## Ideas for next pass (not built yet)
+- Richer share-card art (theme motif icon baked into the canvas render)
+- A 5th "remix" world that randomly blends two palettes
+- Confetti/haptic micro-interaction when switching worlds
 
 ## Local preview
 python3 -m http.server 8080
 # then open http://localhost:8080
-
-Note: Google Fonts (Bungee/Mukta/Outfit) won't load in network-restricted sandboxes —
-that's a sandbox-only limitation and will work normally on GitHub Pages.

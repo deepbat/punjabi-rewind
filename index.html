@@ -4,20 +4,32 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deepak's Punjabi Songs — The Trending Years</title>
-<meta name="description" content="A Punjabi music &amp; culture hub — trending hits 2024–2026, a live Punjabi radio dial, and a hand-painted truck-art visual world.">
+<meta name="description" content="A Punjabi music &amp; culture hub — trending hits 2024–2026, live Punjabi radio, and four switchable visual worlds: Truck Art, Cinema Dhaba, Phulkari Loom &amp; Basera Night.">
 <meta name="theme-color" content="#0f0a1c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Mukta:wght@400;600;700;800&family=Outfit:wght@500;600;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=63">
+<link rel="stylesheet" href="style.css?v=70">
+<script>
+// Anti-flash: apply saved theme before first paint
+try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}
+</script>
 </head>
 <body>
 <div class="rail left" aria-hidden="true"></div>
 <div class="rail right" aria-hidden="true"></div>
 <div class="ornament-strip" aria-hidden="true"></div>
 
+<nav class="world-dock" id="worldDock" aria-label="Switch visual theme">
+  <button class="world-btn" data-world="truck" aria-label="Truck Art theme"><span class="world-tip">Truck Art</span></button>
+  <button class="world-btn" data-world="cinema" aria-label="Cinema Dhaba theme"><span class="world-tip">Cinema Dhaba</span></button>
+  <button class="world-btn" data-world="loom" aria-label="Phulkari Loom theme"><span class="world-tip">Phulkari Loom</span></button>
+  <button class="world-btn" data-world="basera" aria-label="Basera Night theme"><span class="world-tip">Basera Night</span></button>
+</nav>
+
 <div class="scene" id="scene">
   <!-- animated punjabi cultural backdrop: peacocks, phulkari blooms, wheat, dhol & bhangra silhouettes -->
+
   <div class="culture-bg" aria-hidden="true">
     <svg class="motif peacock p1" viewBox="0 0 120 120"><path d="M60 20c14 0 24 9 24 24 0 12-10 18-24 18S36 56 36 44c0-15 10-24 24-24z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M60 62v26M60 78c-9-3-12-10-12-16M60 78c9-3 12-10 12-16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M44 24c-10-8-22-6-24 0 4-2 8-1 10 3-5-1-8 3-8 7 8-3 14 1 17 6-1-7 2-11 5-16z" fill="currentColor" opacity=".9"/><path d="M76 24c10-8 22-6 24 0-4-2-8-1-10 3 5-1 8 3 8 7-8-3-14 1-17 6 1-7-2-11-5-16z" fill="currentColor" opacity=".9"/><path d="M60 20c0-6 5-9 10-8M60 20c0-6-5-9-10-8" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
     <svg class="motif peacock p2" viewBox="0 0 120 120"><path d="M60 20c14 0 24 9 24 24 0 12-10 18-24 18S36 56 36 44c0-15 10-24 24-24z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M60 62v26M60 78c-9-3-12-10-12-16M60 78c9-3 12-10 12-16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="60" cy="42" r="3.4" fill="currentColor"/></svg>
@@ -50,8 +62,10 @@
     <div class="hero-glow" aria-hidden="true"></div>
     <p class="kicker">ਨਵੇਂ ਗੀਤ। ਪਿੰਡ ਦੀ ਹਵਾ।</p>
     <p class="now-label" id="nowLabel">Ready to play</p>
-    <div class="kinetic-wrap">
-      <h1 class="kinetic" id="kineticTitle">DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
+    <div class="kinetic-wrap" id="kineticWrap">
+      <div class="kinetic-tilt" id="kineticTilt">
+        <h1 class="kinetic" id="kineticTitle">DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
+      </div>
     </div>
     <p class="kinetic-artist" id="kineticArtist"><span>The biggest Punjabi hits trending right now, 2024 se 2026 tak.</span></p>
     <p class="sub" id="heroSub">Turn it up, pind style. Tap play and the title becomes the visualizer.</p>
@@ -134,14 +148,17 @@
     <div class="sources">
       <button id="youtubeBtn">YOUTUBE ↗</button>
       <button id="spotifyBtn">SPOTIFY ↗</button>
+      <button id="shareBtn" class="share-btn" title="Share what you're playing">SHARE ✦</button>
     </div>
     <div class="hidden-player"><div id="player"></div></div>
   </div>
 </div>
+<div class="share-toast" id="shareToast">Link copied — paste it anywhere ✦</div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=63"></script>
-<script src="radio.js?v=63"></script>
-<script src="script.js?v=63"></script>
+<script src="songs.js?v=70"></script>
+<script src="radio.js?v=70"></script>
+<script src="script.js?v=70"></script>
+<script src="theme.js?v=70"></script>
 </body>
 </html>

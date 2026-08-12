@@ -97,11 +97,17 @@ function onYouTubeIframeAPIReady(){
     playerVars:{autoplay:0,controls:0,rel:0,playsinline:1,modestbranding:1},
     events:{
       onReady:()=>{playerReady=true;if(SONG_LIST.length)selectSong(0,false)},
-      onError:()=>{
+      onError:(e)=>{
         // try the next known YouTube id for this song (some entries carry fallbacks) before giving up
         const ids=SONG_LIST[currentIndex]?.youtubeIds||[];
-        if(idAttempt<ids.length-1){idAttempt++;loadExactSource(true)}
-        else{$("playerTitle").textContent="This YouTube source cannot be played here"}
+        if(idAttempt<ids.length-1){idAttempt++;loadExactSource(true);return}
+        // error codes 101/150 = the rights holder has disabled embedding for this video specifically
+        // (common on label-managed catalogs) — that's different from a broken/missing link, so say so
+        // and point at the direct YouTube button instead of dead-ending.
+        const blocked=e && (e.data===101 || e.data===150);
+        $("playerTitle").textContent=blocked?"Can't play here — tap YOUTUBE to watch":"This YouTube source cannot be played here";
+        $("youtubeBtn")?.classList.add("pulse-attn");
+        setTimeout(()=>$("youtubeBtn")?.classList.remove("pulse-attn"),4000);
       },
       onStateChange:e=>{
         const s=SONG_LIST[currentIndex];

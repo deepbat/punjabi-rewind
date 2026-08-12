@@ -1,15 +1,44 @@
-:root{
+:root, [data-theme="truck"]{
   --night:#0f0a1c;--night2:#1b1130;--night3:#241638;
   --marigold:#ffb200;--gulabi:#ff3670;--peacock:#00b3a4;--zafran:#ff6a35;
   --chrome:#efe8d8;--chrome-dim:rgba(239,232,216,.62);
   --line:rgba(239,232,216,.16);
   --glass:rgba(20,13,34,.78);
   --radius:14px;
+  --world-label:"Truck Art";
+}
+/* CINEMA DHABA — 1970s Bollywood single-screen marquee: maroon velvet, marigold bulbs, neon */
+[data-theme="cinema"]{
+  --night:#1a0705;--night2:#2c0f0b;--night3:#3d150e;
+  --marigold:#ffcf5c;--gulabi:#ff3b3b;--peacock:#2fd1c5;--zafran:#ff8a3d;
+  --chrome:#fbe9d0;--chrome-dim:rgba(251,233,208,.62);
+  --line:rgba(251,233,208,.16);
+  --glass:rgba(36,12,9,.8);
+  --radius:6px;
+}
+/* PHULKARI LOOM — hand-embroidered thread world: terracotta, cream, indigo needlework */
+[data-theme="loom"]{
+  --night:#241608;--night2:#33200f;--night3:#402a16;
+  --marigold:#eaa53f;--gulabi:#c9503f;--peacock:#3f8274;--zafran:#d97b3f;
+  --chrome:#fbf1de;--chrome-dim:rgba(251,241,222,.66);
+  --line:rgba(251,241,222,.18);
+  --glass:rgba(36,22,10,.8);
+  --radius:2px;
+}
+/* BASERA NIGHT — indigo village night sky, diya lamps, moonlit pind skyline */
+[data-theme="basera"]{
+  --night:#070b1a;--night2:#0e1630;--night3:#141f42;
+  --marigold:#ffd27a;--gulabi:#ff6f9c;--peacock:#3fc1c9;--zafran:#ffb454;
+  --chrome:#eaf0ff;--chrome-dim:rgba(234,240,255,.64);
+  --line:rgba(234,240,255,.16);
+  --glass:rgba(9,14,32,.8);
+  --radius:18px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
-body{margin:0;background:var(--night);color:var(--chrome);font-family:Mukta,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:var(--night);color:var(--chrome);font-family:Mukta,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .6s ease,color .6s ease}
+body,.scene,.ornament-strip,.rail,.radio-panel,.culture-card,.song-card,.player-bar,.kinetic,.enter,.mute,.browse{transition:background-color .6s ease,border-color .6s ease,color .6s ease,box-shadow .6s ease}
 button,input{font:inherit}
 button{cursor:pointer}
 a{color:inherit}
@@ -26,6 +55,28 @@ a{color:inherit}
   box-shadow:0 2px 12px rgba(0,0,0,.5) inset;
 }
 .ornament-strip.bottom{order:99}
+
+/* per-theme border language: each world gets a structurally different edge, not just a recolor */
+[data-theme="cinema"] .ornament-strip{
+  background-image:
+    radial-gradient(circle at 12px 11px, var(--marigold) 0 4px, transparent 4.5px),
+    repeating-linear-gradient(90deg, var(--night3) 0 26px, var(--gulabi) 26px 28px);
+  background-size:26px 100%, 26px 100%;
+}
+[data-theme="loom"] .ornament-strip{
+  background-image:
+    repeating-linear-gradient(45deg, var(--marigold) 0 3px, transparent 3px 10px),
+    repeating-linear-gradient(-45deg, var(--peacock) 0 3px, transparent 3px 10px),
+    linear-gradient(var(--night3),var(--night3));
+  background-size:20px 100%,20px 100%,100% 100%;
+}
+[data-theme="basera"] .ornament-strip{
+  background-image:
+    radial-gradient(circle at 8px 11px, var(--chrome) 0 1.6px, transparent 2px),
+    radial-gradient(circle at 22px 6px, var(--marigold) 0 1px, transparent 1.4px),
+    linear-gradient(var(--night2),var(--night2));
+  background-size:34px 100%,34px 100%,100% 100%;
+}
 
 /* chassis frame - fixed side rails suggesting looking through a truck's painted tailgate opening */
 .rail{position:fixed;top:0;bottom:0;width:14px;z-index:35;pointer-events:none;
@@ -49,7 +100,7 @@ a{color:inherit}
 /* Hand-drawn-style SVG silhouettes (peacocks, phulkari blooms, wheat, dhol,
    bhangra dancer, kalash, painted truck) drifting behind everything, plus a slow
    aurora wash of the truck-art palette. Pure SVG/CSS, no image assets. */
-.culture-bg{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.culture-bg{position:absolute;top:0;left:0;right:0;height:100vh;z-index:1;overflow:hidden;pointer-events:none}
 /* animated aurora wash - marigold / gulabi / peacock light slowly moving behind motifs */
 .culture-bg:before,.culture-bg:after{content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5}
 .culture-bg:before{background:radial-gradient(38% 32% at 22% 30%,rgba(255,178,0,.5),transparent 70%),radial-gradient(34% 30% at 78% 24%,rgba(255,54,112,.42),transparent 70%),radial-gradient(42% 36% at 55% 82%,rgba(0,179,164,.42),transparent 70%);animation:aurora 26s ease-in-out infinite alternate}
@@ -218,6 +269,8 @@ a{color:inherit}
 .sources button{border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.3);color:var(--chrome);font:600 10px "Outfit",sans-serif;letter-spacing:.05em;padding:9px 13px;transition:.2s}
 .sources button:first-child{background:#c93324;border-color:transparent;color:#fff}
 .sources button:nth-child(2){background:#1f7a34;border-color:transparent;color:#fff}
+.pulse-attn{animation:attnPulse 1s ease-in-out 3}
+@keyframes attnPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
 .sources button:hover{filter:brightness(1.15)}
 .hidden-player{position:absolute;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px}
 
@@ -237,3 +290,34 @@ footer.credit b{color:var(--marigold)}
   .np-art{flex-basis:40px;height:40px}.controls button{width:40px;height:40px}.controls .pill{width:50px}
   .section{padding:44px 4vw 10px}
 }
+
+/* ============ THEME SWITCHER — "Pick your world" dock ============ */
+.world-dock{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:40;display:flex;gap:6px;
+  background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.world-btn{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;position:relative;flex:0 0 auto;transition:.25s;overflow:hidden}
+.world-btn:hover{transform:scale(1.08)}
+.world-btn.active{border-color:var(--chrome);box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.world-btn[data-world="truck"]{background:conic-gradient(#ffb200,#ff3670,#00b3a4,#ffb200)}
+.world-btn[data-world="cinema"]{background:conic-gradient(#ffcf5c,#ff3b3b,#2fd1c5,#ffcf5c)}
+.world-btn[data-world="loom"]{background:conic-gradient(#eaa53f,#c9503f,#3f8274,#eaa53f)}
+.world-btn[data-world="basera"]{background:conic-gradient(#0e1630,#ffd27a,#3fc1c9,#0e1630)}
+.world-tip{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--glass);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font:600 10px "Outfit",sans-serif;letter-spacing:.06em;
+  opacity:0;pointer-events:none;transition:.2s}
+.world-dock:hover .world-tip{opacity:0}
+.world-btn:hover .world-tip{opacity:1}
+@media(max-width:760px){.world-btn{width:27px;height:27px}.world-dock{padding:5px;gap:5px}}
+
+/* ============ PARALLAX kinetic hero (desktop pointer only) ============ */
+@media(hover:hover) and (pointer:fine){
+  .kinetic-wrap{perspective:900px}
+  .kinetic-tilt{transition:transform .15s ease-out;transform-style:preserve-3d}
+}
+
+/* ============ SHARE / "Now Jamming" card ============ */
+.share-btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--chrome);border-radius:999px;padding:9px 14px;font:600 11px "Outfit",sans-serif;letter-spacing:.06em;transition:.2s}
+.share-btn:hover{border-color:var(--marigold);color:var(--marigold)}
+.share-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);z-index:60;
+  background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font:600 12px "Outfit",sans-serif;
+  color:var(--chrome);opacity:0;pointer-events:none;transition:.3s;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.share-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
