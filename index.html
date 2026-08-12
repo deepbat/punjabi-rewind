@@ -4,27 +4,33 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Deepak's Punjabi Songs — The Trending Years</title>
-<meta name="description" content="Deepak's Punjabi Songs. A cinematic player for the biggest Punjabi hits trending from 2024 to 2026.">
+<meta name="description" content="Deepak's Punjabi Songs. A cinematic player for the biggest Punjabi hits trending from 2024 to 2026. Search, shuffle, repeat and watch the videos.">
+<meta name="theme-color" content="#120d08">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=50">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <div class="scene" id="scene">
-  <div class="veil"></div>
+  <div class="bg-aurora" aria-hidden="true">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <div class="aurora a3"></div>
+    <div class="ring"></div>
+  </div>
   <div class="film-grain"></div>
-  <div class="ember ember-a"></div><div class="ember ember-b"></div><div class="ember ember-c"></div><div class="ember ember-d"></div>
+  <div class="embers" id="embers" aria-hidden="true"></div>
 
   <header class="top">
-    <a class="logo" href="#" id="homeBtn">
-      <span class="logo-mark">▰</span>
-      <span><b>DEEPAK'S</b><strong>PUNJABI SONGS</strong></span>
+    <a class="logo" href="#" id="homeBtn" aria-label="Back to top">
+      <span class="logo-mark" aria-hidden="true"><span class="logo-disc"></span></span>
+      <span class="logo-word"><b>DEEPAK'S</b><strong>PUNJABI SONGS</strong></span>
     </a>
-    <div class="route">PIND NOW · 2024—2026</div>
+    <div class="route">PIND NOW · 2024 — 2026</div>
     <div class="top-actions">
-      <button class="mute" id="muteBtn">SOUND ON</button>
-      <button class="browse" id="browseBtn">SONG LIST ▾</button>
+      <button class="mute" id="muteBtn" type="button">SOUND ON</button>
+      <button class="browse" id="browseBtn" type="button">SONG LIST ▾</button>
     </div>
   </header>
 
@@ -33,53 +39,105 @@
       <p class="kicker">ਨਵੇਂ ਗੀਤ। ਪਿੰਡ ਦੀ ਹਵਾ।</p>
       <h1>DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
       <p class="sub">The biggest Punjabi hits trending right now — 2024 se 2026 tak. Turn it up, pind style.</p>
-      <button class="enter" id="enterBtn"><span>▶</span> CHALA DO</button>
+      <button class="enter" id="enterBtn" type="button"><span>▶</span> CHALA DO</button>
     </section>
 
-    <aside class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>410 ✦ WAVY ✦ 5-7 ✦ RANJHA ✦ ACE ✦ TAUBA TAUBA ✦ BALENCI ✦ KUFAR ✦ MVP ✦ EYES ON ME ✦ DOPAMINE ✦</span>
-        <span>410 ✦ WAVY ✦ 5-7 ✦ RANJHA ✦ ACE ✦ TAUBA TAUBA ✦ BALENCI ✦ KUFAR ✦ MVP ✦ EYES ON ME ✦ DOPAMINE ✦</span>
-      </div>
-    </aside>
+    <div class="hero-vinyl" aria-hidden="true">
+      <div class="disc"><div class="label">PS</div></div>
+    </div>
   </main>
+
+  <aside class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </aside>
 
   <section class="songs-panel" id="songsPanel">
     <div class="panel-head">
-      <div><span class="kicker">THE TRENDING YEARS</span><h2>35 PUNJABI HITS · 2024—2026</h2></div>
-      <button id="closePanel">CLOSE ×</button>
+      <div>
+        <span class="kicker">THE TRENDING YEARS</span>
+        <h2><span id="panelCount">50</span> PUNJABI HITS · 2024—2026</h2>
+      </div>
+      <div class="panel-tools">
+        <input type="search" id="searchInput" placeholder="Search songs, artists…" aria-label="Search songs">
+        <div class="chips" id="yearChips" role="group" aria-label="Filter by year">
+          <button class="chip active" type="button" data-year="ALL">ALL</button>
+          <button class="chip" type="button" data-year="2026">2026</button>
+          <button class="chip" type="button" data-year="2025">2025</button>
+          <button class="chip" type="button" data-year="2024">2024</button>
+        </div>
+        <select id="artistSelect" aria-label="Filter by artist">
+          <option value="ALL">ALL ARTISTS</option>
+        </select>
+        <button id="closePanel" class="close-btn" type="button">CLOSE ×</button>
+      </div>
     </div>
+
+    <div class="result-meta">
+      <span id="resultCount">Showing all songs</span>
+      <button id="resetFilters" class="reset-btn" type="button">RESET FILTERS</button>
+    </div>
+
     <div class="song-grid" id="songGrid"></div>
+    <p class="no-results" id="noResults" hidden>Koi song nahi mila. Search change karo bai!</p>
   </section>
 
   <div class="player-bar" id="playerBar">
     <div class="now-playing">
-      <span class="np-art" id="npArt">▰</span>
+      <div class="np-art" id="npArt" aria-hidden="true"><span class="np-label">▶</span></div>
       <div class="np-meta">
         <strong id="playerTitle">SELECT A SONG</strong>
         <span id="playerMeta">DEEPAK'S PUNJABI SONGS</span>
       </div>
     </div>
+
     <div class="controls">
-      <button id="prevBtn" title="Previous">⏮</button>
-      <button id="playBtn" class="pill" title="Play">▶</button>
-      <button id="nextBtn" title="Next">⏭</button>
+      <button id="shuffleBtn" class="ctl" type="button" title="Shuffle (S)" aria-label="Shuffle">⇄</button>
+      <button id="prevBtn" type="button" title="Previous (←)" aria-label="Previous">⏮</button>
+      <button id="playBtn" class="pill" type="button" title="Play / Pause (Space)" aria-label="Play">▶</button>
+      <button id="nextBtn" type="button" title="Next (→)" aria-label="Next">⏭</button>
+      <button id="repeatBtn" class="ctl" type="button" title="Repeat (R)" aria-label="Repeat">↻</button>
     </div>
+
     <div class="time-line">
       <span id="currentTime">0:00</span>
-      <div class="progress"><span id="progressBar"></span></div>
+      <div class="progress" id="progressBar" title="Seek">
+        <span id="progressFill"></span>
+        <span class="progress-thumb" id="progressThumb"></span>
+      </div>
       <span id="duration">0:00</span>
     </div>
-    <div class="sources">
-      <button id="youtubeBtn">YOUTUBE ↗</button>
-      <button id="spotifyBtn">SPOTIFY ↗</button>
+
+    <div class="volume">
+      <button id="muteBtn2" class="vol-btn" type="button" title="Mute (M)" aria-label="Mute">VOL</button>
+      <input type="range" id="volumeSlider" min="0" max="100" value="80" aria-label="Volume">
     </div>
+
+    <div class="sources">
+      <button id="videoBtn" type="button" title="Watch the music video">▶ WATCH</button>
+      <button id="youtubeBtn" type="button">YOUTUBE ↗</button>
+      <button id="spotifyBtn" type="button">SPOTIFY ↗</button>
+    </div>
+
     <div class="hidden-player"><div id="player"></div></div>
+  </div>
+
+  <div class="video-modal" id="videoModal" hidden>
+    <div class="video-modal-box">
+      <div class="video-head">
+        <strong id="videoTitle">NOW WATCHING</strong>
+        <button id="closeVideo" type="button">CLOSE ✕</button>
+      </div>
+      <div class="video-frame">
+        <iframe id="videoFrame" src="" title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=50"></script>
-<script src="script.js?v=50"></script>
+<script src="songs.js?v=2"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>
