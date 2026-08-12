@@ -49,7 +49,7 @@ a{color:inherit}
 /* Hand-drawn-style SVG silhouettes (peacocks, phulkari blooms, wheat, dhol,
    bhangra dancer, kalash, painted truck) drifting behind everything, plus a slow
    aurora wash of the truck-art palette. Pure SVG/CSS, no image assets. */
-.culture-bg{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.culture-bg{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
 /* animated aurora wash - marigold / gulabi / peacock light slowly moving behind motifs */
 .culture-bg:before,.culture-bg:after{content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5}
 .culture-bg:before{background:radial-gradient(38% 32% at 22% 30%,rgba(255,178,0,.5),transparent 70%),radial-gradient(34% 30% at 78% 24%,rgba(255,54,112,.42),transparent 70%),radial-gradient(42% 36% at 55% 82%,rgba(0,179,164,.42),transparent 70%);animation:aurora 26s ease-in-out infinite alternate}
@@ -76,15 +76,15 @@ a{color:inherit}
 .motif.f3{width:46vmin;height:46vmin;left:50%;top:44%;transform:translate(-50%,-50%);opacity:.16;color:var(--marigold);filter:drop-shadow(0 0 22px rgba(255,178,0,.35));animation:mandala 90s linear infinite}
 @keyframes mandala{to{transform:translate(-50%,-50%) rotate(360deg)}}
 /* wheat stalks sway like a pind field */
-.motif.w1{width:38px;left:16%;bottom:4%;animation:sway 6s ease-in-out infinite alternate;transform-origin:bottom center}
-.motif.w2{width:28px;right:20%;bottom:7%;animation:sway 7s ease-in-out infinite alternate-reverse;transform-origin:bottom center}
+.motif.w1{width:38px;left:16%;bottom:16%;animation:sway 6s ease-in-out infinite alternate;transform-origin:bottom center}
+.motif.w2{width:28px;right:20%;bottom:18%;animation:sway 7s ease-in-out infinite alternate-reverse;transform-origin:bottom center}
 /* dhol & bhangra dancer pulse to an imagined beat */
 .motif.dhol{width:190px;left:38%;top:72%;animation:breathe 4s ease-in-out infinite}
 .motif.bhangra{width:74px;right:30%;top:44%;animation:sway 3.4s ease-in-out infinite alternate;transform-origin:bottom center}
 /* kalash as a quiet anchor near the marquee */
-.motif.kalash{width:60px;left:46%;bottom:-2%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
-/* painted truck cruises along the bottom edge */
-.motif.truck{width:190px;left:0;bottom:2%;animation:driftL 120s linear infinite}
+.motif.kalash{width:60px;left:46%;bottom:6%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
+/* painted truck cruises along the bottom edge, above the player bar */
+.motif.truck{width:190px;left:0;bottom:15%;animation:driftL 120s linear infinite}
 
 @keyframes driftL{from{transform:translateX(-15vw)}to{transform:translateX(115vw)}}
 @keyframes driftR{from{transform:translateX(15vw)}to{transform:translateX(-115vw)}}
