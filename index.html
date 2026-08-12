@@ -3,84 +3,160 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deepak's Punjabi Songs — The Trending Years</title>
-<meta name="description" content="Deepak's Punjabi Songs. A cinematic player for the biggest Punjabi hits trending from 2024 to 2026. Search, shuffle, repeat and watch the videos.">
-<meta name="theme-color" content="#120d08">
+<title>Pind Rewind — Punjabi Music · Radio · Virsa</title>
+<meta name="description" content="Pind Rewind: a Punjabi cultural hub with 50 trending hits (2024-26), live radio stations and virsa stories. Search, shuffle, watch videos — pind style.">
+<meta name="theme-color" content="#1a0e05">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <div class="scene" id="scene">
-  <div class="bg-aurora" aria-hidden="true">
-    <div class="aurora a1"></div>
-    <div class="aurora a2"></div>
-    <div class="aurora a3"></div>
-    <div class="ring"></div>
+
+  <!-- ===== animated Punjab backdrop ===== -->
+  <div class="sky" aria-hidden="true"></div>
+  <div class="sun" aria-hidden="true"></div>
+  <div class="birds" aria-hidden="true">
+      <i style="top:16%;--bd:0s"></i><i style="top:12%;--bd:-14s"></i><i style="top:20%;--bd:-28s"></i><i style="top:9%;--bd:-40s"></i><i style="top:24%;--bd:-52s"></i>
+    </div>
+  <div class="village-line" id="villageLine" aria-hidden="true">
+    <svg class="village-svg" viewBox="0 0 1400 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="110" width="1400" height="30" fill="#170b04"/>
+      <rect x="60" y="52" width="150" height="58" fill="#170b04"/>
+      <rect x="84" y="68" width="14" height="14" fill="#0d0602"/>
+      <rect x="114" y="68" width="14" height="14" fill="#0d0602"/>
+      <rect x="144" y="68" width="14" height="14" fill="#0d0602"/>
+      <path d="M250 110 V64 a45 45 0 0 1 90 0 V110 Z" fill="#170b04"/>
+      <circle cx="295" cy="20" r="4" fill="#170b04"/>
+      <rect x="420" y="70" width="120" height="40" fill="#170b04"/>
+      <rect x="440" y="84" width="12" height="12" fill="#0d0602"/>
+      <rect x="480" y="84" width="12" height="12" fill="#0d0602"/>
+      <path d="M600 110 V78 q0 -40 34 -40 q34 0 34 40 v32 Z" fill="#170b04"/>
+      <circle cx="624" cy="30" r="5" fill="#170b04"/>
+      <circle cx="676" cy="34" r="5" fill="#170b04"/>
+      <circle cx="650" cy="20" r="5" fill="#170b04"/>
+      <rect x="760" y="56" width="130" height="54" fill="#170b04"/>
+      <path d="M960 110 V70 a40 40 0 0 1 80 0 V110 Z" fill="#170b04"/>
+      <rect x="1090" y="62" width="90" height="48" fill="#170b04"/>
+      <circle cx="1220" cy="70" r="22" fill="#170b04"/>
+      <circle cx="1260" cy="74" r="18" fill="#170b04"/>
+      <circle cx="1300" cy="70" r="14" fill="#170b04"/>
+      <rect x="1218" y="92" width="86" height="18" fill="#170b04"/>
+    </svg>
   </div>
+  <div class="wheat-field" id="wheatField" aria-hidden="true">
+    <div class="wheat-row back" id="wheatBack"></div>
+    <div class="wheat-row mid" id="wheatMid"></div>
+    <div class="wheat-row front" id="wheatFront"></div>
+  </div>
+  <div class="petals" id="petals" aria-hidden="true"></div>
   <div class="film-grain"></div>
-  <div class="embers" id="embers" aria-hidden="true"></div>
 
   <header class="top">
     <a class="logo" href="#" id="homeBtn" aria-label="Back to top">
-      <span class="logo-mark" aria-hidden="true"><span class="logo-disc"></span></span>
-      <span class="logo-word"><b>DEEPAK'S</b><strong>PUNJABI SONGS</strong></span>
+      <span class="logo-mark" aria-hidden="true"><span class="phul"><span></span></span></span>
+      <span class="logo-word"><b>PIND REWIND</b><strong>PUNJABI VIRSA</strong></span>
     </a>
-    <div class="route">PIND NOW · 2024 — 2026</div>
+    <div class="route">ਪਿੰਡ · 2024 — 2026</div>
     <div class="top-actions">
       <button class="mute" id="muteBtn" type="button">SOUND ON</button>
       <button class="browse" id="browseBtn" type="button">SONG LIST ▾</button>
     </div>
   </header>
 
-  <main class="hero">
-    <section class="intro">
-      <p class="kicker">ਨਵੇਂ ਗੀਤ। ਪਿੰਡ ਦੀ ਹਵਾ।</p>
-      <h1>DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
-      <p class="sub">The biggest Punjabi hits trending right now — 2024 se 2026 tak. Turn it up, pind style.</p>
-      <button class="enter" id="enterBtn" type="button"><span>▶</span> CHALA DO</button>
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <button class="tab active" type="button" data-tab="music">MUSIC</button>
+    <button class="tab" type="button" data-tab="radio">LIVE RADIO</button>
+    <button class="tab" type="button" data-tab="virsa">VIRSA</button>
+  </nav>
+
+  <div class="pages">
+
+    <!-- ================= MUSIC PAGE ================= -->
+    <section class="page active" id="page-music">
+      <main class="hero">
+        <section class="intro">
+          <p class="kicker">ਨਵੇਂ ਗੀਤ। ਪਿੰਡ ਦੀ ਹਵਾ।</p>
+          <h1>PIND<br><em>REWIND</em></h1>
+          <p class="sub">The biggest Punjabi hits trending right now — 2024 se 2026 tak. Music, radio aur virsa, sab ek thaan.</p>
+          <button class="enter" id="enterBtn" type="button"><span>▶</span> CHALA DO</button>
+        </section>
+        <div class="hero-mandala" aria-hidden="true"><span></span><span></span><span></span></div>
+      </main>
+
+      <aside class="marquee" aria-hidden="true">
+        <div class="marquee-track" id="marqueeTrack"></div>
+      </aside>
+
+      <section class="songs-panel" id="songsPanel">
+        <div class="panel-head">
+          <div>
+            <span class="kicker">THE TRENDING YEARS</span>
+            <h2><span id="panelCount">50</span> PUNJABI HITS · 2024—2026</h2>
+          </div>
+          <div class="panel-tools">
+            <input type="search" id="searchInput" placeholder="Search songs, artists…" aria-label="Search songs">
+            <div class="row">
+              <div class="chips" id="yearChips" role="group" aria-label="Filter by year">
+                <button class="chip active" type="button" data-year="ALL">ALL</button>
+                <button class="chip" type="button" data-year="2026">2026</button>
+                <button class="chip" type="button" data-year="2025">2025</button>
+                <button class="chip" type="button" data-year="2024">2024</button>
+              </div>
+              <select id="artistSelect" aria-label="Filter by artist">
+                <option value="ALL">ALL ARTISTS</option>
+              </select>
+              <button id="closePanel" class="close-btn" type="button">CLOSE ×</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-meta">
+          <span id="resultCount">Showing all songs</span>
+          <button id="resetFilters" class="reset-btn" type="button">RESET FILTERS</button>
+        </div>
+
+        <div class="song-grid" id="songGrid"></div>
+        <p class="no-results" id="noResults" hidden>Koi song nahi mila. Search change karo bai!</p>
+      </section>
     </section>
 
-    <div class="hero-vinyl" aria-hidden="true">
-      <div class="disc"><div class="label">PS</div></div>
-    </div>
-  </main>
-
-  <aside class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marqueeTrack"></div>
-  </aside>
-
-  <section class="songs-panel" id="songsPanel">
-    <div class="panel-head">
-      <div>
-        <span class="kicker">THE TRENDING YEARS</span>
-        <h2><span id="panelCount">50</span> PUNJABI HITS · 2024—2026</h2>
+    <!-- ================= RADIO PAGE ================= -->
+    <section class="page" id="page-radio">
+      <div class="page-head">
+        <p class="kicker">PIND TO THE WORLD · 24/7</p>
+        <h2>LIVE RADIO</h2>
+        <p class="page-sub">Punjabi radio, wherever the pind roams. Tap a station — it opens the official live player, free and instant.</p>
       </div>
-      <div class="panel-tools">
-        <input type="search" id="searchInput" placeholder="Search songs, artists…" aria-label="Search songs">
-        <div class="chips" id="yearChips" role="group" aria-label="Filter by year">
-          <button class="chip active" type="button" data-year="ALL">ALL</button>
-          <button class="chip" type="button" data-year="2026">2026</button>
-          <button class="chip" type="button" data-year="2025">2025</button>
-          <button class="chip" type="button" data-year="2024">2024</button>
-        </div>
-        <select id="artistSelect" aria-label="Filter by artist">
-          <option value="ALL">ALL ARTISTS</option>
-        </select>
-        <button id="closePanel" class="close-btn" type="button">CLOSE ×</button>
+      <div class="radio-grid" id="radioGrid"></div>
+      <p class="page-note">Zeno · radio.net · AM/FM — every link verified, plays straight from the station.</p>
+    </section>
+
+    <!-- ================= VIRSA PAGE ================= -->
+    <section class="page" id="page-virsa">
+      <div class="page-head">
+        <p class="kicker">ਵਿਰਸਾ · CULTURE · PRIDE</p>
+        <h2>VIRSA</h2>
+        <p class="page-sub">A little Punjab, served daily — a wise saying for the day and stories behind our colours, dances and dishes.</p>
       </div>
-    </div>
 
-    <div class="result-meta">
-      <span id="resultCount">Showing all songs</span>
-      <button id="resetFilters" class="reset-btn" type="button">RESET FILTERS</button>
-    </div>
+      <div class="quote-card" id="quoteCard">
+        <span class="q-badge">AJ DI GALL</span>
+        <p class="q-gurmukhi" id="qGurmukhi"></p>
+        <p class="q-roman" id="qRoman"></p>
+        <p class="q-en" id="qEn"></p>
+      </div>
 
-    <div class="song-grid" id="songGrid"></div>
-    <p class="no-results" id="noResults" hidden>Koi song nahi mila. Search change karo bai!</p>
-  </section>
+      <div class="facts-grid" id="factsGrid"></div>
 
+      <div class="viras-strip" aria-hidden="true"><span>ਫੁਲਕਾਰੀ</span><span>ਭੰਗੜਾ</span><span>ਗਿੱਧਾ</span><span>ਪੱਗ</span><span>ਲੱਸੀ</span><span>ਸਰਸੋਂ</span><span>ਮੇਲਾ</span><span>ਵਿਸਾਖੀ</span></div>
+    </section>
+
+  </div><!-- /pages -->
+
+  <!-- ========================================================= -->
+  <!-- floating player bar -->
   <div class="player-bar" id="playerBar">
     <div class="now-playing">
       <div class="np-art" id="npArt" aria-hidden="true"><span class="np-label">▶</span></div>
@@ -121,11 +197,15 @@
     <div class="hidden-player"><div id="player"></div></div>
   </div>
 
-  <div class="video-modal" id="videoModal" hidden>
+  <!-- video modal -->
+  <div class="video-modal" id="videoModal">
     <div class="video-modal-box">
       <div class="video-head">
         <strong id="videoTitle">NOW WATCHING</strong>
-        <button id="closeVideo" type="button">CLOSE ✕</button>
+        <div class="video-actions">
+          <button id="videoOpenYt" type="button">OPEN ON YOUTUBE ↗</button>
+          <button id="closeVideo" type="button">CLOSE ✕</button>
+        </div>
       </div>
       <div class="video-frame">
         <iframe id="videoFrame" src="" title="YouTube video player"
@@ -137,7 +217,9 @@
 </div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=2"></script>
-<script src="script.js?v=2"></script>
+<script src="songs.js?v=3"></script>
+<script src="radio.js?v=3"></script>
+<script src="culture.js?v=3"></script>
+<script src="script.js?v=3"></script>
 </body>
 </html>

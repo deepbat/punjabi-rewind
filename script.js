@@ -1,4 +1,6 @@
 const SONG_LIST = Array.isArray(window.SONGS) ? window.SONGS : [];
+const RADIO_LIST = Array.isArray(window.RADIO_STATIONS) ? window.RADIO_STATIONS : [];
+const CULTURE = window.CULTURE || { quotes: [], facts: [] };
 const $ = id => document.getElementById(id);
 
 let player = null, playerReady = false, timer = null;
@@ -7,12 +9,16 @@ let volume = 80;
 let activeYear = "ALL", activeArtist = "ALL", searchQuery = "";
 
 document.addEventListener("DOMContentLoaded", () => {
-  buildEmbers();
+  buildWheat();
+  buildPetals();
   buildMarquee();
+  renderRadio();
+  renderCulture();
   $("panelCount").textContent = SONG_LIST.length;
   fillArtists();
   renderSongGrid();
   wireEvents();
+  parallax();
 });
 
 function wireEvents() {
@@ -27,7 +33,8 @@ function wireEvents() {
   $("resetFilters").onclick = resetFilters;
   $("youtubeBtn").onclick = openYoutube;
   $("spotifyBtn").onclick = openSpotify;
-  $("videoBtn").onclick = openVideoModal;
+  $("videoBtn").onclick = () => openVideoModal(currentIndex);
+  $("videoOpenYt").onclick = openModalToYoutube;
   $("closeVideo").onclick = closeVideoModal;
   $("videoModal").addEventListener("click", e => { if (e.target === $("videoModal")) closeVideoModal(); });
   $("muteBtn").onclick = toggleMute;
@@ -57,7 +64,11 @@ function wireEvents() {
     player.seekTo((e.clientX - rect.left) / rect.width * d, true);
   });
 
-  $("homeBtn").onclick = e => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  $("homeBtn").onclick = e => { e.preventDefault(); showTab("music"); };
+
+  document.querySelectorAll(".tab").forEach(btn => {
+    btn.onclick = () => showTab(btn.dataset.tab);
+  });
 
   document.addEventListener("keydown", e => {
     const t = e.target;
@@ -68,9 +79,20 @@ function wireEvents() {
     else if (e.key.toLowerCase() === "m") toggleMute();
     else if (e.key.toLowerCase() === "r") cycleRepeat();
     else if (e.key.toLowerCase() === "s") toggleShuffle();
-    else if (e.key.toLowerCase() === "v") { $("videoModal").hidden ? openVideoModal() : closeVideoModal(); }
+    else if (e.key.toLowerCase() === "v") { $("videoModal").classList.contains("open") ? closeVideoModal() : openVideoModal(currentIndex); }
     else if (e.key === "Escape") closeVideoModal();
   });
+}
+
+/* ---------- tabs ---------- */
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const page = $("page-" + name);
+  page.classList.add("active");
+  if (name === "music") revealCurrent();
+  const x = page.offsetTop;
+  window.scrollTo({ top: Math.max(0, x - 70), behavior: "smooth" });
 }
 
 /* ---------- state helpers ---------- */
@@ -85,15 +107,16 @@ function toggleMute() { if (playerReady) setMuted(!isMuted); }
 
 function toggleShuffle() {
   isShuffle = !isShuffle;
-  $("shuffleBtn").classList.toggle("active", isShuffle);
-  $("shuffleBtn").title = isShuffle ? "Shuffle: ON" : "Shuffle: OFF";
+  const b = $("shuffleBtn");
+  b.classList.toggle("active", isShuffle);
+  b.title = isShuffle ? "Shuffle: ON" : "Shuffle: OFF";
 }
 function cycleRepeat() {
   repeatMode = repeatMode === "off" ? "all" : repeatMode === "all" ? "one" : "off";
-  const btn = $("repeatBtn");
-  btn.classList.toggle("active", repeatMode !== "off");
-  btn.textContent = repeatMode === "one" ? "↻1" : "↻";
-  btn.title = repeatMode === "off" ? "Repeat: OFF" : repeatMode === "all" ? "Repeat: ALL" : "Repeat: ONE";
+  const b = $("repeatBtn");
+  b.classList.toggle("active", repeatMode !== "off");
+  b.textContent = repeatMode === "one" ? "↻1" : "↻";
+  b.title = repeatMode === "off" ? "Repeat: OFF" : repeatMode === "all" ? "Repeat: ALL" : "Repeat: ONE";
 }
 
 function nextIndex() {
@@ -162,15 +185,15 @@ function onYouTubeIframeAPIReady() {
       onStateChange: e => {
         if (e.data === YT.PlayerState.PLAYING) {
           $("playBtn").textContent = "Ⅱ";
-          updateNpPlaying(true);
+          $("playerBar").classList.add("playing");
           startTimer();
         } else if (e.data === YT.PlayerState.PAUSED) {
           $("playBtn").textContent = "▶";
-          updateNpPlaying(false);
+          $("playerBar").classList.remove("playing");
           stopTimer();
         } else if (e.data === YT.PlayerState.ENDED) {
           $("playBtn").textContent = "▶";
-          updateNpPlaying(false);
+          $("playerBar").classList.remove("playing");
           stopTimer();
           if (repeatMode === "one") {
             cueTrack(true);
@@ -185,10 +208,6 @@ function onYouTubeIframeAPIReady() {
       }
     }
   });
-}
-
-function updateNpPlaying(playing) {
-  $("playerBar").classList.toggle("playing", playing);
 }
 
 /* ---------- timer ---------- */
@@ -255,7 +274,7 @@ function renderSongGrid() {
 
 function revealCurrent() {
   if (!$("songsPanel").classList.contains("open")) return;
-  const cur = document.querySelector(`.song-card.playing`);
+  const cur = document.querySelector(".song-card.playing");
   if (cur) cur.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -266,11 +285,8 @@ function openPanel() {
 }
 function closePanel() { $("songsPanel").classList.remove("open"); }
 function resetFilters() {
-  searchQuery = "";
-  activeYear = "ALL";
-  activeArtist = "ALL";
-  $("searchInput").value = "";
-  $("artistSelect").value = "ALL";
+  searchQuery = ""; activeYear = "ALL"; activeArtist = "ALL";
+  $("searchInput").value = ""; $("artistSelect").value = "ALL";
   document.querySelectorAll("#yearChips .chip").forEach(c => c.classList.toggle("active", c.dataset.year === "ALL"));
   renderSongGrid();
 }
@@ -284,38 +300,122 @@ function openSpotify() {
   const s = SONG_LIST[currentIndex];
   if (s) window.open(`https://open.spotify.com/search/${encodeURIComponent(`${s.title} ${s.artist}`)}`, "_blank", "noopener");
 }
-function openVideoModal(idx = currentIndex) {
+function openVideoModal(idx) {
   const s = SONG_LIST[idx];
   const id = s?.youtubeIds?.[0];
   if (!id) return;
   currentIndex = idx;
   $("videoTitle").textContent = s.title;
   $("videoFrame").src = `https://www.youtube.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0`;
-  $("videoModal").hidden = false;
+  $("videoModal").classList.add("open");
   document.body.style.overflow = "hidden";
 }
 function closeVideoModal() {
-  $("videoModal").hidden = true;
+  $("videoModal").classList.remove("open");
   $("videoFrame").src = "";
   document.body.style.overflow = "";
 }
-
-/* ---------- ambience ---------- */
-function buildEmbers() {
-  const wrap = $("embers");
-  for (let i = 0; i < 12; i++) {
-    const e = document.createElement("span");
-    e.className = "ember";
-    e.style.left = `${2 + Math.random() * 96}%`;
-    e.style.setProperty("--t", `${8 + Math.random() * 8}s`);
-    e.style.setProperty("--d", `${(Math.random() * 10).toFixed(1)}s`);
-    e.style.setProperty("--x", `${(Math.random() * 60 - 30).toFixed(0)}px`);
-    wrap.appendChild(e);
-  }
+function openModalToYoutube() {
+  const id = SONG_LIST[currentIndex]?.youtubeIds?.[0];
+  if (id) window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`, "_blank", "noopener");
 }
+
+/* ---------- radio ---------- */
+function renderRadio() {
+  const grid = $("radioGrid");
+  grid.innerHTML = RADIO_LIST.map(r => `
+    <div class="radio-card">
+      <span class="live-dot">LIVE</span>
+      <h3>${esc(r.name)}</h3>
+      <p class="tagline">${esc(r.tagline)}</p>
+      <div class="area">${esc(r.area)}</div>
+      <div class="r-tags">${(r.tags || []).map(t => `<span>${esc(t)}</span>`).join("")}</div>
+      <div class="r-links">
+        <a class="tune" href="${esc(r.link)}" target="_blank" rel="noopener">▶ TUNE IN</a>
+        ${r.site ? `<a class="site" href="${esc(r.site)}" target="_blank" rel="noopener">SITE</a>` : ""}
+      </div>
+    </div>`).join("");
+}
+
+/* ---------- culture ---------- */
+function renderCulture() {
+  const q = CULTURE.quotes[Math.floor(Date.now() / 86400000) % CULTURE.quotes.length];
+  if (q) {
+    $("qGurmukhi").textContent = q.gurmukhi;
+    $("qRoman").textContent = q.roman;
+    $("qEn").textContent = q.en;
+  }
+  $("factsGrid").innerHTML = CULTURE.facts.map(f => `
+    <div class="fact-card">
+      <div class="f-tag">${esc(f.how)}</div>
+      <h3>${esc(f.title)}</h3>
+      <p>${esc(f.text)}</p>
+    </div>`).join("");
+}
+
+/* ---------- background ---------- */
+function buildWheat() {
+  const rows = [
+    { id: "wheatBack", n: 40, min: 70, max: 115, base: 60 },
+    { id: "wheatMid", n: 34, min: 95, max: 145, base: 80 },
+    { id: "wheatFront", n: 26, min: 120, max: 175, base: 100 }
+  ];
+  rows.forEach(r => {
+    const row = $(r.id);
+    if (!row) return;
+    let h = "";
+    for (let i = 0; i < r.n; i++) {
+      const left = (i / r.n) * 100 + (Math.random() * 2.2 - 1.1);
+      const ht = r.min + Math.random() * (r.max - r.min);
+      const sw = 3.5 + Math.random() * 2;
+      const sway = (4 + Math.random() * 4).toFixed(2);
+      const delay = (Math.random() * 6).toFixed(2);
+      h += `<span class="stalk" style="left:${left.toFixed(2)}%;height:${ht.toFixed(0)}px;width:${sw.toFixed(1)}px;--sw:${sway}s;--sd:${delay}s"></span>`;
+    }
+    row.innerHTML = h;
+  });
+}
+
+function buildPetals() {
+  const wrap = $("petals");
+  const colors = ["#ef6d2e", "#d8a449", "#e9b76b", "#c0392b", "#f5e7c9"];
+  const centers = ["#7a1f0d", "#5a2a10", "#6b3a1a", "#3f280e", "#8a5a20"];
+  let h = "";
+  for (let i = 0; i < 14; i++) {
+    const size = 16 + Math.random() * 22;
+    const color = colors[i % colors.length];
+    const center = centers[i % centers.length];
+    const petals = [0, 72, 144, 216, 288]
+      .map(a => `<circle cx="${(20 + Math.cos(a * Math.PI / 180) * 11).toFixed(1)}" cy="${(20 + Math.sin(a * Math.PI / 180) * 11).toFixed(1)}" r="7"/>`)
+      .join("");
+    h += `<svg width="${size.toFixed(0)}" height="${size.toFixed(0)}" viewBox="0 0 40 40"
+      style="left:${(Math.random() * 94 + 2).toFixed(1)}%;--ft:${(13 + Math.random() * 9).toFixed(1)}s;--fd:${(Math.random() * 14).toFixed(1)}s;opacity:${(0.5 + Math.random() * 0.45).toFixed(2)}">
+      <g fill="${color}">${petals}</g>
+      <circle cx="20" cy="20" r="5" fill="${center}"/>
+      <circle cx="20" cy="20" r="8" fill="none" stroke="${color}" stroke-width="2" opacity=".55"/>
+    </svg>`;
+  }
+  wrap.innerHTML = h;
+}
+
 function buildMarquee() {
   const txt = SONG_LIST.map(s => s.title.toUpperCase()).join(" ✦ ") + " ✦ ";
   $("marqueeTrack").innerHTML = `<span>${txt}</span><span>${txt}</span>`;
+}
+
+function parallax() {
+  const scene = $("scene");
+  let t = null;
+  window.addEventListener("mousemove", e => {
+    const x = e.clientX / innerWidth - 0.5;
+    const y = e.clientY / innerHeight - 0.5;
+    if (t) return;
+    t = requestAnimationFrame(() => {
+      t = null;
+      document.documentElement.style.setProperty("--px", (x * 16).toFixed(1) + "px");
+      document.documentElement.style.setProperty("--py", (y * 10).toFixed(1) + "px");
+    });
+  });
 }
 
 function esc(v) {
