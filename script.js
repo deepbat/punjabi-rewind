@@ -6,6 +6,7 @@ const $ = id => document.getElementById(id);
 let player = null, playerReady = false, timer = null;
 let currentIndex = 0, isMuted = false, isShuffle = false, repeatMode = "off";
 let volume = 80;
+let radioMode = false, radioIndex = 0;
 let activeYear = "ALL", activeArtist = "ALL", searchQuery = "";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   buildPetals();
   buildMarquee();
   renderRadio();
+  wireRadioAudio();
   renderCulture();
   $("panelCount").textContent = SONG_LIST.length;
   fillArtists();
@@ -39,6 +41,7 @@ function wireEvents() {
   $("videoModal").addEventListener("click", e => { if (e.target === $("videoModal")) closeVideoModal(); });
   $("muteBtn").onclick = toggleMute;
   $("muteBtn2").onclick = toggleMute;
+  $("radioStopBtn").onclick = stopRadio;
 
   $("searchInput").addEventListener("input", e => { searchQuery = e.target.value.trim().toLowerCase(); renderSongGrid(); });
   $("artistSelect").addEventListener("change", e => { activeArtist = e.target.value; renderSongGrid(); });
@@ -53,11 +56,12 @@ function wireEvents() {
   const slider = $("volumeSlider");
   slider.addEventListener("input", () => {
     volume = +slider.value;
+    if (radioMode) { const a = $("radioAudio"); if (a) a.volume = volume / 100; return; }
     if (playerReady) { if (volume > 0 && isMuted) setMuted(false); player.setVolume(volume); }
   });
 
   $("progressBar").addEventListener("click", e => {
-    if (!playerReady) return;
+    if (radioMode || !playerReady) return;
     const d = player.getDuration();
     if (!d) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -103,7 +107,16 @@ function setMuted(mute) {
   $("muteBtn2").textContent = isMuted ? "MUTED" : "VOL";
   $("volumeSlider").value = volume;
 }
-function toggleMute() { if (playerReady) setMuted(!isMuted); }
+function toggleMute() {
+  if (radioMode) {
+    isMuted = !isMuted;
+    const a = $("radioAudio"); if (a) a.muted = isMuted;
+    $("muteBtn").textContent = isMuted ? "SOUND OFF" : "SOUND ON";
+    $("muteBtn2").textContent = isMuted ? "MUTED" : "VOL";
+    return;
+  }
+  if (playerReady) setMuted(!isMuted);
+}
 
 function toggleShuffle() {
   isShuffle = !isShuffle;
@@ -130,6 +143,7 @@ function nextIndex() {
 
 /* ---------- playback ---------- */
 function selectSong(i, autoplay) {
+  exitRadioMode();
   if (!SONG_LIST[i]) return;
   currentIndex = i;
   const s = SONG_LIST[i];
@@ -159,6 +173,12 @@ function playFromGrid(i, autoplay) {
 }
 
 function togglePlay() {
+  if (radioMode) {
+    const a = $("radioAudio");
+    if (a.paused) a.play().catch(markRadioError);
+    else a.pause();
+    return;
+  }
   if (!playerReady) return;
   const state = player.getPlayerState();
   if (state === YT.PlayerState.PLAYING) player.pauseVideo();
@@ -168,8 +188,14 @@ function playCurrent() {
   if (!playerReady) { selectSong(0, true); return; }
   cueTrack(true);
 }
-function previous() { selectSong((currentIndex - 1 + SONG_LIST.length) % SONG_LIST.length, true); }
-function next() { selectSong(nextIndex(), true); }
+function previous() {
+  if (radioMode) { tuneRadio((radioIndex - 1 + RADIO_LIST.length) % RADIO_LIST.length); return; }
+  selectSong((currentIndex - 1 + SONG_LIST.length) % SONG_LIST.length, true);
+}
+function next() {
+  if (radioMode) { tuneRadio((radioIndex + 1) % RADIO_LIST.length); return; }
+  selectSong(nextIndex(), true);
+}
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
@@ -179,7 +205,7 @@ function onYouTubeIframeAPIReady() {
       onReady: () => {
         playerReady = true;
         player.setVolume(volume);
-        if (SONG_LIST.length) selectSong(0, false);
+        if (SONG_LIST.length && !radioMode) selectSong(0, false);
       },
       onError: () => { $("playerTitle").textContent = "This YouTube source cannot be played here"; },
       onStateChange: e => {
@@ -301,6 +327,7 @@ function openSpotify() {
   if (s) window.open(`https://open.spotify.com/search/${encodeURIComponent(`${s.title} ${s.artist}`)}`, "_blank", "noopener");
 }
 function openVideoModal(idx) {
+  exitRadioMode();
   const s = SONG_LIST[idx];
   const id = s?.youtubeIds?.[0];
   if (!id) return;
@@ -320,21 +347,103 @@ function openModalToYoutube() {
   if (id) window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`, "_blank", "noopener");
 }
 
-/* ---------- radio ---------- */
+/* ---------- radio (in-page streaming, no new tabs) ---------- */
 function renderRadio() {
   const grid = $("radioGrid");
-  grid.innerHTML = RADIO_LIST.map(r => `
-    <div class="radio-card">
+  grid.innerHTML = RADIO_LIST.map((r, i) => `
+    <div class="radio-card" data-i="${i}">
       <span class="live-dot">LIVE</span>
       <h3>${esc(r.name)}</h3>
       <p class="tagline">${esc(r.tagline)}</p>
       <div class="area">${esc(r.area)}</div>
       <div class="r-tags">${(r.tags || []).map(t => `<span>${esc(t)}</span>`).join("")}</div>
-      <div class="r-links">
-        <a class="tune" href="${esc(r.link)}" target="_blank" rel="noopener">▶ TUNE IN</a>
-        ${r.site ? `<a class="site" href="${esc(r.site)}" target="_blank" rel="noopener">SITE</a>` : ""}
-      </div>
+      <button class="tune" data-i="${i}" type="button" aria-label="Play ${esc(r.name)}">
+        <span class="tune-ico">▶</span> TUNE IN
+      </button>
     </div>`).join("");
+  grid.querySelectorAll(".tune").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    if (radioMode && radioIndex === i && !$("radioAudio").paused) stopRadio();
+    else tuneRadio(i);
+  });
+}
+
+function wireRadioAudio() {
+  const a = $("radioAudio");
+  a.addEventListener("playing", () => setRadioUi(true));
+  a.addEventListener("pause", () => setRadioUi(false));
+  a.addEventListener("error", markRadioError);
+  a.volume = volume / 100;
+}
+
+function tuneRadio(i) {
+  const s = RADIO_LIST[i];
+  if (!s) return;
+  radioMode = true;
+  radioIndex = i;
+  if (playerReady && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
+  const a = $("radioAudio");
+  a.src = s.stream;
+  a.muted = isMuted;
+  a.volume = volume / 100;
+  a.play().catch(markRadioError);
+  setRadioMeta();
+  $("playerBar").classList.add("radio-mode");
+  $("radioStopBtn").hidden = false;
+  document.querySelectorAll(".radio-card").forEach(c => c.classList.toggle("now", +c.dataset.i === i));
+  setRadioUi(true);
+}
+
+function setRadioMeta() {
+  const s = RADIO_LIST[radioIndex];
+  if (!s) return;
+  $("playerTitle").textContent = s.name;
+  $("playerMeta").textContent = `${s.area} · LIVE`;
+  $("currentTime").textContent = "LIVE";
+  $("duration").textContent = "·";
+  $("progressFill").style.width = "100%";
+  $("progressThumb").style.left = "100%";
+}
+
+function setRadioUi(playing) {
+  $("playBtn").textContent = playing ? "Ⅱ" : "▶";
+  $("playerBar").classList.toggle("playing", playing);
+  document.querySelectorAll(".radio-card").forEach(c => {
+    if (+c.dataset.i === radioIndex) {
+      c.classList.toggle("now", playing);
+      const b = c.querySelector(".tune-ico");
+      if (b) b.textContent = playing ? "Ⅱ" : "▶";
+    }
+  });
+}
+
+function markRadioError() {
+  if (!radioMode) return;
+  $("playerTitle").textContent = "Station unreachable right now";
+  $("playerMeta").textContent = "Tap another station to retry";
+  setRadioUi(false);
+}
+
+function exitRadioMode() {
+  if (!radioMode) return;
+  radioMode = false;
+  const a = $("radioAudio");
+  a.pause();
+  a.removeAttribute("src");
+  try { a.load(); } catch (e) {}
+  $("playerBar").classList.remove("radio-mode", "playing");
+  $("radioStopBtn").hidden = true;
+  $("playBtn").textContent = "▶";
+  $("progressFill").style.width = "0%";
+  $("progressThumb").style.left = "0%";
+  $("currentTime").textContent = "0:00";
+  $("duration").textContent = "0:00";
+  document.querySelectorAll(".radio-card").forEach(c => c.classList.remove("now"));
+}
+
+function stopRadio() {
+  exitRadioMode();
+  if (SONG_LIST.length) selectSong(currentIndex, false);
 }
 
 /* ---------- culture ---------- */
