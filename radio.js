@@ -5,8 +5,9 @@
    To add/remove/reorder stations, edit RADIO_STATIONS only. */
 const RADIO_STATIONS = [
   {name:'Punjabi Radio USA', desc:'24/7 Punjabi music & talk, streamed via Voscast.', url:'https://s5.voscast.com:9281/stream'},
-  {name:'CMR Punjabi HD', desc:'Punjabi hits from the CMR24 network.', url:'https://live.cmr24.net/CMR/Punjabi-MQ/icecast.audio'},
-  {name:'Radio Chann Pardesi', desc:'Punjabi, Hindi, English & Gurbani mix.', url:'https://mehramedia.in:3021/'},
+  {name:'ClubHouse Punjabi Vibes', desc:'Non-stop Punjabi party & DJ mix from SwaggerBeat.', url:'https://liveradio.swaggerbeat.com:8022/stream'},
+  {name:'Harman Radio Australia', desc:'Punjabi geet, culture & community from Down Under.', url:'https://radio.sanbroz.com/listen/harman_radio_australia/radio.mp3'},
+  {name:'Start Radio', desc:'AzuraCast Punjabi station, 128kbps MP3.', url:'https://canada.startradio.in:8000/radio.mp3'},
 ];
 const RADIO_TIMEOUT_MS = 6000;
 

@@ -44,6 +44,45 @@ a{color:inherit}
   background-size:64px 64px,64px 64px,64px 64px;
   background-position:0 0,22px 32px,44px 8px;
 }
+
+/* ============ ANIMATED PUNJABI CULTURAL BACKDROP ============ */
+/* Hand-drawn-style SVG silhouettes (peacocks, phulkari blooms, wheat, dhol,
+   bhangra dancer, kalash) drifting slowly behind everything. Pure SVG/CSS,
+   no image assets — same truck-art palette, very low opacity so the UI stays readable. */
+.culture-bg{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.motif{position:absolute;color:var(--chrome);opacity:.14;filter:drop-shadow(0 0 10px rgba(0,0,0,.35));will-change:transform}
+.motif.peacock{color:var(--peacock);opacity:.16}
+.motif.phulkari{color:var(--marigold);opacity:.13}
+.motif.wheat{color:var(--marigold);opacity:.13}
+.motif.dhol{color:var(--gulabi);opacity:.14}
+.motif.bhangra{color:var(--zafran);opacity:.14}
+.motif.kalash{color:var(--peacock);opacity:.12}
+
+/* peacocks strut slowly across the sky */
+.motif.p1{width:150px;left:0;top:12%;animation:driftL 70s linear infinite}
+.motif.p2{width:110px;right:0;top:30%;animation:driftR 85s linear infinite}
+/* phulkari blooms breathe & slowly revolve */
+.motif.f1{width:120px;left:8%;top:58%;animation:breathe 12s ease-in-out infinite alternate}
+.motif.f2{width:90px;right:12%;top:64%;animation:breathe 15s ease-in-out infinite alternate reverse}
+/* wheat stalks sway like a pind field */
+.motif.w1{width:34px;left:16%;bottom:4%;animation:sway 6s ease-in-out infinite alternate;transform-origin:bottom center}
+.motif.w2{width:26px;right:20%;bottom:7%;animation:sway 7s ease-in-out infinite alternate-reverse;transform-origin:bottom center}
+/* dhol & bhangra dancer pulse to an imagined beat */
+.motif.dhol{width:180px;left:38%;top:72%;animation:breathe 4s ease-in-out infinite}
+.motif.bhangra{width:70px;right:30%;top:44%;animation:sway 3.4s ease-in-out infinite alternate;transform-origin:bottom center}
+/* kalash as a quiet anchor near the marquee */
+.motif.kalash{width:56px;left:46%;bottom:-2%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
+
+@keyframes driftL{from{transform:translateX(-10vw)}to{transform:translateX(110vw)}}
+@keyframes driftR{from{transform:translateX(10vw)}to{transform:translateX(-110vw)}}
+@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes breathe{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+@media(max-width:760px){
+  .motif.f1,.motif.dhol{display:none}
+  .motif.p1{width:110px;top:16%}
+  .motif.bhangra{width:56px}
+}
 .diesel{position:absolute;z-index:3;width:3px;height:3px;border-radius:50%;background:var(--marigold);opacity:0;filter:blur(.5px);animation:rise 9s linear infinite}
 .diesel:nth-child(2){left:18%;bottom:10%}.diesel:nth-child(3){left:40%;bottom:22%;animation-delay:2.6s;background:var(--gulabi)}
 .diesel:nth-child(4){left:63%;bottom:16%;animation-delay:5s;background:var(--peacock)}.diesel:nth-child(5){left:84%;bottom:28%;animation-delay:7.2s}
