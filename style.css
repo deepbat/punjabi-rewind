@@ -5,9 +5,7 @@
   --line:rgba(239,232,216,.16);
   --glass:rgba(20,13,34,.78);
   --radius:14px;
-  --world-label:"Truck Art";
 }
-/* CINEMA DHABA — 1970s Bollywood single-screen marquee: maroon velvet, marigold bulbs, neon */
 [data-theme="cinema"]{
   --night:#1a0705;--night2:#2c0f0b;--night3:#3d150e;
   --marigold:#ffcf5c;--gulabi:#ff3b3b;--peacock:#2fd1c5;--zafran:#ff8a3d;
@@ -16,7 +14,6 @@
   --glass:rgba(36,12,9,.8);
   --radius:6px;
 }
-/* PHULKARI LOOM — hand-embroidered thread world: terracotta, cream, indigo needlework */
 [data-theme="loom"]{
   --night:#241608;--night2:#33200f;--night3:#402a16;
   --marigold:#eaa53f;--gulabi:#c9503f;--peacock:#3f8274;--zafran:#d97b3f;
@@ -25,7 +22,6 @@
   --glass:rgba(36,22,10,.8);
   --radius:2px;
 }
-/* BASERA NIGHT — indigo village night sky, diya lamps, moonlit pind skyline */
 [data-theme="basera"]{
   --night:#070b1a;--night2:#0e1630;--night3:#141f42;
   --marigold:#ffd27a;--gulabi:#ff6f9c;--peacock:#3fc1c9;--zafran:#ffb454;
@@ -35,297 +31,96 @@
   --radius:18px;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
-body{margin:0;background:var(--night);color:var(--chrome);font-family:Mukta,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .6s ease,color .6s ease}
-body,.scene,.ornament-strip,.rail,.radio-panel,.culture-card,.song-card,.player-bar,.kinetic,.enter,.mute,.browse{transition:background-color .6s ease,border-color .6s ease,color .6s ease,box-shadow .6s ease}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--chrome);font-family:Mukta,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;transition:background-color .6s ease,color .6s ease}
+body,.pod,.dash-top,.dash-player,.dial,.radio-controls button,.song-card,.enter,.mute{transition:background-color .6s ease,border-color .6s ease,color .6s ease,box-shadow .6s ease}
 button,input{font:inherit}
 button{cursor:pointer}
-a{color:inherit}
+a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--marigold);outline-offset:3px}
 
-/* ============ SIGNATURE: truck-art rivet/ornament border ============ */
-.ornament-strip{
-  height:22px;width:100%;position:relative;z-index:6;
-  background-image:
-    radial-gradient(circle at 10px 11px, var(--chrome) 0 2.5px, transparent 3px),
-    repeating-linear-gradient(90deg, var(--peacock) 0 24px, var(--gulabi) 24px 48px, var(--marigold) 48px 72px);
-  background-size:24px 100%, 72px 100%;
-  border-top:1px solid rgba(0,0,0,.4);border-bottom:1px solid rgba(0,0,0,.4);
-  box-shadow:0 2px 12px rgba(0,0,0,.5) inset;
-}
-.ornament-strip.bottom{order:99}
+/* ============ APP SHELL — fixed-viewport dashboard, not a scrolling page ============ */
+.dash{height:100dvh;height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;
+  background:radial-gradient(120% 90% at 50% -10%,#2a1a46 0%,var(--night) 55%)}
 
-/* per-theme border language: each world gets a structurally different edge, not just a recolor */
-[data-theme="cinema"] .ornament-strip{
-  background-image:
-    radial-gradient(circle at 12px 11px, var(--marigold) 0 4px, transparent 4.5px),
-    repeating-linear-gradient(90deg, var(--night3) 0 26px, var(--gulabi) 26px 28px);
-  background-size:26px 100%, 26px 100%;
-}
-[data-theme="loom"] .ornament-strip{
-  background-image:
-    repeating-linear-gradient(45deg, var(--marigold) 0 3px, transparent 3px 10px),
-    repeating-linear-gradient(-45deg, var(--peacock) 0 3px, transparent 3px 10px),
-    linear-gradient(var(--night3),var(--night3));
-  background-size:20px 100%,20px 100%,100% 100%;
-}
-[data-theme="basera"] .ornament-strip{
-  background-image:
-    radial-gradient(circle at 8px 11px, var(--chrome) 0 1.6px, transparent 2px),
-    radial-gradient(circle at 22px 6px, var(--marigold) 0 1px, transparent 1.4px),
-    linear-gradient(var(--night2),var(--night2));
-  background-size:34px 100%,34px 100%,100% 100%;
-}
+/* ambient generative backdrop — positioned relative to the fixed 100vh shell, so it
+   can never "leak" past the viewport the way a tall scrolling page's background can */
+.dash-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.dash-bg:before,.dash-bg:after{content:"";position:absolute;inset:-20%;filter:blur(70px);opacity:.4}
+.dash-bg:before{background:radial-gradient(30% 30% at 18% 20%,rgba(255,178,0,.4),transparent 70%),radial-gradient(28% 26% at 85% 18%,rgba(255,54,112,.36),transparent 70%),radial-gradient(34% 30% at 50% 90%,rgba(0,179,164,.34),transparent 70%);animation:aurora 26s ease-in-out infinite alternate}
+.dash-bg:after{background:radial-gradient(24% 22% at 80% 70%,rgba(255,106,53,.32),transparent 70%);opacity:.3;animation:aurora2 32s ease-in-out infinite alternate}
+@keyframes aurora{to{transform:translate(3%,-2%) scale(1.04)}}
+@keyframes aurora2{to{transform:translate(-4%,3%) scale(1.06)}}
+.motif{position:absolute;color:var(--chrome);opacity:.16;filter:drop-shadow(0 0 12px rgba(0,0,0,.4));will-change:transform}
+.motif.peacock{color:var(--peacock);opacity:.22}
+.motif.phulkari{color:var(--marigold);opacity:.18}
+.motif.wheat{color:var(--marigold);opacity:.2}
+.motif.mandala{color:var(--marigold);opacity:.1;animation:spinSlow 90s linear infinite}
+.motif.p1{width:130px;left:2%;top:8%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
+.motif.f1{width:100px;right:4%;top:12%;animation:breathe 12s ease-in-out infinite alternate}
+.motif.w1{width:34px;left:6%;bottom:8%;animation:sway 6s ease-in-out infinite alternate;transform-origin:bottom center}
+.motif.mandala{width:52vmin;height:52vmin;left:50%;top:50%;transform:translate(-50%,-50%)}
+@keyframes spinSlow{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes sway{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@media(max-width:900px){.motif{display:none}}
 
-/* chassis frame - fixed side rails suggesting looking through a truck's painted tailgate opening */
-.rail{position:fixed;top:0;bottom:0;width:14px;z-index:35;pointer-events:none;
-  background:repeating-linear-gradient(180deg, var(--marigold) 0 18px, var(--gulabi) 18px 36px, var(--peacock) 36px 54px);
-  box-shadow:0 0 24px rgba(0,0,0,.6) inset;
-}
-.rail.left{left:0}.rail.right{right:0}
-@media(max-width:760px){.rail{width:7px}}
-
-.scene{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% -10%, #2a1a46 0%, var(--night) 55%);padding:0 14px}
-@media(max-width:760px){.scene{padding:0 7px}}
-
-/* generative phulkari-style tiling texture, low opacity */
-.phulkari{position:absolute;inset:0;z-index:0;opacity:.10;pointer-events:none;
-  background-image:radial-gradient(circle,var(--marigold) 1.6px,transparent 1.8px),radial-gradient(circle,var(--gulabi) 1.6px,transparent 1.8px),radial-gradient(circle,var(--peacock) 1.6px,transparent 1.8px);
-  background-size:64px 64px,64px 64px,64px 64px;
-  background-position:0 0,22px 32px,44px 8px;
-}
-
-/* ============ ANIMATED PUNJABI CULTURAL BACKDROP ============ */
-/* Hand-drawn-style SVG silhouettes (peacocks, phulkari blooms, wheat, dhol,
-   bhangra dancer, kalash, painted truck) drifting behind everything, plus a slow
-   aurora wash of the truck-art palette. Pure SVG/CSS, no image assets. */
-.culture-bg{position:absolute;top:0;left:0;right:0;height:100vh;z-index:1;overflow:hidden;pointer-events:none}
-/* animated aurora wash - marigold / gulabi / peacock light slowly moving behind motifs */
-.culture-bg:before,.culture-bg:after{content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(70px);opacity:.5}
-.culture-bg:before{background:radial-gradient(38% 32% at 22% 30%,rgba(255,178,0,.5),transparent 70%),radial-gradient(34% 30% at 78% 24%,rgba(255,54,112,.42),transparent 70%),radial-gradient(42% 36% at 55% 82%,rgba(0,179,164,.42),transparent 70%);animation:aurora 26s ease-in-out infinite alternate}
-.culture-bg:after{background:radial-gradient(30% 26% at 80% 60%,rgba(255,106,53,.4),transparent 70%),radial-gradient(36% 30% at 30% 70%,rgba(0,179,164,.36),transparent 70%);opacity:.35;animation:aurora2 32s ease-in-out infinite alternate}
-@keyframes aurora{from{transform:translate(-3%,-2%) rotate(0deg)}to{transform:translate(4%,3%) rotate(6deg)}}
-@keyframes aurora2{from{transform:translate(3%,2%) rotate(0deg)}to{transform:translate(-4%,-3%) rotate(-8deg)}}
-
-.motif{position:absolute;z-index:1;color:var(--chrome);opacity:.3;filter:drop-shadow(0 0 12px rgba(0,0,0,.45));will-change:transform}
-.motif.peacock{color:var(--peacock);opacity:.4;filter:drop-shadow(0 0 14px rgba(0,179,164,.5)) drop-shadow(0 0 3px rgba(0,0,0,.5))}
-.motif.phulkari{color:var(--marigold);opacity:.32;filter:drop-shadow(0 0 12px rgba(255,178,0,.4))}
-.motif.wheat{color:var(--marigold);opacity:.34}
-.motif.dhol{color:var(--gulabi);opacity:.32;filter:drop-shadow(0 0 12px rgba(255,54,112,.4))}
-.motif.bhangra{color:var(--zafran);opacity:.34;filter:drop-shadow(0 0 10px rgba(255,106,53,.4))}
-.motif.kalash{color:var(--peacock);opacity:.3}
-.motif.truck{color:var(--gulabi);opacity:.26;filter:drop-shadow(0 0 12px rgba(255,54,112,.35))}
-
-/* peacocks strut slowly across the sky */
-.motif.p1{width:150px;left:0;top:12%;animation:driftL 70s linear infinite}
-.motif.p2{width:110px;right:0;top:30%;animation:driftR 85s linear infinite}
-/* phulkari blooms breathe & slowly revolve */
-.motif.f1{width:130px;left:8%;top:58%;animation:breathe 12s ease-in-out infinite alternate}
-.motif.f2{width:95px;right:12%;top:64%;animation:breathe 15s ease-in-out infinite alternate reverse}
-/* big phulkari mandala slowly rotates behind the hero */
-.motif.f3{width:46vmin;height:46vmin;left:50%;top:44%;transform:translate(-50%,-50%);opacity:.16;color:var(--marigold);filter:drop-shadow(0 0 22px rgba(255,178,0,.35));animation:mandala 90s linear infinite}
-@keyframes mandala{to{transform:translate(-50%,-50%) rotate(360deg)}}
-/* wheat stalks sway like a pind field */
-.motif.w1{width:38px;left:16%;bottom:16%;animation:sway 6s ease-in-out infinite alternate;transform-origin:bottom center}
-.motif.w2{width:28px;right:20%;bottom:18%;animation:sway 7s ease-in-out infinite alternate-reverse;transform-origin:bottom center}
-/* dhol & bhangra dancer pulse to an imagined beat */
-.motif.dhol{width:190px;left:38%;top:72%;animation:breathe 4s ease-in-out infinite}
-.motif.bhangra{width:74px;right:30%;top:44%;animation:sway 3.4s ease-in-out infinite alternate;transform-origin:bottom center}
-/* kalash as a quiet anchor near the marquee */
-.motif.kalash{width:60px;left:46%;bottom:6%;animation:sway 8s ease-in-out infinite alternate;transform-origin:bottom center}
-/* painted truck cruises along the bottom edge, above the player bar */
-.motif.truck{width:190px;left:0;bottom:15%;animation:driftL 120s linear infinite}
-
-@keyframes driftL{from{transform:translateX(-15vw)}to{transform:translateX(115vw)}}
-@keyframes driftR{from{transform:translateX(15vw)}to{transform:translateX(-115vw)}}
-@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
-@keyframes breathe{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
-
-@media(max-width:760px){
-  .motif.f1,.motif.dhol{display:none}
-  .motif.p1{width:110px;top:16%}
-  .motif.bhangra{width:56px}
-}
-.diesel{position:absolute;z-index:3;width:3px;height:3px;border-radius:50%;background:var(--marigold);opacity:0;filter:blur(.5px);animation:rise 9s linear infinite}
-.diesel:nth-child(2){left:18%;bottom:10%}.diesel:nth-child(3){left:40%;bottom:22%;animation-delay:2.6s;background:var(--gulabi)}
-.diesel:nth-child(4){left:63%;bottom:16%;animation-delay:5s;background:var(--peacock)}.diesel:nth-child(5){left:84%;bottom:28%;animation-delay:7.2s}
-@keyframes rise{0%{transform:translateY(20px);opacity:0}20%{opacity:.7}100%{transform:translateY(-160px) translateX(18px);opacity:0}}
-
-/* header */
-.top{position:relative;z-index:10;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5vw}
-.logo{display:flex;gap:10px;align-items:center;color:#fff;text-decoration:none}
-.logo-mark{width:42px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:15px;color:var(--night);
+/* ============ TOP BAR ============ */
+.dash-top{flex:0 0 auto;position:relative;z-index:10;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--line)}
+.logo{display:flex;gap:9px;align-items:center;color:#fff}
+.logo-mark{width:36px;height:26px;border-radius:6px;display:grid;place-items:center;font-size:13px;color:var(--night);
   background:linear-gradient(135deg,var(--marigold),var(--zafran));box-shadow:0 3px 10px rgba(255,106,53,.35)}
-.logo b,.logo strong{display:block;line-height:1}.logo b{font-size:13px;font-weight:600;letter-spacing:.02em}
-.logo strong{color:var(--gulabi);font-size:16px;font-weight:800;font-family:"Bungee",cursive;letter-spacing:.01em}
-.route{font:600 11px "Outfit",sans-serif;letter-spacing:.14em;color:var(--peacock)}
-.top-actions{display:flex;gap:10px;align-items:center}
-.mute,.browse{background:rgba(36,22,56,.6);border:1px solid var(--line);border-radius:999px;color:var(--chrome);font:600 11px "Outfit",sans-serif;letter-spacing:.08em;padding:9px 15px;backdrop-filter:blur(6px);transition:.2s}
-.mute:hover,.browse:hover{border-color:var(--marigold);color:var(--marigold)}
+.logo b,.logo strong{display:block;line-height:1}.logo b{font-size:11px;font-weight:600;letter-spacing:.02em}
+.logo strong{color:var(--gulabi);font-size:14px;font-weight:800;font-family:"Bungee",cursive}
+.top-actions{display:flex;gap:8px;align-items:center}
+.mute{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;color:var(--chrome);font:600 10px "Outfit",sans-serif;letter-spacing:.06em;padding:8px 13px;transition:.2s}
+.mute:hover{border-color:var(--marigold);color:var(--marigold)}
 
-/* ============ HERO: kinetic typography centerpiece ============ */
-.hero{position:relative;z-index:5;min-height:calc(100vh - 76px - 44px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;max-width:1100px;margin:auto;padding:4vh 5vw 120px}
-.hero-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse 55% 42% at 50% 46%,rgba(255,54,112,.20),transparent 70%),radial-gradient(ellipse 40% 30% at 50% 46%,rgba(0,179,164,.16),transparent 70%)}
-.kicker{position:relative;font:600 12px "Outfit",sans-serif;letter-spacing:.22em;color:var(--marigold);margin:0 0 14px;text-transform:uppercase}
-.now-label{position:relative;font:600 11px "Outfit",sans-serif;letter-spacing:.2em;color:var(--chrome-dim);margin:0 0 8px;text-transform:uppercase}
+/* ============ DASHBOARD GRID — three permanent pods, no scroll-to-discover content ============ */
+.dash-grid{flex:1 1 auto;min-height:0;position:relative;z-index:5;display:grid;grid-template-columns:290px 1fr 290px;gap:14px;padding:14px 18px}
+.pod{position:relative;min-height:0;background:linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:var(--radius,14px);padding:18px;overflow-y:auto;scrollbar-width:thin}
+.pod-label{margin:0 0 14px;font:700 11px "Outfit",sans-serif;letter-spacing:.2em;color:var(--marigold);text-transform:uppercase;display:flex;align-items:center;gap:8px}
 
-.kinetic-wrap{position:relative;padding:8px 0}
-.kinetic{
-  font-family:"Bungee",cursive;font-weight:400;
-  font-size:clamp(42px,8.5vw,128px);line-height:.96;letter-spacing:-.01em;margin:0;
-  color:var(--chrome);
-  text-shadow:3px 3px 0 var(--gulabi),6px 6px 0 var(--peacock),0 12px 40px rgba(0,0,0,.55);
-  transition:transform .12s ease-out;
-}
-.kinetic em{font-style:normal;color:var(--marigold);text-shadow:3px 3px 0 var(--zafran),6px 6px 0 var(--gulabi),0 12px 40px rgba(0,0,0,.55)}
-.kinetic.is-playing{animation:enginePulse var(--beat,900ms) ease-in-out infinite}
-@keyframes enginePulse{0%{transform:scale(1) skewX(0)}35%{transform:scale(1.035) skewX(-.6deg)}70%{transform:scale(.99) skewX(.4deg)}100%{transform:scale(1) skewX(0)}}
-.kinetic-artist{position:relative;font:700 15px "Outfit",sans-serif;letter-spacing:.06em;color:var(--peacock);margin:14px 0 0}
-.kinetic-artist span{color:var(--chrome-dim);font-weight:500}
-
-.sub{position:relative;max-width:560px;font-size:16px;font-weight:400;line-height:1.7;color:var(--chrome-dim);margin:22px auto 0}
-.hero-actions{position:relative;display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:30px}
-.enter{padding:15px 28px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--gulabi),var(--zafran));color:#fff;font:700 13px "Outfit",sans-serif;letter-spacing:.06em;box-shadow:0 14px 34px rgba(255,54,112,.32);transition:.25s}
-.enter span{margin-right:8px}.enter:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(255,54,112,.42)}
-.enter.ghost{background:none;border:1.5px solid var(--peacock);color:var(--peacock);box-shadow:none}
-.enter.ghost:hover{background:rgba(0,179,164,.12)}
-
-/* marquee - chrome LED sign */
-.marquee{position:relative;z-index:4;overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(0,0,0,.28);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.marquee-track{display:flex;gap:2rem;white-space:nowrap;animation:scroll 28s linear infinite;font:700 13px "Outfit",sans-serif;letter-spacing:.28em;color:var(--marigold);padding:10px 0}
-.marquee-track span{flex:0 0 auto}
-@keyframes scroll{to{transform:translateX(-50%)}}
-
-/* ============ shared panel/section chrome ============ */
-.section{position:relative;z-index:8;padding:56px 2vw 20px}
-.section-head{max-width:1180px;margin:0 auto 24px;display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
-.section-head h2{margin:6px 0 0;font-family:Mukta,sans-serif;font-weight:800;font-size:clamp(22px,3vw,32px);line-height:1.05}
-.section .kicker{margin-bottom:6px}
-.panel-close{background:none;border:1px solid var(--line);border-radius:999px;color:var(--chrome);padding:10px 16px;font:600 12px "Outfit",sans-serif}
-.panel-close:hover{border-color:var(--gulabi);color:var(--gulabi)}
-
-/* ============ LIVE RADIO dashboard dial ============ */
-.radio-panel{max-width:1180px;margin:0 auto;background:linear-gradient(160deg,var(--night3),var(--night2));border:1px solid var(--line);border-radius:22px;padding:28px 5vw;display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center;box-shadow:0 20px 50px rgba(0,0,0,.4)}
-.dial{width:118px;height:118px;border-radius:50%;flex:0 0 auto;position:relative;
+/* -- radio pod -- */
+.pod-radio{display:flex;flex-direction:column;align-items:center;text-align:center}
+.dial{width:104px;height:104px;border-radius:50%;flex:0 0 auto;position:relative;margin-bottom:14px;
   background:conic-gradient(var(--peacock) 0deg,var(--gulabi) 120deg,var(--marigold) 240deg,var(--peacock) 360deg);
-  box-shadow:0 0 0 6px rgba(0,0,0,.35),0 12px 30px rgba(0,0,0,.5);display:grid;place-items:center}
-.dial:before{content:"";position:absolute;inset:12px;border-radius:50%;background:var(--night2);box-shadow:inset 0 2px 8px rgba(0,0,0,.6)}
-.dial-btn{position:relative;z-index:2;width:56px;height:56px;border-radius:50%;border:none;background:var(--chrome);color:var(--night);font-size:20px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:.2s}
+  box-shadow:0 0 0 5px rgba(0,0,0,.3),0 10px 26px rgba(0,0,0,.5);display:grid;place-items:center}
+.dial:before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--night2);box-shadow:inset 0 2px 8px rgba(0,0,0,.6)}
+.dial-btn{position:relative;z-index:2;width:48px;height:48px;border-radius:50%;border:none;background:var(--chrome);color:var(--night);font-size:17px;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:.2s}
 .dial-btn:hover{background:var(--marigold)}
 .dial.tuning{animation:spin 1.1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.radio-info{min-width:0}
-.radio-eyebrow{font:700 11px "Outfit",sans-serif;letter-spacing:.2em;color:var(--peacock);margin:0 0 6px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--gulabi);box-shadow:0 0 0 0 rgba(255,54,112,.6);animation:pulse-dot 1.6s ease-in-out infinite}
+.radio-eyebrow{font:700 10px "Outfit",sans-serif;letter-spacing:.16em;color:var(--peacock);margin:0 0 6px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:7px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--gulabi);box-shadow:0 0 0 0 rgba(255,54,112,.6);animation:pulse-dot 1.6s ease-in-out infinite}
 @keyframes pulse-dot{0%{box-shadow:0 0 0 0 rgba(255,54,112,.55)}70%{box-shadow:0 0 0 8px rgba(255,54,112,0)}100%{box-shadow:0 0 0 0 rgba(255,54,112,0)}}
-.radio-station{font-family:"Bungee",cursive;font-size:clamp(20px,2.6vw,30px);color:var(--chrome);margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.radio-desc{font-size:14px;color:var(--chrome-dim);margin:0 0 14px;line-height:1.5}
-.radio-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.radio-controls button{border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--chrome);border-radius:999px;padding:9px 16px;font:600 11px "Outfit",sans-serif;letter-spacing:.06em;transition:.2s}
+.radio-station{font-family:"Bungee",cursive;font-size:17px;color:var(--chrome);margin:0 0 6px;overflow-wrap:anywhere}
+.radio-desc{font-size:12px;color:var(--chrome-dim);margin:0 0 14px;line-height:1.5}
+.radio-controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.radio-controls button{border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--chrome);border-radius:999px;padding:7px 11px;font:600 10px "Outfit",sans-serif;letter-spacing:.03em;transition:.2s}
 .radio-controls button:hover{border-color:var(--marigold);color:var(--marigold)}
 .radio-controls .radio-station-btn.active{border-color:var(--gulabi);color:var(--gulabi);background:rgba(255,54,112,.1)}
-@media(max-width:640px){.radio-panel{grid-template-columns:1fr;text-align:center;justify-items:center;padding:26px 6vw}.radio-controls{justify-content:center}}
 
-/* ============ culture strip ============ */
-.culture-strip{max-width:1180px;margin:44px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.culture-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:20px}
-.culture-card .tag{font:700 10px "Outfit",sans-serif;letter-spacing:.18em;color:var(--marigold);text-transform:uppercase}
-.culture-card p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--chrome-dim)}
-.culture-card strong{color:var(--chrome);display:block;font-size:15px;margin-top:2px}
+/* -- center gauge pod (kinetic readout + steering wheel) -- */
+.pod-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+.gauge-ring{position:relative;width:100%;max-width:440px;padding:22px 16px;border:1px solid var(--line);border-radius:50%/38%;
+  background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(255,54,112,.14),transparent 70%),radial-gradient(ellipse 55% 45% at 50% 45%,rgba(0,179,164,.12),transparent 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center}
+.now-label{font:600 10px "Outfit",sans-serif;letter-spacing:.18em;color:var(--chrome-dim);margin:0 0 8px;text-transform:uppercase}
+.kinetic-wrap{position:relative}
+@media(hover:hover) and (pointer:fine){.kinetic-wrap{perspective:900px}.kinetic-tilt{transition:transform .15s ease-out;transform-style:preserve-3d}}
+.kinetic{font-family:"Bungee",cursive;font-weight:400;font-size:clamp(26px,3.6vw,46px);line-height:1.02;letter-spacing:-.01em;margin:0;color:var(--chrome);
+  text-shadow:2px 2px 0 var(--gulabi),4px 4px 0 var(--peacock),0 10px 30px rgba(0,0,0,.55)}
+.kinetic em{font-style:normal;color:var(--marigold);text-shadow:2px 2px 0 var(--zafran),4px 4px 0 var(--gulabi),0 10px 30px rgba(0,0,0,.55)}
+.kinetic.is-playing{animation:enginePulse var(--beat,900ms) ease-in-out infinite}
+@keyframes enginePulse{0%{transform:scale(1) skewX(0)}35%{transform:scale(1.035) skewX(-.6deg)}70%{transform:scale(.99) skewX(.4deg)}100%{transform:scale(1) skewX(0)}}
+.kinetic-artist{font:700 12px "Outfit",sans-serif;letter-spacing:.05em;color:var(--peacock);margin:10px 0 0}
+.kinetic-artist span{color:var(--chrome-dim);font-weight:500}
 
-/* ============ songs panel ============ */
-.songs-panel{display:none}
-.songs-panel.open{display:block}
-.song-grid{max-width:1180px;margin:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.song-card{position:relative;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:15px 16px;
-  border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border-radius:12px;color:var(--chrome);text-align:left;transition:.2s;overflow:hidden}
-.song-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--peacock),var(--gulabi));opacity:0;transition:.2s}
-.song-card:hover{border-color:var(--marigold);transform:translateX(3px)}
-.song-card:hover:before{opacity:1}
-.song-card.active{border-color:var(--gulabi);background:linear-gradient(160deg,rgba(255,54,112,.12),rgba(0,179,164,.05))}
-.song-card.active:before{opacity:1}
-.song-card .num{font:700 11px "Outfit",sans-serif;color:var(--peacock);width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
-.song-card.active .num{border-color:var(--gulabi);color:var(--gulabi)}
-.song-card strong{display:block;font-size:15px;font-weight:700;line-height:1.25}
-.song-card small{color:var(--chrome-dim);font-size:13px}
-.song-card button{border:1px solid rgba(255,178,0,.5);background:none;color:var(--marigold);font-size:14px;width:38px;height:38px;border-radius:50%;transition:.2s;flex:0 0 auto}
-.song-card button:hover{background:var(--marigold);color:var(--night)}
-
-/* ============ floating player bar (dashboard console) ============ */
-.player-bar{position:fixed;z-index:30;left:50%;transform:translateX(-50%);bottom:16px;width:min(1120px,calc(100% - 30px));display:grid;grid-template-columns:minmax(200px,1.2fr) auto minmax(160px,.9fr) auto;gap:18px;align-items:center;padding:12px 18px;border-radius:18px;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--line);box-shadow:0 24px 60px rgba(0,0,0,.6)}
-.now-playing{display:flex;gap:12px;align-items:center;min-width:0}
-.np-art{flex:0 0 46px;height:46px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gulabi),var(--zafran));color:#fff;font-size:18px}
-.np-meta{min-width:0}.np-meta strong{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.np-meta span{display:block;font:600 10px "Outfit",sans-serif;letter-spacing:.1em;color:var(--chrome-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
-.controls{display:flex;align-items:center;gap:8px}
-.controls button{width:44px;height:44px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--chrome);border-radius:999px;font-size:17px;transition:.2s}
-.controls button:hover{background:rgba(255,255,255,.08)}
-.controls .pill{width:56px;height:48px;background:linear-gradient(135deg,var(--gulabi),var(--zafran));border-color:transparent;color:#fff;font-size:18px}
-.controls .pill:hover{filter:brightness(1.1)}
-.time-line{display:flex;align-items:center;gap:10px;font:500 11px "Outfit",sans-serif;color:var(--chrome-dim);min-width:0}
-.progress{height:5px;background:rgba(255,255,255,.12);flex:1;border-radius:3px;overflow:hidden;min-width:60px}
-.progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--peacock),var(--marigold));border-radius:3px}
-.sources{display:flex;gap:8px}
-.sources button{border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.3);color:var(--chrome);font:600 10px "Outfit",sans-serif;letter-spacing:.05em;padding:9px 13px;transition:.2s}
-.sources button:first-child{background:#c93324;border-color:transparent;color:#fff}
-.sources button:nth-child(2){background:#1f7a34;border-color:transparent;color:#fff}
-.pulse-attn{animation:attnPulse 1s ease-in-out 3}
-@keyframes attnPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
-.sources button:hover{filter:brightness(1.15)}
-.hidden-player{position:absolute;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px}
-
-footer.credit{position:relative;z-index:8;text-align:center;padding:40px 20px 150px;font:500 11px "Outfit",sans-serif;letter-spacing:.08em;color:var(--chrome-dim)}
-footer.credit b{color:var(--marigold)}
-
-@media(max-width:980px){
-  .player-bar{grid-template-columns:1fr auto;grid-template-areas:"np controls" "time sources";gap:10px 14px}
-  .now-playing{grid-area:np}.controls{grid-area:controls}.time-line{grid-area:time}.sources{grid-area:sources;justify-content:space-between}
-  .route{display:none}
-}
-@media(max-width:600px){
-  .top{padding:0 6px}.logo strong{font-size:13px}.top-actions .mute{display:none}
-  .hero{padding:6vh 4vw 190px}
-  .song-grid{grid-template-columns:1fr}
-  .player-bar{bottom:10px;width:calc(100% - 20px);border-radius:14px;padding:11px 13px}
-  .np-art{flex-basis:40px;height:40px}.controls button{width:40px;height:40px}.controls .pill{width:50px}
-  .section{padding:44px 4vw 10px}
-}
-
-/* ============ THEME SWITCHER — "Pick your world" dock ============ */
-.world-dock{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:40;display:flex;gap:6px;
-  background:var(--glass);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.4)}
-.world-btn{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;position:relative;flex:0 0 auto;transition:.25s;overflow:hidden}
-.world-btn:hover{transform:scale(1.08)}
-.world-btn.active{border-color:var(--chrome);box-shadow:0 0 0 2px rgba(0,0,0,.4)}
-.world-btn[data-world="truck"]{background:conic-gradient(#ffb200,#ff3670,#00b3a4,#ffb200)}
-.world-btn[data-world="cinema"]{background:conic-gradient(#ffcf5c,#ff3b3b,#2fd1c5,#ffcf5c)}
-.world-btn[data-world="loom"]{background:conic-gradient(#eaa53f,#c9503f,#3f8274,#eaa53f)}
-.world-btn[data-world="basera"]{background:conic-gradient(#0e1630,#ffd27a,#3fc1c9,#0e1630)}
-.world-tip{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;
-  background:var(--glass);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font:600 10px "Outfit",sans-serif;letter-spacing:.06em;
-  opacity:0;pointer-events:none;transition:.2s}
-.world-dock:hover .world-tip{opacity:0}
-.world-btn:hover .world-tip{opacity:1}
-@media(max-width:760px){.world-btn{width:27px;height:27px}.world-dock{padding:5px;gap:5px}}
-
-/* ============ PARALLAX kinetic hero (desktop pointer only) ============ */
-@media(hover:hover) and (pointer:fine){
-  .kinetic-wrap{perspective:900px}
-  .kinetic-tilt{transition:transform .15s ease-out;transform-style:preserve-3d}
-}
-
-/* ============ SHARE / "Now Jamming" card ============ */
-.share-btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--chrome);border-radius:999px;padding:9px 14px;font:600 11px "Outfit",sans-serif;letter-spacing:.06em;transition:.2s}
-.share-btn:hover{border-color:var(--marigold);color:var(--marigold)}
-.share-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);z-index:60;
-  background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font:600 12px "Outfit",sans-serif;
-  color:var(--chrome);opacity:0;pointer-events:none;transition:.3s;box-shadow:0 14px 34px rgba(0,0,0,.5)}
-.share-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ============ STEERING WHEEL — the "start the engine" control ============ */
-.wheel-btn{position:relative;margin:38px auto 0;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px;cursor:grab}
+.wheel-btn{position:relative;margin:16px auto 4px;background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px;cursor:grab}
 .wheel-btn:active{cursor:grabbing}
-.wheel-svg{width:118px;height:118px;filter:drop-shadow(0 14px 30px rgba(0,0,0,.5));transition:transform .08s linear}
+.wheel-svg{width:78px;height:78px;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5));transition:transform .08s linear}
 .wheel-btn:not(.dragging) .wheel-svg{animation:wheelIdle 14s linear infinite}
 .wheel-btn:hover:not(.dragging) .wheel-svg{animation-duration:3.5s}
 @keyframes wheelIdle{to{transform:rotate(360deg)}}
@@ -334,8 +129,95 @@ footer.credit b{color:var(--marigold)}
 .wheel-spokes rect{fill:var(--peacock)}
 .wheel-hub{fill:var(--gulabi);stroke:var(--night);stroke-width:3}
 .wheel-hub-mark{stroke:var(--chrome)}
-.wheel-label{font:700 12px "Outfit",sans-serif;letter-spacing:.14em;color:var(--marigold);text-transform:uppercase}
+.wheel-label{font:700 10px "Outfit",sans-serif;letter-spacing:.1em;color:var(--marigold);text-transform:uppercase}
 .wheel-btn:hover .wheel-label{color:var(--chrome)}
+
+.gauge-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.enter{padding:12px 20px;border:none;border-radius:999px;background:linear-gradient(135deg,var(--gulabi),var(--zafran));color:#fff;font:700 11px "Outfit",sans-serif;letter-spacing:.05em;box-shadow:0 10px 26px rgba(255,54,112,.3);transition:.25s}
+.enter span{margin-right:6px}.enter:hover{transform:translateY(-2px)}
+.enter.ghost{background:none;border:1.5px solid var(--peacock);color:var(--peacock);box-shadow:none}
+.enter.ghost:hover{background:rgba(0,179,164,.12)}
+
+/* -- culture / trip-computer pod -- */
+.pod-culture{display:flex;flex-direction:column;gap:12px}
+.culture-card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:calc(var(--radius,14px) - 4px);padding:14px}
+.culture-card .tag{font:700 9px "Outfit",sans-serif;letter-spacing:.16em;color:var(--marigold);text-transform:uppercase}
+.culture-card p{margin:8px 0 0;font-size:12.5px;line-height:1.55;color:var(--chrome-dim)}
+.culture-card strong{color:var(--chrome);display:block;font-size:14px;margin-top:2px}
+
+/* ============ SONGS DRAWER — slides up, replaces the old scrolled section ============ */
+.drawer-scrim{position:fixed;inset:0;z-index:48;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .35s ease}
+.drawer-scrim.open{opacity:1;pointer-events:auto}
+.songs-panel{position:fixed;left:0;right:0;bottom:0;z-index:50;height:min(82vh,780px);
+  background:linear-gradient(180deg,var(--night2),var(--night));border-top:1px solid var(--line);border-radius:22px 22px 0 0;
+  box-shadow:0 -20px 60px rgba(0,0,0,.6);transform:translateY(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1);
+  display:flex;flex-direction:column}
+.songs-panel.open{transform:translateY(0)}
+.drawer-head{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.drawer-head h2{margin:2px 0 0;font-family:Mukta,sans-serif;font-weight:800;font-size:clamp(18px,2.6vw,26px)}
+.drawer-head .kicker{font:700 10px "Outfit",sans-serif;letter-spacing:.2em;color:var(--marigold);text-transform:uppercase}
+.panel-close{background:none;border:1px solid var(--line);border-radius:999px;color:var(--chrome);padding:9px 15px;font:600 11px "Outfit",sans-serif;flex:0 0 auto}
+.panel-close:hover{border-color:var(--gulabi);color:var(--gulabi)}
+.drawer-body{flex:1 1 auto;overflow-y:auto;padding:16px 22px 26px}
+.song-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.song-card{position:relative;display:grid;grid-template-columns:40px 1fr auto;gap:11px;align-items:center;padding:13px 14px;
+  border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.035),rgba(255,255,255,.01));border-radius:11px;color:var(--chrome);text-align:left;transition:.2s;overflow:hidden}
+.song-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--peacock),var(--gulabi));opacity:0;transition:.2s}
+.song-card:hover{border-color:var(--marigold);transform:translateX(3px)}
+.song-card:hover:before{opacity:1}
+.song-card.active{border-color:var(--gulabi);background:linear-gradient(160deg,rgba(255,54,112,.12),rgba(0,179,164,.05))}
+.song-card.active:before{opacity:1}
+.song-card .num{font:700 10px "Outfit",sans-serif;color:var(--peacock);width:24px;height:24px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+.song-card.active .num{border-color:var(--gulabi);color:var(--gulabi)}
+.song-card strong{display:block;font-size:14px;font-weight:700;line-height:1.25}
+.song-card small{color:var(--chrome-dim);font-size:12px}
+.song-card button{border:1px solid rgba(255,178,0,.5);background:none;color:var(--marigold);font-size:13px;width:34px;height:34px;border-radius:50%;transition:.2s;flex:0 0 auto}
+.song-card button:hover{background:var(--marigold);color:var(--night)}
+
+/* ============ BOTTOM PLAYER — flush dashboard console, not a floating pill ============ */
+.dash-player{flex:0 0 auto;position:relative;z-index:10;display:grid;grid-template-columns:minmax(180px,1.1fr) auto minmax(140px,.8fr) auto;gap:16px;align-items:center;
+  padding:12px 18px;background:var(--glass);backdrop-filter:blur(16px);border-top:1px solid var(--line)}
+.now-playing{display:flex;gap:11px;align-items:center;min-width:0}
+.np-art{flex:0 0 40px;height:40px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(145deg,var(--gulabi),var(--zafran));color:#fff;font-size:16px}
+.np-meta{min-width:0}.np-meta strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.np-meta span{display:block;font:600 9px "Outfit",sans-serif;letter-spacing:.08em;color:var(--chrome-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.controls{display:flex;align-items:center;gap:7px}
+.controls button{width:38px;height:38px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--chrome);border-radius:999px;font-size:15px;transition:.2s}
+.controls button:hover{background:rgba(255,255,255,.08)}
+.controls .pill{width:48px;height:42px;background:linear-gradient(135deg,var(--gulabi),var(--zafran));border-color:transparent;color:#fff;font-size:16px}
+.controls .pill:hover{filter:brightness(1.1)}
+.time-line{display:flex;align-items:center;gap:8px;font:500 10px "Outfit",sans-serif;color:var(--chrome-dim);min-width:0}
+.progress{height:4px;background:rgba(255,255,255,.12);flex:1;border-radius:3px;overflow:hidden;min-width:50px}
+.progress span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--peacock),var(--marigold));border-radius:3px}
+.sources{display:flex;gap:6px}
+.sources button{border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.3);color:var(--chrome);font:600 9px "Outfit",sans-serif;letter-spacing:.03em;padding:8px 11px;transition:.2s}
+.sources button:first-child{background:#c93324;border-color:transparent;color:#fff}
+.sources button:nth-child(2){background:#1f7a34;border-color:transparent;color:#fff}
+.sources button:hover{filter:brightness(1.15)}
+.share-btn{border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--chrome)}
+.share-btn:hover{border-color:var(--marigold);color:var(--marigold)}
+.pulse-attn{animation:attnPulse 1s ease-in-out 3}
+@keyframes attnPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+.hidden-player{position:absolute;width:1px;height:1px;overflow:hidden;left:-9999px;top:-9999px}
+
+/* ============ THEME SWITCHER — "Pick your world" dock ============ */
+.world-dock{display:flex;gap:5px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:999px;padding:5px}
+.world-btn{width:24px;height:24px;border-radius:50%;border:2px solid transparent;cursor:pointer;position:relative;flex:0 0 auto;transition:.25s;overflow:hidden}
+.world-btn:hover{transform:scale(1.12)}
+.world-btn.active{border-color:var(--chrome);box-shadow:0 0 0 2px rgba(0,0,0,.4)}
+.world-btn[data-world="truck"]{background:conic-gradient(#ffb200,#ff3670,#00b3a4,#ffb200)}
+.world-btn[data-world="cinema"]{background:conic-gradient(#ffcf5c,#ff3b3b,#2fd1c5,#ffcf5c)}
+.world-btn[data-world="loom"]{background:conic-gradient(#eaa53f,#c9503f,#3f8274,#eaa53f)}
+.world-btn[data-world="basera"]{background:conic-gradient(#0e1630,#ffd27a,#3fc1c9,#0e1630)}
+.world-tip{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;
+  background:var(--glass);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font:600 10px "Outfit",sans-serif;letter-spacing:.06em;
+  opacity:0;pointer-events:none;transition:.2s}
+.world-btn:hover .world-tip{opacity:1}
+
+/* ============ SHARE TOAST ============ */
+.share-toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(10px);z-index:60;
+  background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font:600 12px "Outfit",sans-serif;
+  color:var(--chrome);opacity:0;pointer-events:none;transition:.3s;box-shadow:0 14px 34px rgba(0,0,0,.5)}
+.share-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ============ LIVE MODE — full-screen beat-synced visualizer ============ */
 .live-mode{position:fixed;inset:0;z-index:200;background:#000;opacity:0;pointer-events:none;transform:scale(1.04);transition:opacity .5s ease,transform .5s ease}
@@ -361,8 +243,20 @@ footer.credit b{color:var(--marigold)}
   border:1px solid var(--line);border-radius:999px;padding:12px 26px;backdrop-filter:blur(10px);
   opacity:0;pointer-events:none;transition:.3s}
 .live-mode.paused .live-paused-badge{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+/* ============ RESPONSIVE — mobile becomes a scroll-within-shell app, not a scroll-the-page site ============ */
+@media(max-width:900px){
+  .dash-grid{grid-template-columns:1fr;grid-auto-rows:min-content;overflow-y:auto;gap:12px}
+  .pod{overflow-y:visible}
+  .gauge-ring{border-radius:26px}
+  .dash-player{grid-template-columns:1fr auto;grid-template-areas:"np controls" "time sources";gap:8px 12px;padding:10px 14px}
+  .now-playing{grid-area:np}.controls{grid-area:controls}.time-line{grid-area:time}.sources{grid-area:sources;justify-content:space-between}
+}
 @media(max-width:640px){
-  .wheel-svg{width:92px;height:92px}
+  .dash-top{padding:0 12px}
+  .logo strong{font-size:12px}
+  .song-grid{grid-template-columns:1fr}
+  .wheel-svg{width:66px;height:66px}
   .live-title{font-size:clamp(28px,9vw,52px)}
   .live-controls button{width:46px;height:46px}
   .live-controls .live-pause{width:58px;height:58px}

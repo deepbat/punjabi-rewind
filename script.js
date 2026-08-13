@@ -11,10 +11,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("nextBtn").onclick=next;
   $("browseBtn").onclick=()=>openPanel();
   $("closePanel").onclick=()=>closePanel();
+  $("drawerScrim")?.addEventListener("click",closePanel);
   $("youtubeBtn").onclick=()=>openYoutube();
   $("spotifyBtn").onclick=()=>openSpotify();
   $("muteBtn").onclick=toggleMute;
-  $("homeBtn").onclick=e=>{e.preventDefault();window.scrollTo({top:0,behavior:"smooth"})};
+  $("homeBtn").onclick=e=>{e.preventDefault();closePanel()};
   document.addEventListener("keydown",e=>{
     if(e.target.matches("input,button"))return;
     if(e.code==="Space"){e.preventDefault();togglePlay()}
@@ -172,14 +173,16 @@ function renderSongGrid(){
   document.querySelectorAll(".song-card button").forEach(b=>b.onclick=()=>{
     selectSong(+b.dataset.i,true);
     closePanel();
-    window.scrollTo({top:0,behavior:"smooth"});
   });
 }
 function openPanel(){
   $("songsPanel").classList.add("open");
-  $("songsPanel").scrollIntoView({behavior:"smooth",block:"start"});
+  $("drawerScrim")?.classList.add("open");
 }
-function closePanel(){$("songsPanel").classList.remove("open")}
+function closePanel(){
+  $("songsPanel").classList.remove("open");
+  $("drawerScrim")?.classList.remove("open");
+}
 function openYoutube(){
   const id=SONG_LIST[currentIndex]?.youtubeIds?.[idAttempt];
   if(id)window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,"_blank","noopener");

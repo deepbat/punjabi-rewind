@@ -1,50 +1,47 @@
-# Deepak's Punjabi Songs — Live Mode Edition
+# Deepak's Punjabi Songs — Dashboard Edition
 
-The centerpiece of this pass: **LIVE MODE**, a full-screen, beat-synced generative
-visualizer you enter by grabbing a steering wheel instead of clicking a boring
-play button. Genuinely pauseable, screenshot-shareable, and skinned live by
-whichever of the 4 visual worlds you've picked.
+This pass is a genuine structural redesign, not a reskin. Full context: the
+previous three passes kept the same "hero → marquee → scroll to radio → scroll
+to songs → footer" landing-page skeleton and only changed colors, motifs, and
+added an overlay (Live Mode). You correctly called that out as not a real
+design change — this rebuilds the layout itself.
 
-## The new centerpiece: LIVE MODE
-- **Entry**: a hand-drawn steering wheel control in the hero (idle-spins slowly,
-  speeds up on hover, lightly drags under your cursor). Click or release-drag to
-  "start the engine" — the whole page transitions into a full-screen visualizer.
-- **The visualizer**: a canvas-rendered generative scene — a slowly rotating wheel
-  motif, expanding rings on the "kick," particle bursts on the "snare," sparkle
-  twinkles on the "hi-hat" — all timed to a per-song simulated groove (see honest
-  note below) and colored from whichever theme is active, live.
-- **Pauseable**: a literal pause button (and spacebar) freezes the animation
-  mid-frame — verified with screenshots, the scene genuinely stops, not just the
-  music — and shows a "PAUSED" badge. Resuming picks the timing back up cleanly.
-- **Share this moment**: captures an actual screenshot of the live canvas at that
-  instant, composites it with the song title/artist, and downloads it (or opens
-  the native share sheet on mobile). Not a generic template card — the literal
-  generative art you were looking at.
-- Exit via the ✕ button or Escape; the underlying song keeps playing in the
-  normal mini player when you leave, only Pause stops the music.
+## What actually changed
+- **The whole paradigm**: this is no longer a scrolling marketing page. It's a
+  fixed-viewport **dashboard app shell** — on desktop, the live radio, the
+  now-playing gauge, and the culture notes are all visible on screen
+  simultaneously, with zero scrolling. That's the actual structural difference
+  you asked for.
+- **Radio is permanent**, not something you scroll down to find — it's a
+  standing pod on the left, always live.
+- **The center pod is a real gauge cluster**: a circular readout housing the
+  kinetic title/artist, with the steering wheel control built into it as the
+  entry to Live Mode.
+- **Songs are a slide-up drawer**, not a page section — opens over the
+  dashboard, closes back to it. Nothing to scroll past.
+- **The player bar is a flush dashboard console** at the bottom of the shell,
+  not a floating pill card anymore.
+- Mobile stacks the three pods in a scrollable app-shell area, but the header
+  and player stay pinned — still a fundamentally different feel from a long
+  marketing page, even though a phone screen can't fit all three pods at once.
+- As a side effect, this also permanently eliminates the "motif bleeding
+  through sections" bug class from earlier passes — there's no more tall
+  scrolling page for a background element to leak down into.
 
-## Honest technical note — please read before showing this off
-A cross-origin YouTube iframe does not expose raw audio data (no Web Audio API
-access across origins), so **true frequency-reactive visuals aren't possible**
-without hosting the audio yourself. What's built here is a *simulated groove*:
-a deterministic 16-step pattern per song, driven by wall-clock time at that
-song's approximate tempo — the same technique most "audio visualizers" use when
-they don't have raw waveform access. It's convincing and it's genuinely
-synced to a consistent rhythm, but it is not literally analyzing the YouTube
-audio. If you ever want *true* audio-reactivity, that requires self-hosting
-the audio files (e.g. via the Web Audio API's AnalyserNode) instead of YouTube.
-
-## Also in this pass (carried over + fixed)
-- 4 switchable visual worlds (Truck Art / Cinema Dhaba / Phulkari Loom / Basera
-  Night), the "Now Jamming" share card, live radio with fail-over, and the
-  earlier motif-scoping + embedding-disabled-song fixes all still here.
-- 30-track list, filtered to genuine 2024–2026 releases.
+## Everything from before still works, carried over as-is
+- 4 switchable worlds (Truck Art / Cinema Dhaba / Phulkari Loom / Basera
+  Night) — now reflected instantly across the whole dashboard, including
+  Live Mode's visualizer palette.
+- Live Mode: full-screen beat-synced visualizer, genuinely pauseable, with
+  the "Share This Moment" canvas-screenshot feature.
+- Live radio with 4-station fail-over.
+- 30-track list, 2024–2026 only, verified this session.
 
 ## Please verify before publishing
-- Click through Live Mode yourself once fonts (Bungee/Mukta/Outfit) load properly
-  on GitHub Pages — my sandbox blocks Google Fonts, so my screenshots show serif
-  fallback text; this is a sandbox-only limitation.
-- Spot-check a few songs and the 4 radio stations as before.
+- Songs and radio stations as noted in earlier passes — I can't live-test
+  arbitrary YouTube/streaming endpoints from this sandbox.
+- Fonts show serif fallback in my screenshots (sandbox blocks Google Fonts);
+  resolves normally on GitHub Pages.
 
 ## Local preview
 python3 -m http.server 8080
