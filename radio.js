@@ -42,6 +42,7 @@ const RADIO_TIMEOUT_MS = 6000;
   function startRadio(i){
     if(i>=RADIO_STATIONS.length){
       setStatus('ALL STATIONS UNREACHABLE RIGHT NOW');
+      setShellStatus('RADIO STANDBY');
       setTuning(false);
       return;
     }
@@ -52,6 +53,7 @@ const RADIO_TIMEOUT_MS = 6000;
     $('radioStationName').textContent=s.name;
     $('radioDesc').textContent=s.desc;
     setStatus('TUNING IN…');
+    setShellStatus(`TUNING · ${s.name}`);
     setTuning(true);
     isLive=false;
     clearTimeout(connectTimer);
@@ -75,9 +77,11 @@ const RADIO_TIMEOUT_MS = 6000;
     clearTimeout(connectTimer);
     setTuning(false);
     setStatus('LIVE NOW');
+    setShellStatus(`LIVE RADIO · ${RADIO_STATIONS[stationIndex].name}`);
     $('liveDot').style.display='inline-block';
     $('radioPlayBtn').textContent='Ⅱ';
     $('radioPlayBtn').setAttribute('aria-label','Pause live radio');
+    $('radioPlayBtn').setAttribute('aria-pressed','true');
     // pause any YouTube song playback so audio doesn't overlap
     if(window.__pauseSongPlayback) window.__pauseSongPlayback();
   }
@@ -89,12 +93,15 @@ const RADIO_TIMEOUT_MS = 6000;
     isLive=false;
     setTuning(false);
     setStatus('OFFLINE · TAP TO TUNE IN');
+    setShellStatus('DASHBOARD ONLINE');
     $('liveDot').style.display='none';
     $('radioPlayBtn').textContent='▶';
     $('radioPlayBtn').setAttribute('aria-label','Play live radio');
+    $('radioPlayBtn').setAttribute('aria-pressed','false');
   }
 
   function setStatus(t){$('radioStatus').textContent=t}
+  function setShellStatus(t){if($('shellStatus'))$('shellStatus').textContent=t}
   function setTuning(on){$('radioDial').classList.toggle('tuning',on)}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 

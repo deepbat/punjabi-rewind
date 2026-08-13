@@ -2,6 +2,7 @@
 (function(){
   const $=id=>document.getElementById(id);
   const WORLDS=['truck','cinema','loom','basera'];
+  const WORLD_NAMES={truck:'TRUCK ART',cinema:'CINEMA DHABA',loom:'PHULKARI LOOM',basera:'BASERA NIGHT'};
 
   function initTheme(){
     const saved=(()=>{try{return localStorage.getItem('pr_theme')}catch(e){return null}})()||'truck';
@@ -13,7 +14,13 @@
   function applyTheme(world,persist){
     if(!WORLDS.includes(world))world='truck';
     document.documentElement.dataset.theme=world;
-    document.querySelectorAll('.world-btn').forEach(b=>b.classList.toggle('active',b.dataset.world===world));
+    document.querySelectorAll('.world-btn').forEach(b=>{
+      const active=b.dataset.world===world;
+      b.classList.toggle('active',active);
+      b.setAttribute('aria-pressed',String(active));
+    });
+    const worldName=document.getElementById('worldName');
+    if(worldName)worldName.textContent=WORLD_NAMES[world];
     if(persist){
       try{localStorage.setItem('pr_theme',world)}catch(e){}
       // reflect the choice in the URL so a themed link can be shared/bookmarked

@@ -1,47 +1,35 @@
-# Deepak's Punjabi Songs — Dashboard Edition
+# Deepak's Punjabi Songs — The Punjabi Frequency
 
-This pass is a genuine structural redesign, not a reskin. Full context: the
-previous three passes kept the same "hero → marquee → scroll to radio → scroll
-to songs → footer" landing-page skeleton and only changed colors, motifs, and
-added an overlay (Live Mode). You correctly called that out as not a real
-design change — this rebuilds the layout itself.
+A static Punjabi music dashboard built around a fixed app shell rather than a long landing page. The redesigned experience keeps live radio, the now-playing gauge, editorial culture notes, and playback controls visible together on desktop, while adapting into a scrollable stacked shell on mobile.
 
-## What actually changed
-- **The whole paradigm**: this is no longer a scrolling marketing page. It's a
-  fixed-viewport **dashboard app shell** — on desktop, the live radio, the
-  now-playing gauge, and the culture notes are all visible on screen
-  simultaneously, with zero scrolling. That's the actual structural difference
-  you asked for.
-- **Radio is permanent**, not something you scroll down to find — it's a
-  standing pod on the left, always live.
-- **The center pod is a real gauge cluster**: a circular readout housing the
-  kinetic title/artist, with the steering wheel control built into it as the
-  entry to Live Mode.
-- **Songs are a slide-up drawer**, not a page section — opens over the
-  dashboard, closes back to it. Nothing to scroll past.
-- **The player bar is a flush dashboard console** at the bottom of the shell,
-  not a floating pill card anymore.
-- Mobile stacks the three pods in a scrollable app-shell area, but the header
-  and player stay pinned — still a fundamentally different feel from a long
-  marketing page, even though a phone screen can't fit all three pods at once.
-- As a side effect, this also permanently eliminates the "motif bleeding
-  through sections" bug class from earlier passes — there's no more tall
-  scrolling page for a background element to leak down into.
+## What is included
 
-## Everything from before still works, carried over as-is
-- 4 switchable worlds (Truck Art / Cinema Dhaba / Phulkari Loom / Basera
-  Night) — now reflected instantly across the whole dashboard, including
-  Live Mode's visualizer palette.
-- Live Mode: full-screen beat-synced visualizer, genuinely pauseable, with
-  the "Share This Moment" canvas-screenshot feature.
-- Live radio with 4-station fail-over.
-- 30-track list, 2024–2026 only, verified this session.
+The dashboard includes a four-station Punjabi radio module with automatic failover messaging, a curated 30-track catalog spanning 2024–2026, YouTube and Spotify source links, previous/play/next controls, mute state, seekable progress, and a full-screen Live Mode visualizer. The four visual worlds remain switchable and are persisted locally with a shareable URL hash.
 
-## Please verify before publishing
-- Songs and radio stations as noted in earlier passes — I can't live-test
-  arbitrary YouTube/streaming endpoints from this sandbox.
-- Fonts show serif fallback in my screenshots (sandbox blocks Google Fonts);
-  resolves normally on GitHub Pages.
+The song drawer now includes instant search across song titles and artists, year filters, a saved-tracks view backed by local storage, shuffle within the active view, clearer track cards, and accessible button states. The shell also has a richer status header, editor-style culture cards, an at-a-glance stats strip, clearer radio signal states, and improved mobile behavior.
 
 ## Local preview
+
+From the project directory, run:
+
+```bash
 python3 -m http.server 8080
+```
+
+Then open <http://localhost:8080> in a browser.
+
+## Project files
+
+| File | Purpose |
+| --- | --- |
+| `index.html` | Dashboard shell, drawer, player, and Live Mode markup |
+| `style.css` | Responsive visual system, theme tokens, panels, cards, and motion |
+| `script.js` | Playback controls, filtering, search, favorites, shuffle, and seeking |
+| `songs.js` | Curated track data and YouTube source IDs |
+| `radio.js` | Live-radio stations, failover behavior, and shell status updates |
+| `theme.js` | Visual worlds, persistence, parallax, and share-card generation |
+| `livemode.js` | Full-screen canvas visualizer and Live Mode controls |
+
+## Notes
+
+The project uses third-party radio streams and YouTube embeds. Individual radio stations may be temporarily unavailable, and some YouTube videos may restrict embedding; when that happens, the dashboard keeps the direct YouTube action available instead of failing silently.
