@@ -136,6 +136,19 @@ window.__pauseSongPlayback=function(){
   }
 };
 
+// ---- hooks for livemode.js (full-screen visualizer) ----
+window.__nowPlaying=function(){
+  const s=SONG_LIST[currentIndex]||{};
+  const playing=playerReady && player && player.getPlayerState && player.getPlayerState()===YT.PlayerState.PLAYING;
+  const t=(playerReady && player && player.getCurrentTime) ? player.getCurrentTime() : 0;
+  const d=(playerReady && player && player.getDuration) ? player.getDuration() : 0;
+  return {title:s.title||'Deepak\'s Punjabi Songs',artist:s.artist||'',year:s.year||'',index:currentIndex,playing:!!playing,time:t,duration:d,beatMs:beatMsFor(currentIndex)};
+};
+window.__togglePlayback=togglePlay;
+window.__nextSong=next;
+window.__prevSong=previous;
+window.__playCurrentSong=()=>playCurrent(true);
+
 function startTimer(){
   stopTimer();
   timer=setInterval(()=>{
