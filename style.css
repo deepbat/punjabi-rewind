@@ -129,26 +129,19 @@ a{color:inherit;text-decoration:none}
 .kinetic-wrap{perspective:800px;margin-top:16px;position:relative}
 .kinetic-tilt{transition:transform .12s ease-out;transform-style:preserve-3d}
 .kinetic{
-  font:400 clamp(60px,10vw,120px)/.9 Bungee,cursive;color:var(--txt);margin:0;
+  font:400 clamp(32px,4vw,52px)/1 Bungee,cursive;color:var(--txt);margin:0;
   background:linear-gradient(135deg,var(--coral),var(--orange),var(--pink));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   filter:drop-shadow(4px 4px 0 rgba(255,107,107,.15));
   letter-spacing:-.03em;
   position:relative;
 }
-.kinetic::after{
-  content:attr(data-text);position:absolute;left:0;top:0;
-  background:linear-gradient(135deg,var(--teal),var(--purple));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  opacity:.08;
-  transform:translate(6px,6px);
-  pointer-events:none;
-}
+
 .kinetic em{
   font-style:normal;display:block;
   background:linear-gradient(135deg,var(--teal),var(--purple),var(--coral));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  font-size:1.2em;line-height:.85;
+  font-size:1.1em;line-height:.9;
 }
 .kinetic.is-playing{animation:pulse .9s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
@@ -176,7 +169,7 @@ a{color:inherit;text-decoration:none}
 .btn-browse{padding:12px 22px;border:2px solid var(--teal);border-radius:999px;background:transparent;color:var(--teal);font:700 10px Outfit,sans-serif;letter-spacing:.08em;transition:all .25s}
 .btn-browse:hover{background:rgba(0,210,211,.06);box-shadow:0 4px 16px rgba(0,210,211,.12)}
 .stats{display:flex;gap:52px;border-top:2px solid var(--line);padding-top:18px;margin-top:24px}
-.stat strong{font:400 24px Bungee,cursive;color:var(--txt)}
+.stat strong{font:400 20px Bungee,cursive;color:var(--txt)}
 .stat{display:flex;flex-direction:column;align-items:center;gap:2px}
 .stat strong{font:400 20px Bungee,cursive;color:var(--txt)}
 .stat small{font:600 7px Outfit,sans-serif;letter-spacing:.14em;color:var(--muted)}
