@@ -65,7 +65,7 @@
   function themeColors(){
     const cs=getComputedStyle(document.documentElement);
     const v=n=>cs.getPropertyValue(n).trim();
-    return {night:v('--bg'),night2:v('--bg2'),marigold:v('--gold'),gulabi:v('--pink'),peacock:v('--cyan'),chrome:v('--txt')};
+    return {night:'#0a0612',night2:'#150c24',marigold:v('--gold'),gulabi:v('--coral'),peacock:v('--teal'),zafran:v('--orange'),chrome:v('--txt')};
   }
   async function buildShareCard(title,artist){
     const W=1080,H=1350;

@@ -5,7 +5,7 @@
 (function(){
   const canvas=document.createElement('canvas');
   canvas.id='particleCanvas';
-  canvas.style.cssText='position:fixed;inset:0;z-index:1;pointer-events:none';
+  canvas.style.cssText='position:fixed;inset:0;z-index:2;pointer-events:none';
   document.body.prepend(canvas);
   const ctx=canvas.getContext('2d');
 
@@ -45,9 +45,9 @@
     return{
       x:Math.random()*W,y:Math.random()*H,
       vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,
-      r:Math.random()*2.5+1.5,
+      r:Math.random()*2+1,
       color:c,rgb,
-      alpha:Math.random()*.5+.4,
+      alpha:Math.random()*.4+.2,
       pulsePhase:Math.random()*Math.PI*2,
       pulseSpeed:.005+Math.random()*.01
     };
@@ -124,7 +124,7 @@
         const dx=a.x-b.x,dy=a.y-b.y;
         const dist=Math.sqrt(dx*dx+dy*dy);
         if(dist<CONNECTION_DIST){
-          const alpha=(1-dist/CONNECTION_DIST)*.28;
+          const alpha=(1-dist/CONNECTION_DIST)*.15;
           ctx.beginPath();
           ctx.strokeStyle=`rgba(${a.rgb.r},${a.rgb.g},${a.rgb.b},${alpha})`;
           ctx.lineWidth=.8;
@@ -142,7 +142,7 @@
       // glow
       ctx.beginPath();
       ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.rgb.r},${p.rgb.g},${p.rgb.b},${p.alpha*.2})`;
+      ctx.fillStyle=`rgba(${p.rgb.r},${p.rgb.g},${p.rgb.b},${p.alpha*.12})`;
       ctx.fill();
     });
 
