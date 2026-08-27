@@ -75,7 +75,7 @@ a{color:inherit;text-decoration:none}
 .pod-num{font:800 11px Outfit,sans-serif;color:var(--coral)}
 .pod-title{font:700 9px Outfit,sans-serif;letter-spacing:.18em;color:var(--dim);text-transform:uppercase}
 .pod-badge{margin-left:auto;font:700 8px Outfit,sans-serif;letter-spacing:.1em;color:var(--teal);padding:4px 10px;background:rgba(0,210,211,.08);border-radius:999px}
-.pod-h2{font:400 clamp(22px,2.2vw,28px)/1.1 Bungee,cursive;color:var(--txt);margin:0 0 16px}
+.pod-h2{font:400 clamp(24px,2.5vw,32px)/1.05 Bungee,cursive;color:var(--txt);margin:0 0 18px}
 
 /* ═══ RADIO ═══ */
 .dial{
@@ -104,38 +104,55 @@ a{color:inherit;text-decoration:none}
 .pod-foot b{color:var(--teal);letter-spacing:.12em}
 
 /* ═══ CENTER: NOW PLAYING ═══ */
-.pod-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.pod-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative}
+.pod-center::before{content:'';position:absolute;inset:-2px;border-radius:calc(var(--r) + 2px);background:linear-gradient(135deg,var(--coral),var(--teal),var(--purple),var(--gold));z-index:-1;opacity:.6}
 .center-topline{width:100%;display:flex;justify-content:space-between;font:600 9px Outfit,sans-serif;letter-spacing:.16em;color:var(--dim)}
 .center-topline strong{color:var(--coral);font-size:8px;letter-spacing:.12em}
 .gauge{
-  position:relative;width:100%;max-width:520px;min-height:400px;
-  padding:32px 28px 24px;border:2px solid var(--line);border-radius:50%/40%;
-  background:linear-gradient(160deg,rgba(255,107,107,.04),rgba(0,210,211,.04),rgba(162,155,254,.04));
+  position:relative;width:100%;max-width:580px;min-height:440px;
+  padding:36px 32px 28px;border:2px solid var(--line);border-radius:50%/40%;
+  background:linear-gradient(160deg,rgba(255,107,107,.03),rgba(0,210,211,.03),rgba(162,155,254,.03));
   display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;
-  transition:border-color .3s;
+  transition:border-color .4s;
 }
-.gauge:hover{border-color:rgba(255,107,107,.2)}
+.gauge::before{
+  content:"♫";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:clamp(200px,30vw,400px);opacity:.025;pointer-events:none;
+  color:var(--coral);
+}
+.gauge:hover{border-color:rgba(255,107,107,.25);box-shadow:0 0 60px rgba(255,107,107,.06)}
 .now-ctx{display:flex;align-items:center;gap:6px}
 .now-ctx .status-dot{width:5px;height:5px}
 .now-ctx p{font:600 9px Outfit,sans-serif;letter-spacing:.2em;color:var(--dim);margin:0;text-transform:uppercase}
 
-/* Hero Title — FUNKY */
-.kinetic-wrap{perspective:800px;margin-top:16px}
+/* Hero Title — OVERSIZED FUNKY */
+.kinetic-wrap{perspective:800px;margin-top:16px;position:relative}
 .kinetic-tilt{transition:transform .12s ease-out;transform-style:preserve-3d}
 .kinetic{
-  font:400 clamp(36px,5vw,64px)/1 Bungee,cursive;color:var(--txt);margin:0;
-  background:linear-gradient(135deg,var(--coral),var(--orange),var(--gold));
+  font:400 clamp(60px,10vw,120px)/.9 Bungee,cursive;color:var(--txt);margin:0;
+  background:linear-gradient(135deg,var(--coral),var(--orange),var(--pink));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(3px 3px 0 rgba(255,107,107,.2));
+  filter:drop-shadow(4px 4px 0 rgba(255,107,107,.15));
+  letter-spacing:-.03em;
+  position:relative;
 }
-.kinetic em{
-  font-style:normal;
+.kinetic::after{
+  content:attr(data-text);position:absolute;left:0;top:0;
   background:linear-gradient(135deg,var(--teal),var(--purple));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  opacity:.08;
+  transform:translate(6px,6px);
+  pointer-events:none;
+}
+.kinetic em{
+  font-style:normal;display:block;
+  background:linear-gradient(135deg,var(--teal),var(--purple),var(--coral));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:1.2em;line-height:.85;
 }
 .kinetic.is-playing{animation:pulse .9s ease-in-out infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
-.kinetic-sub{font:600 11px Outfit,sans-serif;color:var(--teal);margin:12px 0 0}
+.kinetic-sub{font:600 12px Outfit,sans-serif;color:var(--teal);margin:14px 0 0}
 .kinetic-sub span{color:var(--dim);font-weight:500}
 
 /* Wheel */
@@ -158,7 +175,8 @@ a{color:inherit;text-decoration:none}
 .btn-play span{margin-right:4px}
 .btn-browse{padding:12px 22px;border:2px solid var(--teal);border-radius:999px;background:transparent;color:var(--teal);font:700 10px Outfit,sans-serif;letter-spacing:.08em;transition:all .25s}
 .btn-browse:hover{background:rgba(0,210,211,.06);box-shadow:0 4px 16px rgba(0,210,211,.12)}
-.stats{display:flex;gap:48px;border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+.stats{display:flex;gap:52px;border-top:2px solid var(--line);padding-top:18px;margin-top:24px}
+.stat strong{font:400 24px Bungee,cursive;color:var(--txt)}
 .stat{display:flex;flex-direction:column;align-items:center;gap:2px}
 .stat strong{font:400 20px Bungee,cursive;color:var(--txt)}
 .stat small{font:600 7px Outfit,sans-serif;letter-spacing:.14em;color:var(--muted)}
@@ -166,7 +184,8 @@ a{color:inherit;text-decoration:none}
 /* ═══ CULTURE ═══ */
 .culture-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:10px;transition:all .3s}
 .culture-card:hover{border-color:rgba(255,107,107,.2);box-shadow:0 4px 16px rgba(0,0,0,.05)}
-.culture-card.featured{background:linear-gradient(145deg,rgba(255,107,107,.06),rgba(255,159,67,.04));border-color:rgba(255,107,107,.15)}
+.culture-card.featured{background:linear-gradient(145deg,rgba(255,107,107,.08),rgba(255,159,67,.06));border-color:rgba(255,107,107,.2);box-shadow:0 4px 20px rgba(255,107,107,.06)}
+.culture-card.featured h4{font-size:22px}
 .cc-tag{font:700 8px Outfit,sans-serif;letter-spacing:.14em;color:var(--coral);text-transform:uppercase}
 .culture-card h4{font-size:18px;margin:5px 0 0;color:var(--txt)}
 .culture-card p{font-size:12px;color:var(--dim);line-height:1.5;margin:5px 0 0}
