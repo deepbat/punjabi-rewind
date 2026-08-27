@@ -5,14 +5,14 @@
 (function(){
   const canvas=document.createElement('canvas');
   canvas.id='particleCanvas';
-  canvas.style.cssText='position:fixed;inset:0;z-index:0;pointer-events:none;width:100%;height:100%';
+  canvas.style.cssText='position:fixed;inset:0;z-index:1;pointer-events:none';
   document.body.prepend(canvas);
   const ctx=canvas.getContext('2d');
 
   let W,H,dpr;
-  const PARTICLE_COUNT=90;
-  const CONNECTION_DIST=140;
-  const MOUSE_RADIUS=180;
+  const PARTICLE_COUNT=70;
+  const CONNECTION_DIST=160;
+  const MOUSE_RADIUS=200;
   let particles=[];
   let orbs=[];
   let mouseX=-9999,mouseY=-9999;
@@ -45,9 +45,9 @@
     return{
       x:Math.random()*W,y:Math.random()*H,
       vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,
-      r:Math.random()*2+1,
+      r:Math.random()*2.5+1.5,
       color:c,rgb,
-      alpha:Math.random()*.5+.3,
+      alpha:Math.random()*.5+.4,
       pulsePhase:Math.random()*Math.PI*2,
       pulseSpeed:.005+Math.random()*.01
     };
@@ -124,7 +124,7 @@
         const dx=a.x-b.x,dy=a.y-b.y;
         const dist=Math.sqrt(dx*dx+dy*dy);
         if(dist<CONNECTION_DIST){
-          const alpha=(1-dist/CONNECTION_DIST)*.18;
+          const alpha=(1-dist/CONNECTION_DIST)*.28;
           ctx.beginPath();
           ctx.strokeStyle=`rgba(${a.rgb.r},${a.rgb.g},${a.rgb.b},${alpha})`;
           ctx.lineWidth=.8;
@@ -142,7 +142,7 @@
       // glow
       ctx.beginPath();
       ctx.arc(p.x,p.y,p.r*3,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.rgb.r},${p.rgb.g},${p.rgb.b},${p.alpha*.15})`;
+      ctx.fillStyle=`rgba(${p.rgb.r},${p.rgb.g},${p.rgb.b},${p.alpha*.2})`;
       ctx.fill();
     });
 

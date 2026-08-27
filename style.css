@@ -197,6 +197,7 @@ a{color:inherit;text-decoration:none}
 }
 .world-btn:hover .world-tip{opacity:1}
 
+.top-right{display:flex;gap:10px;align-items:center;justify-self:end}
 .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
 .mute{
   background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:999px;
@@ -244,17 +245,15 @@ a{color:inherit;text-decoration:none}
 /* ── Holographic Animated Border ── */
 .holo-border{
   position:relative;
-  background:
-    linear-gradient(165deg,rgba(255,255,255,.05),rgba(255,255,255,.01)) padding-box,
-    linear-gradient(var(--holo-speed),var(--gulabi),var(--peacock),var(--marigold),var(--zafran),var(--gulabi)) border-box;
-  border:1.5px solid transparent;
+  border:2px solid transparent;
+  background-clip:padding-box;
+  position:relative;
 }
 .holo-border::before{
-  content:"";position:absolute;inset:-1px;border-radius:inherit;
+  content:"";position:absolute;inset:-2px;border-radius:inherit;
   background:linear-gradient(var(--holo-speed),var(--gulabi),var(--peacock),var(--marigold),var(--zafran),var(--gulabi));
-  opacity:0;transition:opacity .4s;z-index:-1;
+  z-index:-1;pointer-events:none;
 }
-.holo-border:hover::before{opacity:.15}
 .holo-border::after{
   content:"";position:absolute;left:20px;right:20px;top:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--marigold),transparent);
@@ -527,7 +526,7 @@ a{color:inherit;text-decoration:none}
 
 .culture-card{
   position:relative;
-  background:var(--card);border:1px solid var(--line);
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
   border-radius:calc(var(--radius-sm) + 2px);
   padding:18px 17px 20px;overflow:hidden;
   transition:all .35s var(--ease);
@@ -543,8 +542,8 @@ a{color:inherit;text-decoration:none}
   border-color:rgba(255,208,106,.22);
   box-shadow:0 0 40px rgba(255,208,106,.04);
 }
-.culture-card .tag{font:700 9px "Outfit",sans-serif;letter-spacing:.18em;color:var(--marigold);text-transform:uppercase}
-.culture-card p{position:relative;z-index:1;margin:9px 0 0;font-size:12.5px;line-height:1.55;color:var(--chrome-dim)}
+.culture-card .tag{font:700 9px "Outfit",sans-serif;letter-spacing:.18em;color:var(--gulabi);text-transform:uppercase}
+.culture-card p{position:relative;z-index:1;margin:9px 0 0;font-size:12.5px;line-height:1.55;color:var(--chrome)}
 .culture-card strong{position:relative;z-index:1;color:var(--chrome);display:block;font-size:16px;margin-top:5px}
 .culture-card.featured strong{font-size:26px;line-height:1.1;margin-top:9px}
 .card-index{display:block;margin-top:14px;color:var(--muted);font:600 8px "Outfit",sans-serif;letter-spacing:.17em}
