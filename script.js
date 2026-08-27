@@ -141,7 +141,7 @@ function renderSongGrid(){
   const grid=$('songGrid'),empty=$('emptyState'),matches=getFilteredSongs();if(!grid)return;
   grid.innerHTML=matches.map(({song,index})=>{
     const saved=isFavorite(index),initial=esc((song.title||'P').slice(0,1).toUpperCase());
-    return `<article class="song-card${index===currentIndex?' active':''}" data-index="${index}"><span class="num">${String(index+1).padStart(2,'0')}</span><span class="song-art" aria-hidden="true">${initial}</span><div class="song-main"><strong>${esc(song.title)}</strong><small>${esc(song.artist)} · ${song.year}</small></div><div class="song-actions"><button class="save-btn${saved?' saved':''}" data-save="${index}" type="button" aria-label="${saved?'Remove':'Save'} ${esc(song.title)}" aria-pressed="${saved}">${saved?'★':'☆'}</button><button class="play-song" data-i="${index}" type="button" aria-label="Play ${esc(song.title)}">▶</button></div></article>`
+    return `<article class="song-card${index===currentIndex?' active':''}" data-index="${index}"><span class="num">${String(index+1).padStart(2,'0')}</span><span class="song-art" aria-hidden="true">${initial}</span><div class="song-main"><strong>${esc(song.title)}</strong><small>${song.lang==='hindi'?'<span class="lang-dot hindi" title="Hindi"></span>':'<span class="lang-dot punjabi" title="Punjabi"></span>'} ${esc(song.artist)} · ${song.year}</small></div><div class="song-actions"><button class="save-btn${saved?' saved':''}" data-save="${index}" type="button" aria-label="${saved?'Remove':'Save'} ${esc(song.title)}" aria-pressed="${saved}">${saved?'★':'☆'}</button><button class="play-song" data-i="${index}" type="button" aria-label="Play ${esc(song.title)}">▶</button></div></article>`
   }).join('');
   if(empty)empty.hidden=matches.length>0;
   if($('drawerCount'))$('drawerCount').textContent=`${matches.length} ${matches.length===1?'track':'tracks'}`;
@@ -163,3 +163,20 @@ function openSpotify(){const s=SONG_LIST[currentIndex];if(s)window.open(`https:/
 function toggleMute(){if(!playerReady){showToast('Select a song first to control sound');return}isMuted=!isMuted;if(isMuted)player.mute();else player.unMute();$('muteBtn').textContent=isMuted?'SOUND OFF':'SOUND ON';$('muteBtn').setAttribute('aria-pressed',String(isMuted))}
 function showToast(message){const toast=$('shareToast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>toast.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+/* ── 3D Tilt Effect on Song Cards ── */
+(function initTilt(){
+  document.addEventListener('mousemove',e=>{
+    document.querySelectorAll('.song-card').forEach(card=>{
+      const r=card.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      const inBounds=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+      if(inBounds){
+        card.style.transform=`perspective(600px) rotateX(${(-y*8).toFixed(2)}deg) rotateY(${(x*8).toFixed(2)}deg) translateY(-2px)`;
+      }else{
+        card.style.transform='';
+      }
+    });
+  });
+})();

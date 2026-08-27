@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Mukta:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=92">
+<link rel="stylesheet" href="style.css?v=93">
 <script>
 try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}
 </script>
@@ -17,6 +17,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
 <body>
 
 <div class="dash" id="dash">
+  <div class="scanlines" aria-hidden="true"></div>
   <div class="dash-bg" aria-hidden="true">
     <svg class="motif peacock p1" viewBox="0 0 120 120"><path d="M60 20c14 0 24 9 24 24 0 12-10 18-24 18S36 56 36 44c0-15 10-24 24-24z" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M60 62v26M60 78c-9-3-12-10-12-16M60 78c9-3 12-10 12-16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
     <svg class="motif phulkari f1" viewBox="0 0 100 100"><g fill="currentColor"><ellipse cx="50" cy="14" rx="8" ry="14"/><ellipse cx="50" cy="86" rx="8" ry="14"/><ellipse cx="14" cy="50" rx="14" ry="8"/><ellipse cx="86" cy="50" rx="14" ry="8"/><circle cx="50" cy="50" r="12"/></g></svg>
@@ -48,7 +49,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
   </header>
 
   <main class="dash-grid">
-    <section class="pod pod-radio" aria-label="Live Radio">
+    <section class="pod pod-radio holo-border" aria-label="Live Radio">
       <div class="pod-heading"><p class="pod-label"><span>01</span> LIVE RADIO</p><span class="pod-status">24 / 7</span></div>
       <div class="pod-intro"><h2>Find your frequency.</h2><p>Community stations streaming Hindi &amp; Punjabi hits around the clock.</p></div>
       <div class="dial" id="radioDial"><span class="dial-orbit" aria-hidden="true"></span><button class="dial-btn" id="radioPlayBtn" aria-label="Play live radio">▶</button></div>
@@ -59,9 +60,12 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
       <div class="pod-footnote"><span><b>LIVE AUDIO</b></span><span>Auto-tunes on failure</span></div>
     </section>
 
-    <section class="pod pod-center" aria-label="Now playing">
+    <section class="pod pod-center holo-border" aria-label="Now playing">
       <div class="center-topline"><span>HINDI &amp; PUNJABI HITS</span><strong id="worldName">TRUCK ART</strong></div>
       <div class="gauge-ring">
+        <div class="orbital-ring orb1" aria-hidden="true"></div>
+        <div class="orbital-ring orb2" aria-hidden="true"></div>
+        <div class="orbital-ring orb3" aria-hidden="true"></div>
         <span class="gauge-tick tick-one" aria-hidden="true"></span><span class="gauge-tick tick-two" aria-hidden="true"></span>
         <div class="now-context"><span class="status-dot" aria-hidden="true"></span><p class="now-label" id="nowLabel">READY TO PLAY</p></div>
         <div class="kinetic-wrap" id="kineticWrap">
@@ -85,7 +89,7 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
       </div>
     </section>
 
-    <section class="pod pod-culture" aria-label="Culture notes">
+    <section class="pod pod-culture holo-border" aria-label="Culture notes">
       <div class="pod-heading"><p class="pod-label"><span>02</span> EDITOR'S NOTE</p><span class="pod-status">दिल से</span></div>
       <div class="pod-intro"><h2>More than a playlist.</h2><p>Small notes from a big sound.</p></div>
       <div class="culture-card featured"><span class="tag">BOL PUNJABI</span><strong id="phraseGurmukhi">ਚੜ੍ਹਦੀ ਕਲਾ</strong><p id="phraseMeaning">Chardi Kala — a state of eternal optimism and rising spirit, core to Punjabi philosophy.</p><span class="card-index">A / 04</span></div>
@@ -116,11 +120,12 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
 
 <div class="live-mode" id="liveMode" aria-hidden="true"><canvas id="liveCanvas"></canvas><div class="live-vignette" aria-hidden="true"></div><div class="live-ui"><button class="live-exit" id="liveExit" aria-label="Exit live mode">✕ EXIT</button><div class="live-body"><p class="live-kicker">NOW JAMMING</p><h2 class="live-title" id="liveTitle">—</h2><p class="live-artist" id="liveArtist">—</p><div class="live-controls"><button id="livePrev" aria-label="Previous song">⏮</button><button id="livePause" class="live-pause" aria-label="Pause">Ⅱ</button><button id="liveNext" aria-label="Next song">⏭</button></div><button class="live-share" id="liveShare">SHARE THIS MOMENT ✦</button></div><div class="live-paused-badge" id="livePausedBadge">PAUSED</div></div></div>
 
+<script src="particles.js?v=93"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=92"></script>
-<script src="radio.js?v=92"></script>
-<script src="script.js?v=92"></script>
-<script src="theme.js?v=92"></script>
-<script src="livemode.js?v=92"></script>
+<script src="songs.js?v=93"></script>
+<script src="radio.js?v=93"></script>
+<script src="script.js?v=93"></script>
+<script src="theme.js?v=93"></script>
+<script src="livemode.js?v=93"></script>
 </body>
 </html>
