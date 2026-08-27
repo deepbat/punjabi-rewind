@@ -129,7 +129,26 @@
 
 <div class="live-mode" id="liveMode" aria-hidden="true"><canvas id="liveCanvas"></canvas><div class="live-vig"></div><div class="live-ui"><button id="liveExit" class="live-exit">✕ EXIT</button><div class="live-body"><p class="live-kicker">NOW JAMMING</p><h2 class="live-title" id="liveTitle">—</h2><p class="live-artist" id="liveArtist">—</p><div class="live-ctrls"><button id="livePrev">⏮</button><button id="livePause" class="live-pause">Ⅱ</button><button id="liveNext">⏭</button></div><button id="liveShare" class="live-share">SHARE THIS MOMENT ✦</button></div><div id="livePausedBadge" class="live-badge">PAUSED</div></div></div>
 
-<script src="particles.js?v=102"></script>
+<script src="particles.js?v=103"></script>
+<script>
+/* Scroll Reveal System */
+(function(){
+  function reveal(){
+    document.querySelectorAll('.reveal').forEach(el=>{
+      const r=el.getBoundingClientRect();
+      if(r.top<window.innerHeight-60)el.classList.add('visible');
+    });
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.querySelectorAll('.pod,.stats,.culture-card,.quote-card').forEach((el,i)=>{
+      el.classList.add('reveal','reveal-delay-'+(i%4));
+    });
+    reveal();
+    window.addEventListener('scroll',reveal);
+    setInterval(reveal,300);
+  });
+})();
+</script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="songs.js?v=102"></script>
 <script src="radio.js?v=102"></script>
