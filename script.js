@@ -12,7 +12,7 @@ function isFavorite(index){return getFavorites().includes(index)}
 function toggleFavorite(index){
   const favorites=getFavorites();
   const next=favorites.includes(index)?favorites.filter(i=>i!==index):[...favorites,index];
-  setFavorites(next);renderSongGrid();showToast(next.includes(index)?'Saved to your Punjabi rotation ★':'Removed from saved tracks');
+  setFavorites(next);renderSongGrid();showToast(next.includes(index)?'Saved to your wave ★':'Removed from saved tracks');
 }
 
 function getFilteredSongs(){
@@ -72,7 +72,7 @@ function updateKinetic(s,playing){
   const titleEl=$('kineticTitle');
   titleEl.innerHTML=`${esc(s.title)}<br><em>${esc(s.artist)}</em>`;
   titleEl.style.setProperty('--beat',beatMsFor(currentIndex)+'ms');titleEl.classList.toggle('is-playing',playing);
-  $('kineticArtist').innerHTML=`<span>${s.year} · ${playing?'Now playing':'Queued'} on Deepak's Punjabi Songs</span>`;
+  $('kineticArtist').innerHTML=`<span>${s.year} · ${playing?'Now playing':'Queued'} on Punjabi Wave</span>`;
   $('nowLabel').textContent=playing?'NOW PLAYING':'READY TO PLAY';
 }
 function highlightActiveCard(i){document.querySelectorAll('.song-card').forEach(c=>c.classList.toggle('active',Number(c.dataset.index)===i))}
@@ -122,7 +122,7 @@ window.__pauseSongPlayback=function(){if(playerReady&&player&&player.getPlayerSt
 window.__nowPlaying=function(){
   const s=SONG_LIST[currentIndex]||{};const playing=playerReady&&player&&player.getPlayerState&&player.getPlayerState()===YT.PlayerState.PLAYING;
   const t=playerReady&&player&&player.getCurrentTime?player.getCurrentTime():0,d=playerReady&&player&&player.getDuration?player.getDuration():0;
-  return{title:s.title||"Deepak's Punjabi Songs",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:!!playing,time:t,duration:d,beatMs:beatMsFor(currentIndex)};
+  return{title:s.title||"Punjabi Wave",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:!!playing,time:t,duration:d,beatMs:beatMsFor(currentIndex)};
 };
 window.__togglePlayback=togglePlay;window.__nextSong=next;window.__prevSong=previous;window.__playCurrentSong=()=>playCurrent(true);
 
@@ -146,6 +146,8 @@ function renderSongGrid(){
   if(empty)empty.hidden=matches.length>0;
   if($('drawerCount'))$('drawerCount').textContent=`${matches.length} ${matches.length===1?'track':'tracks'}`;
   if($('trackCountLabel'))$('trackCountLabel').textContent=`${SONG_LIST.length} TRACKS`;
+  // also update meta tag live
+  document.title=`Punjabi Wave — Hindi & Punjabi Hits 2024–2026`;
   grid.querySelectorAll('.play-song').forEach(button=>button.addEventListener('click',()=>{selectSong(Number(button.dataset.i),true);closePanel()}));
   grid.querySelectorAll('.save-btn').forEach(button=>button.addEventListener('click',()=>toggleFavorite(Number(button.dataset.save))));
 }

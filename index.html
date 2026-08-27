@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Deepak's Punjabi Songs — The Punjabi Frequency</title>
-<meta name="description" content="A living Punjabi music dashboard with live radio, curated hits, culture notes, four visual worlds, and a full-screen Live Mode.">
+<title>Punjabi Wave — Hindi & Punjabi Hits 2024–2026</title>
+<meta name="description" content="A curated dashboard of the hottest Hindi & Punjabi songs from 2024–2026, with live radio, themeable visuals, and a full-screen Live Mode.">
 <meta name="theme-color" content="#0f0a1c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Mukta:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=91">
+<link rel="stylesheet" href="style.css?v=92">
 <script>
 try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}
 </script>
@@ -26,14 +26,14 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
 
   <header class="dash-top">
     <a class="logo" href="#" id="homeBtn" aria-label="Return to dashboard home">
-      <span class="logo-mark">▰</span>
-      <span class="logo-lockup"><span class="logo-kicker">CURATED IN SOUND</span><strong>DEEPAK'S PUNJABI SONGS</strong></span>
+      <span class="logo-mark">◆</span>
+      <span class="logo-lockup"><span class="logo-kicker">CURATED IN SOUND</span><strong>PUNJABI WAVE</strong></span>
     </a>
     <div class="top-center" aria-label="Dashboard status">
       <span class="status-dot" aria-hidden="true"></span>
       <span id="shellStatus">DASHBOARD ONLINE</span>
       <span class="top-divider" aria-hidden="true"></span>
-      <span id="trackCountLabel">30 TRACKS</span>
+      <span id="trackCountLabel">35 TRACKS</span>
     </div>
     <nav class="world-dock" id="worldDock" aria-label="Switch visual theme">
       <span class="world-caption">PICK A WORLD</span>
@@ -48,9 +48,9 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
   </header>
 
   <main class="dash-grid">
-    <section class="pod pod-radio" aria-label="Live Punjabi Radio">
-      <div class="pod-heading"><p class="pod-label"><span>01</span> LIVE PUNJABI RADIO</p><span class="pod-status">24 / 7</span></div>
-      <div class="pod-intro"><h2>Find your frequency.</h2><p>Four community stations. One tap to tune in.</p></div>
+    <section class="pod pod-radio" aria-label="Live Radio">
+      <div class="pod-heading"><p class="pod-label"><span>01</span> LIVE RADIO</p><span class="pod-status">24 / 7</span></div>
+      <div class="pod-intro"><h2>Find your frequency.</h2><p>Community stations streaming Hindi &amp; Punjabi hits around the clock.</p></div>
       <div class="dial" id="radioDial"><span class="dial-orbit" aria-hidden="true"></span><button class="dial-btn" id="radioPlayBtn" aria-label="Play live radio">▶</button></div>
       <div class="radio-state"><p class="radio-eyebrow"><span class="live-dot" id="liveDot" style="display:none"></span><span id="radioStatus">OFFLINE · TAP TO TUNE IN</span></p><span class="radio-signal" aria-label="Audio signal"><i></i><i></i><i></i><i></i></span></div>
       <h3 class="radio-station" id="radioStationName">Select a station</h3>
@@ -60,16 +60,16 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
     </section>
 
     <section class="pod pod-center" aria-label="Now playing">
-      <div class="center-topline"><span>THE PUNJABI FREQUENCY</span><strong id="worldName">TRUCK ART</strong></div>
+      <div class="center-topline"><span>HINDI &amp; PUNJABI HITS</span><strong id="worldName">TRUCK ART</strong></div>
       <div class="gauge-ring">
         <span class="gauge-tick tick-one" aria-hidden="true"></span><span class="gauge-tick tick-two" aria-hidden="true"></span>
         <div class="now-context"><span class="status-dot" aria-hidden="true"></span><p class="now-label" id="nowLabel">READY TO PLAY</p></div>
         <div class="kinetic-wrap" id="kineticWrap">
           <div class="kinetic-tilt" id="kineticTilt">
-            <h1 class="kinetic" id="kineticTitle">DEEPAK'S<br><em>PUNJABI SONGS</em></h1>
+            <h1 class="kinetic" id="kineticTitle">PUNJABI<br><em>WAVE</em></h1>
           </div>
         </div>
-        <p class="kinetic-artist" id="kineticArtist"><span>2024–2026's biggest Punjabi hits</span></p>
+        <p class="kinetic-artist" id="kineticArtist"><span>2024–2026's biggest Hindi &amp; Punjabi hits</span></p>
         <button class="wheel-btn" id="wheelBtn" aria-label="Grab the wheel — enter full-screen Live Mode" title="Grab the wheel">
           <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 200 200" aria-hidden="true">
             <circle cx="100" cy="100" r="86" class="wheel-rim"/><circle cx="100" cy="100" r="70" class="wheel-rim-inner"/>
@@ -78,24 +78,25 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
           </svg>
           <span class="wheel-label">LIVE MODE ✦</span>
         </button>
-        <div class="gauge-actions"><button class="enter" id="enterBtn"><span>▶</span> CHALA DO</button><button class="enter ghost" id="browseBtn">BROWSE 30 HITS <span>↗</span></button></div>
+        <div class="gauge-actions"><button class="enter" id="enterBtn"><span>▶</span> CHALA DO</button><button class="enter ghost" id="browseBtn">BROWSE ALL HITS <span>↗</span></button></div>
       </div>
       <div class="stat-strip" aria-label="Dashboard stats">
-        <div class="stat"><strong>30</strong><span>TRACKS</span></div><div class="stat"><strong>04</strong><span>RADIO STATIONS</span></div><div class="stat"><strong>24—26</strong><span>CURATED ERA</span></div>
+        <div class="stat"><strong>35</strong><span>TRACKS</span></div><div class="stat"><strong>04</strong><span>RADIO STATIONS</span></div><div class="stat"><strong>24—26</strong><span>THE FRESH ERA</span></div>
       </div>
     </section>
 
-    <section class="pod pod-culture" aria-label="Punjabi culture notes">
-      <div class="pod-heading"><p class="pod-label"><span>02</span> EDITOR'S NOTE</p><span class="pod-status">PUNJAB</span></div>
+    <section class="pod pod-culture" aria-label="Culture notes">
+      <div class="pod-heading"><p class="pod-label"><span>02</span> EDITOR'S NOTE</p><span class="pod-status">दिल से</span></div>
       <div class="pod-intro"><h2>More than a playlist.</h2><p>Small notes from a big sound.</p></div>
       <div class="culture-card featured"><span class="tag">BOL PUNJABI</span><strong id="phraseGurmukhi">ਚੜ੍ਹਦੀ ਕਲਾ</strong><p id="phraseMeaning">Chardi Kala — a state of eternal optimism and rising spirit, core to Punjabi philosophy.</p><span class="card-index">A / 04</span></div>
-      <div class="culture-card"><span class="tag">DID YOU KNOW</span><strong id="factHeadline">Built like a dashboard</strong><p id="factBody">Radio, the now-playing gauge, and culture notes stay visible together — so the next song is always one click away.</p><span class="card-index">B / 04</span></div>
-      <div class="quote-card"><span class="quote-mark">“</span><p>Pind di mitti.<br><em>City di beat.</em></p><span>THE SOUND OF PUNJAB</span></div>
+      <div class="culture-card"><span class="tag">BOL HINDI</span><strong id="factHeadline">दिल से, दिल तक</strong><p id="factBody">From heart to heart — Hindi music carries emotions that transcend borders, language, and time.</p><span class="card-index">B / 04</span></div>
+      <div class="culture-card"><span class="tag">DID YOU KNOW</span><strong>Two languages, one beat</strong><p>Hindi and Punjabi share rhythm, melody, and soul. This dashboard blends both worlds under one roof.</p><span class="card-index">C / 04</span></div>
+      <div class="quote-card"><span class="quote-mark">"</span><p>Pind di mitti.<br><em>Shehar ki dhun.</em></p><span>THE SOUND OF TWO WORLDS</span></div>
     </section>
   </main>
 
   <div class="dash-player" id="playerBar">
-    <div class="now-playing"><span class="np-art" id="npArt">▰</span><div class="np-meta"><span class="player-kicker">NOW PLAYING</span><strong id="playerTitle">SELECT A SONG</strong><span id="playerMeta">DEEPAK'S PUNJABI SONGS</span></div></div>
+    <div class="now-playing"><span class="np-art" id="npArt">◆</span><div class="np-meta"><span class="player-kicker">NOW PLAYING</span><strong id="playerTitle">SELECT A SONG</strong><span id="playerMeta">PUNJABI WAVE</span></div></div>
     <div class="controls"><button id="prevBtn" title="Previous song" aria-label="Previous song">⏮</button><button id="playBtn" class="pill" title="Play" aria-label="Play selected song">▶</button><button id="nextBtn" title="Next song" aria-label="Next song">⏭</button></div>
     <div class="time-line"><span id="currentTime">0:00</span><div class="progress" id="progressTrack" role="slider" tabindex="0" aria-label="Seek through current song" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><span id="progressBar"></span></div><span id="duration">0:00</span></div>
     <div class="sources"><button id="youtubeBtn">YOUTUBE ↗</button><button id="spotifyBtn">SPOTIFY ↗</button><button id="shareBtn" class="share-btn" title="Share what you're playing">SHARE ✦</button></div>
@@ -105,9 +106,9 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
 
 <div class="drawer-scrim" id="drawerScrim"></div>
 <section class="songs-panel" id="songsPanel" aria-label="Song list" aria-hidden="true">
-  <div class="drawer-head"><div><span class="kicker">THE TRENDING YEARS</span><h2>30 PUNJABI HITS <span>· 2024—2026</span></h2></div><div class="drawer-head-actions"><span class="drawer-count" id="drawerCount">30 tracks</span><button class="panel-close" id="closePanel">CLOSE ×</button></div></div>
-  <div class="drawer-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="songSearch" type="search" placeholder="Search a song or artist" autocomplete="off"><button id="clearSearch" type="button" aria-label="Clear search">×</button></label><button class="shuffle-btn" id="shuffleBtn" type="button"><span>⤨</span> SHUFFLE</button></div>
-  <div class="filter-row" role="group" aria-label="Filter songs by year"><span class="filter-label">FILTER</span><button class="filter-btn active" data-filter="all" aria-pressed="true">ALL YEARS</button><button class="filter-btn" data-filter="2024" aria-pressed="false">2024</button><button class="filter-btn" data-filter="2025" aria-pressed="false">2025</button><button class="filter-btn" data-filter="2026" aria-pressed="false">2026</button><button class="filter-btn" data-filter="favorites" aria-pressed="false">★ SAVED</button></div>
+  <div class="drawer-head"><div><span class="kicker">THE FRESH COLLECTION</span><h2>HINDI &amp; PUNJABI HITS <span>· 2024—2026</span></h2></div><div class="drawer-head-actions"><span class="drawer-count" id="drawerCount">35 tracks</span><button class="panel-close" id="closePanel">CLOSE ×</button></div></div>
+  <div class="drawer-tools"><label class="search-box"><span aria-hidden="true">⌕</span><input id="songSearch" type="search" placeholder="Search song, artist, or year" autocomplete="off"><button id="clearSearch" type="button" aria-label="Clear search">×</button></label><button class="shuffle-btn" id="shuffleBtn" type="button"><span>⤨</span> SHUFFLE</button></div>
+  <div class="filter-row" role="group" aria-label="Filter songs by year"><span class="filter-label">FILTER</span><button class="filter-btn active" data-filter="all" aria-pressed="true">ALL</button><button class="filter-btn" data-filter="2024" aria-pressed="false">2024</button><button class="filter-btn" data-filter="2025" aria-pressed="false">2025</button><button class="filter-btn" data-filter="2026" aria-pressed="false">2026</button><button class="filter-btn" data-filter="favorites" aria-pressed="false">★ SAVED</button></div>
   <div class="drawer-body"><div class="song-grid" id="songGrid"></div><div class="empty-state" id="emptyState" hidden><strong>No tracks found.</strong><span>Try another title, artist, or year.</span></div></div>
 </section>
 
@@ -116,10 +117,10 @@ try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'tr
 <div class="live-mode" id="liveMode" aria-hidden="true"><canvas id="liveCanvas"></canvas><div class="live-vignette" aria-hidden="true"></div><div class="live-ui"><button class="live-exit" id="liveExit" aria-label="Exit live mode">✕ EXIT</button><div class="live-body"><p class="live-kicker">NOW JAMMING</p><h2 class="live-title" id="liveTitle">—</h2><p class="live-artist" id="liveArtist">—</p><div class="live-controls"><button id="livePrev" aria-label="Previous song">⏮</button><button id="livePause" class="live-pause" aria-label="Pause">Ⅱ</button><button id="liveNext" aria-label="Next song">⏭</button></div><button class="live-share" id="liveShare">SHARE THIS MOMENT ✦</button></div><div class="live-paused-badge" id="livePausedBadge">PAUSED</div></div></div>
 
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=91"></script>
-<script src="radio.js?v=91"></script>
-<script src="script.js?v=91"></script>
-<script src="theme.js?v=91"></script>
-<script src="livemode.js?v=91"></script>
+<script src="songs.js?v=92"></script>
+<script src="radio.js?v=92"></script>
+<script src="script.js?v=92"></script>
+<script src="theme.js?v=92"></script>
+<script src="livemode.js?v=92"></script>
 </body>
 </html>

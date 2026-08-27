@@ -90,11 +90,11 @@
     ctx.fillText(artist, 90, H-220);
     ctx.fillStyle=col.gulabi;
     ctx.font='700 28px Outfit, sans-serif';
-    ctx.fillText("DEEPAK'S PUNJABI SONGS", 90, H-120);
+    ctx.fillText('PUNJABI WAVE', 90, H-120);
     ctx.fillStyle=col.chrome;
     ctx.globalAlpha=.65;
     ctx.font='500 22px Outfit, sans-serif';
-    ctx.fillText('deepbat.github.io/punjabi-rewind', 90, H-80);
+    ctx.fillText('Hindi & Punjabi Hits 2024-2026', 90, H-80);
     ctx.globalAlpha=1;
     return c;
   }
@@ -117,7 +117,7 @@
   }
   async function handleShare(){
     const titleEl=$('playerTitle'),metaEl=$('playerMeta');
-    const title=(titleEl?.textContent||'Deepak\'s Punjabi Songs').trim();
+    const title=(titleEl?.textContent||'Punjabi Wave').trim();
     const meta=(metaEl?.textContent||'').trim();
     if(!title || title==='SELECT A SONG'){showToast('Play a song first, then share it ✦');return}
     try{
