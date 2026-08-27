@@ -1,4 +1,4 @@
-/* Theme switcher ("worlds"), hero parallax tilt, and the shareable "Now Jamming" card. */
+/* Theme switcher ("worlds"), hero parallax tilt, and the shareable "Now Jamming" card. — v401 fixed clicks */
 (function(){
   const $=id=>document.getElementById(id);
   const WORLDS=['truck','cinema','loom','basera'];
@@ -7,13 +7,24 @@
   function initTheme(){
     const saved=(()=>{try{return localStorage.getItem('pr_theme')}catch(e){return null}})()||'truck';
     applyTheme(saved,false);
+    // direct delegation — robust even if re-rendered
+    document.addEventListener('click',e=>{
+      const btn=e.target.closest('.world-btn');
+      if(!btn||!btn.dataset.world) return;
+      e.preventDefault();
+      applyTheme(btn.dataset.world,true);
+    });
+    // also bind directly for safety
     document.querySelectorAll('.world-btn').forEach(btn=>{
+      btn.style.pointerEvents='auto';
       btn.addEventListener('click',()=>applyTheme(btn.dataset.world,true));
     });
+    console.log('[theme] ready, current=',saved);
   }
   function applyTheme(world,persist){
     if(!WORLDS.includes(world))world='truck';
     document.documentElement.dataset.theme=world;
+    document.documentElement.setAttribute('data-theme',world);
     document.querySelectorAll('.world-btn').forEach(b=>{
       const active=b.dataset.world===world;
       b.classList.toggle('active',active);
@@ -21,17 +32,20 @@
     });
     const worldName=document.getElementById('worldName');
     if(worldName)worldName.textContent=WORLD_NAMES[world];
+    // also tint the cosmos immediately
+    document.body.setAttribute('data-theme',world);
     if(persist){
       try{localStorage.setItem('pr_theme',world)}catch(e){}
-      // reflect the choice in the URL so a themed link can be shared/bookmarked
       try{
         const url=new URL(location.href);
         url.hash='world='+world;
         history.replaceState(null,'',url);
       }catch(e){}
+      // toast feedback so user KNOWS it worked
+      const t=document.getElementById('shareToast');
+      if(t){t.textContent='Theme: '+WORLD_NAMES[world]+' ✦';t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),1600)}
     }
   }
-  // allow #world=cinema style deep links to preselect a theme on load
   (function readHash(){
     const m=/world=([a-z]+)/.exec(location.hash);
     if(m && WORLDS.includes(m[1])){
@@ -40,7 +54,6 @@
     }
   })();
 
-  // ---- parallax tilt on the kinetic hero title (desktop pointer only) ----
   function initParallax(){
     const wrap=document.querySelector('.kinetic-wrap');
     const tilt=$('kineticTilt');
@@ -61,7 +74,6 @@
     });
   }
 
-  // ---- shareable "Now Jamming" card (canvas-rendered, downloadable / Web-Share-able) ----
   function themeColors(){
     const cs=getComputedStyle(document.documentElement);
     const v=n=>cs.getPropertyValue(n).trim();
@@ -75,7 +87,6 @@
     const grad=ctx.createLinearGradient(0,0,W,H);
     grad.addColorStop(0,col.night2);grad.addColorStop(1,col.night);
     ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-    // corner rivets / frame
     ctx.strokeStyle=col.marigold;ctx.lineWidth=6;ctx.strokeRect(40,40,W-80,H-80);
     ctx.fillStyle=col.peacock;
     [[60,60],[W-60,60],[60,H-60],[W-60,H-60]].forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,10,0,7);ctx.fill()});
@@ -126,7 +137,7 @@
         if(!blob)return;
         const file=new File([blob],'now-jamming.png',{type:'image/png'});
         if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-          try{await navigator.share({files:[file],title:'Now Jamming',text:`${title} — ${meta}`});return}catch(e){/* fall through to download */}
+          try{await navigator.share({files:[file],title:'Now Jamming',text:`${title} — ${meta}`});return}catch(e){}
         }
         const a=document.createElement('a');
         a.href=URL.createObjectURL(blob);a.download='now-jamming.png';a.click();
@@ -135,9 +146,9 @@
     }catch(e){showToast("Couldn't build the card — try again")}
   }
 
-  document.addEventListener('DOMContentLoaded',()=>{
-    initTheme();
-    initParallax();
-    $('shareBtn')?.addEventListener('click',handleShare);
-  });
+  // expose for inline onclick fallback
+  window.__applyTheme=applyTheme;
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{initTheme();initParallax();$('shareBtn')?.addEventListener('click',handleShare);});
+  else {initTheme();initParallax();$('shareBtn')?.addEventListener('click',handleShare);}
 })();

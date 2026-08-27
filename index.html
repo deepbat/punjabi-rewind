@@ -3,16 +3,28 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Punjabi Wave — Hindi & Punjabi Hits</title>
-<meta name="description" content="The hottest Hindi & Punjabi songs from 2024–2026.">
-<meta name="theme-color" content="#FFF8F0">
+<title>Punjabi Wave — Future Archive 2024—2026</title>
+<meta name="description" content="The hottest Hindi & Punjabi hits 2024–2026 — live radio, 3D visuals, future archive.">
+<meta name="theme-color" content="#070A14">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=102">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="stylesheet" href="style.css?v=403">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}</script>
+<style>.pulse-attn{animation:pulseAttn 900ms ease-in-out 3}@keyframes pulseAttn{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(255,0,51,0)}50%{transform:scale(1.06);box-shadow:0 0 18px rgba(255,0,51,.45)}}</style>
 </head>
 <body>
+
+<div class="cosmos" aria-hidden="true">
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="aurora a3"></div>
+  <div class="grid-floor"></div>
+  <div class="scanline"></div>
+</div>
 
 <div class="dash" id="dash">
   <div class="dash-bg" aria-hidden="true">
@@ -20,22 +32,38 @@
   </div>
 
   <header class="dash-top">
-    <a class="logo" href="#" id="homeBtn" aria-label="Home">
-      <span class="logo-mark">🎵</span>
-      <span class="logo-lockup"><span class="logo-kicker">CURATED IN SOUND</span><strong>PUNJABI WAVE</strong></span>
-    </a>
+    <div class="brand-cluster">
+      <a class="logo" href="#" id="homeBtn" aria-label="Home">
+        <span class="logo-mark">◉</span>
+        <span class="logo-lockup"><span class="logo-kicker">FUTURE ARCHIVE • EST. 2024</span><strong>PUNJABI WAVE</strong></span>
+      </a>
+      <div class="clock-wrap" id="clockWrap" aria-live="off" title="Local time — Asia/Kolkata">
+        <div class="clock-main">
+          <span class="clock-icon" aria-hidden="true">◷</span>
+          <span id="liveClock" class="live-clock">00:00:00</span>
+          <span class="clock-ampm" id="clockAmPm">AM</span>
+        </div>
+        <div class="clock-sub">
+          <span id="liveDate" class="live-date">LOADING —</span>
+          <span class="clock-tz">IST • UTC+5:30</span>
+        </div>
+      </div>
+    </div>
+
     <div class="top-center" aria-label="Status">
       <span class="status-dot" aria-hidden="true"></span>
       <span id="shellStatus">DASHBOARD ONLINE</span>
       <span class="top-sep" aria-hidden="true"></span>
       <span id="trackCountLabel">43 TRACKS</span>
     </div>
+
     <nav class="world-dock" id="worldDock" aria-label="Theme">
-      <button class="world-btn" data-world="truck" aria-pressed="false"><span>☀️</span></button>
-      <button class="world-btn" data-world="cinema" aria-pressed="false"><span>🎬</span></button>
-      <button class="world-btn" data-world="loom" aria-pressed="false"><span>🧵</span></button>
-      <button class="world-btn" data-world="basera" aria-pressed="false"><span>🌙</span></button>
+      <button class="world-btn" data-world="truck" aria-pressed="false" title="Truck Art — tap to switch" onclick="window.__applyTheme&&window.__applyTheme('truck',true)"><span>☀️</span></button>
+      <button class="world-btn" data-world="cinema" aria-pressed="false" title="Cinema Dhaba — tap to switch" onclick="window.__applyTheme&&window.__applyTheme('cinema',true)"><span>🎬</span></button>
+      <button class="world-btn" data-world="loom" aria-pressed="false" title="Phulkari Loom — tap to switch" onclick="window.__applyTheme&&window.__applyTheme('loom',true)"><span>🧵</span></button>
+      <button class="world-btn" data-world="basera" aria-pressed="false" title="Basera Night — tap to switch" onclick="window.__applyTheme&&window.__applyTheme('basera',true)"><span>🌙</span></button>
     </nav>
+
     <div class="top-actions">
       <button class="mute" id="muteBtn" aria-pressed="false">🔊 SOUND ON</button>
     </div>
@@ -44,9 +72,9 @@
   <main class="dash-grid">
     <!-- LEFT: RADIO -->
     <section class="pod pod-radio" aria-label="Live Radio">
-      <div class="pod-head"><span class="pod-num">01</span><span class="pod-title">LIVE RADIO</span><span class="pod-badge">24 / 7</span></div>
-      <h2 class="pod-h2">Find Your<br>Frequency 📻</h2>
-      <div class="dial" id="radioDial"><span class="dial-orbit" aria-hidden="true"></span><button class="dial-btn" id="radioPlayBtn" aria-label="Play radio">▶</button></div>
+      <div class="pod-head"><span class="pod-num">01</span><span class="pod-title">LIVE RADIO</span><span class="pod-badge"><span class="badge-dot"></span> 24 / 7</span></div>
+      <h2 class="pod-h2">Find Your<br>Frequency</h2>
+      <div class="dial" id="radioDial"><span class="dial-orbit" aria-hidden="true"></span><span class="dial-ring ring2" aria-hidden="true"></span><button class="dial-btn" id="radioPlayBtn" aria-label="Play radio">▶</button></div>
       <p class="radio-status"><span class="live-dot" id="liveDot" style="display:none"></span><span id="radioStatus">OFFLINE · TAP TO TUNE IN</span></p>
       <h3 class="radio-name" id="radioStationName">Select a station</h3>
       <p class="radio-desc" id="radioDesc">Independent 24/7 streams. If one drops, we auto-tune to the next.</p>
@@ -54,27 +82,35 @@
       <div class="pod-foot"><b>LIVE AUDIO</b><span>Auto-tunes on failure</span></div>
     </section>
 
-    <!-- CENTER: NOW PLAYING -->
+    <!-- CENTER: HOLO STAGE — unique floating stage -->
     <section class="pod pod-center" aria-label="Now playing">
-      <div class="center-topline"><span>🎨 HINDI & PUNJABI HITS</span><strong id="worldName">TRUCK ART</strong></div>
+      <div class="center-topline"><span>◎ HINDI & PUNJABI HITS — FUTURE ARCHIVE</span><strong id="worldName">TRUCK ART</strong></div>
+
       <div class="gauge">
+        <div class="gauge-glow" aria-hidden="true"></div>
+        <div class="gauge-holo-grid" aria-hidden="true"></div>
+        <!-- vinyl hologram behind title -->
+        <div class="vinyl-holo" aria-hidden="true"><span></span><span></span></div>
         <div class="now-ctx"><span class="status-dot"></span><p id="nowLabel">READY TO PLAY</p></div>
         <div class="kinetic-wrap" id="kineticWrap">
           <div class="kinetic-tilt" id="kineticTilt">
             <h1 class="kinetic" id="kineticTitle">PUNJABI<br><em>WAVE</em></h1>
           </div>
         </div>
-        <p class="kinetic-sub" id="kineticArtist"><span>2024–2026's biggest Hindi &amp; Punjabi hits</span></p>
-        <button class="wheel-btn" id="wheelBtn" title="Grab the wheel">
+        <p class="kinetic-sub" id="kineticArtist"><span>2024–2026's biggest Hindi &amp; Punjabi hits — remastered for the future</span></p>
+        <button class="wheel-btn" id="wheelBtn" title="Hold & drag — enter LIVE MODE">
           <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 200 200" aria-hidden="true">
             <circle cx="100" cy="100" r="86" class="w-rim"/><circle cx="100" cy="100" r="70" class="w-inner"/>
             <g class="w-spokes"><rect x="94" y="30" width="12" height="62" rx="6"/><rect x="94" y="30" width="12" height="62" rx="6" transform="rotate(120 100 100)"/><rect x="94" y="30" width="12" height="62" rx="6" transform="rotate(240 100 100)"/></g>
             <circle cx="100" cy="100" r="26" class="w-hub"/><path class="w-mark" d="M88 100 L97 109 L114 90" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span class="wheel-label">LIVE MODE ✦</span>
+          <span class="wheel-label">LIVE MODE ✦ DRAG TO SPIN</span>
         </button>
-        <div class="gauge-actions"><button class="btn-play" id="enterBtn"><span>▶</span> CHALA DO</button><button class="btn-browse" id="browseBtn">BROWSE ALL HITS ↗</button></div>
       </div>
+
+      <!-- FIX: actions moved OUTSIDE gauge so never clipped -->
+      <div class="gauge-actions"><button class="btn-play" id="enterBtn"><span>▶</span> CHALA DO</button><button class="btn-browse" id="browseBtn">BROWSE VAULT ↗</button></div>
+
       <div class="stats">
         <div class="stat"><strong>43</strong><small>TRACKS</small></div>
         <div class="stat"><strong>04</strong><small>STATIONS</small></div>
@@ -82,44 +118,71 @@
       </div>
     </section>
 
-    <!-- RIGHT: CULTURE -->
-    <section class="pod pod-culture" aria-label="Culture notes">
-      <div class="pod-head"><span class="pod-num">02</span><span class="pod-title">EDITOR'S NOTE</span><span class="pod-badge">दिल से</span></div>
-      <h2 class="pod-h2">More Than a Playlist ✨</h2>
-      <div class="culture-card featured">
-        <span class="cc-tag">BOL PUNJABI 🔥</span>
-        <h4 id="phraseGurmukhi">ਚੜ੍ਹਦੀ ਕਲਾ</h4>
-        <p id="phraseMeaning">Chardi Kala — eternal optimism and rising spirit, core to Punjabi philosophy.</p>
+    <!-- RIGHT: TRANSMISSION DECK — replaces Editor's Note, totally unique -->
+    <section class="pod pod-deck" aria-label="Transmission Deck">
+      <div class="pod-head"><span class="pod-num">02</span><span class="pod-title">TRANSMISSION DECK</span><span class="pod-badge"><span class="badge-dot"></span> SIGNAL LOCKED</span></div>
+
+      <!-- HOLO EQ — reacts to play state -->
+      <div class="deck-eq-wrap">
+        <div class="deck-eq" id="deckEq" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="eq-label"><span id="deckEqLabel">IDLE — AWAITING FREQUENCY</span><span class="eq-pulse" aria-hidden="true"></span></div>
       </div>
-      <div class="culture-card">
-        <span class="cc-tag">BOL HINDI 💜</span>
-        <h4 id="factHeadline">दिल से, दिल तक</h4>
-        <p id="factBody">Hindi music carries emotions that transcend borders, language, and time.</p>
+
+      <!-- NEXT TRANSMISSIONS — live queue -->
+      <div class="deck-block">
+        <div class="block-kicker">NEXT TRANSMISSIONS <span>→ tap to warp</span></div>
+        <div id="deckNext" class="deck-next"></div>
       </div>
-      <div class="culture-card">
-        <span class="cc-tag">DID YOU KNOW 🧠</span>
-        <h4>Two languages, one beat</h4>
-        <p>Hindi and Punjabi share rhythm, melody, and soul. This dashboard blends both worlds.</p>
+
+      <!-- VIBE MATRIX — unique system stats -->
+      <div class="deck-block">
+        <div class="block-kicker">VIBE MATRIX</div>
+        <div class="meter-grid">
+          <div class="meter"><div class="meter-head"><span>ENERGY</span><b>84%</b></div><div class="mbar"><b style="width:84%"></b></div></div>
+          <div class="meter"><div class="meter-head"><span>PULSE</span><b id="meterBpm">92 BPM</b></div><div class="mbar alt"><b style="width:62%"></b></div></div>
+          <div class="meter"><div class="meter-head"><span>SIGNAL</span><b>LOCKED</b></div><div class="mbar"><b style="width:100%"></b></div></div>
+        </div>
       </div>
-      <div class="quote-card">
-        <q>"Pind di mitti.<br><em>Shehar ki dhun."</em></q>
-        <span>THE SOUND OF TWO WORLDS</span>
+
+      <!-- QUICK ACTIONS — shuffled, tactile -->
+      <div class="deck-actions">
+        <button class="deck-btn primary" id="deckShuffle" type="button">◈ SHUFFLE SIGNAL</button>
+        <button class="deck-btn" id="deckQueueBrowse" type="button">OPEN VAULT ↗</button>
       </div>
+      <div class="deck-foot">HOLOGRAPHIC ARCHIVE • BUILT FOR 2026</div>
     </section>
   </main>
 
+  <!-- bottom ticker — unique marquee -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>★ PUNJABI WAVE ★</span><span>2024—2026 FUTURE ARCHIVE</span><span>LIVE RADIO 24/7</span><span>HINDI × PUNJABI</span><span>HOLOGRAPHIC VAULT</span><span>★</span>
+      <span>PUNJABI WAVE ★</span><span>2024—2026 FUTURE ARCHIVE</span><span>LIVE RADIO 24/7</span><span>HINDI × PUNJABI</span><span>HOLOGRAPHIC VAULT</span><span>★</span>
+    </div>
+  </div>
+
   <div class="dash-player" id="playerBar">
-    <div class="np"><span class="np-art" id="npArt">🎵</span><div class="np-meta"><span class="np-kicker">NOW PLAYING</span><strong id="playerTitle">SELECT A SONG</strong><span id="playerMeta">PUNJABI WAVE</span></div></div>
+    <div class="np"><span class="np-art" id="npArt">🎵</span><div class="np-meta"><span class="np-kicker">NOW PLAYING</span><strong id="playerTitle">SELECT A SONG</strong><span id="playerMeta">PUNJABI WAVE — FUTURE ARCHIVE</span></div></div>
     <div class="controls"><button id="prevBtn" title="Previous">⏮</button><button id="playBtn" class="pill" title="Play">▶</button><button id="nextBtn" title="Next">⏭</button></div>
-    <div class="timebar"><span id="currentTime">0:00</span><div class="progress" id="progressTrack" role="slider" aria-label="Seek"><span id="progressBar"></span></div><span id="duration">0:00</span></div>
+    <div class="timebar"><span id="currentTime">0:00</span><div class="progress" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div><span id="duration">0:00</span></div>
     <div class="src-links"><button id="youtubeBtn" class="src-yt">YOUTUBE ↗</button><button id="spotifyBtn" class="src-sp">SPOTIFY ↗</button><button id="shareBtn" class="src-share">SHARE ✦</button></div>
     <div class="hidden-player"><div id="player"></div></div>
+    <div class="invidious-player" id="invidiousWrap" hidden>
+      <iframe id="invidiousPlayer" title="Invidious proxy player" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy" style="border-radius:12px;background:#000"></iframe>
+      <button class="spotify-close" id="invidiousClose" type="button" title="Try YouTube again">× CLOSE PROXY</button>
+    </div>
+    <div class="spotify-player" id="spotifyPlayerWrap" hidden>
+      <iframe id="spotifyPlayer" title="Spotify player" style="border-radius:12px" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <button class="spotify-close" id="spotifyClose" type="button" title="Back to YouTube">× USE YOUTUBE</button>
+    </div>
   </div>
 </div>
 
 <div class="drawer-scrim" id="drawerScrim"></div>
 <section class="songs-panel" id="songsPanel" aria-label="Song list" aria-hidden="true">
-  <div class="drawer-head"><div><span class="drawer-kicker">THE FRESH COLLECTION</span><h2>HINDI & PUNJABI HITS <span>· 2024—2026</span></h2></div><div class="drawer-head-right"><span id="drawerCount">43 tracks</span><button class="panel-close" id="closePanel">CLOSE ×</button></div></div>
+  <div class="drawer-head"><div><span class="drawer-kicker">THE FRESH COLLECTION — HOLOGRAPHIC VAULT</span><h2>HINDI & PUNJABI HITS <span>· 2024—2026</span></h2></div><div class="drawer-head-right"><span id="drawerCount">43 tracks</span><button class="panel-close" id="closePanel">CLOSE ×</button></div></div>
   <div class="drawer-tools"><label class="search"><span>🔍</span><input id="songSearch" type="search" placeholder="Search song, artist, or year" autocomplete="off"><button id="clearSearch" type="button">×</button></label><button class="shuffle-btn" id="shuffleBtn" type="button">🎲 SHUFFLE</button></div>
   <div class="filter-row" role="group" aria-label="Filter"><span class="filter-label">FILTER</span><button class="filter-btn active" data-filter="all" aria-pressed="true">ALL</button><button class="filter-btn" data-filter="2024">2024</button><button class="filter-btn" data-filter="2025">2025</button><button class="filter-btn" data-filter="2026">2026</button><button class="filter-btn" data-filter="favorites">★ SAVED</button></div>
   <div class="drawer-body"><div class="song-grid" id="songGrid"></div><div class="empty-state" id="emptyState" hidden><strong>No tracks found.</strong><span>Try another search.</span></div></div>
@@ -127,11 +190,40 @@
 
 <div class="share-toast" id="shareToast" role="status" aria-live="polite">Link copied ✦</div>
 
-<div class="live-mode" id="liveMode" aria-hidden="true"><canvas id="liveCanvas"></canvas><div class="live-vig"></div><div class="live-ui"><button id="liveExit" class="live-exit">✕ EXIT</button><div class="live-body"><p class="live-kicker">NOW JAMMING</p><h2 class="live-title" id="liveTitle">—</h2><p class="live-artist" id="liveArtist">—</p><div class="live-ctrls"><button id="livePrev">⏮</button><button id="livePause" class="live-pause">Ⅱ</button><button id="liveNext">⏭</button></div><button id="liveShare" class="live-share">SHARE THIS MOMENT ✦</button></div><div id="livePausedBadge" class="live-badge">PAUSED</div></div></div>
+<div class="live-mode" id="liveMode" aria-hidden="true"><canvas id="liveCanvas"></canvas><div class="live-vig"></div><div class="live-ui"><button id="liveExit" class="live-exit">✕ EXIT</button><div class="live-body"><p class="live-kicker">NOW JAMMING — HOLO STAGE</p><h2 class="live-title" id="liveTitle">—</h2><p class="live-artist" id="liveArtist">—</p><div class="live-ctrls"><button id="livePrev">⏮</button><button id="livePause" class="live-pause">Ⅱ</button><button id="liveNext">⏭</button></div><button id="liveShare" class="live-share">SHARE THIS MOMENT ✦</button></div><div id="livePausedBadge" class="live-badge">PAUSED</div></div></div>
 
-<script src="particles.js?v=103"></script>
+<script src="particles.js?v=403"></script>
 <script>
-/* Scroll Reveal System */
+/* LIVE CLOCK — IST */
+(function(){
+  const clockEl=document.getElementById('liveClock');
+  const dateEl=document.getElementById('liveDate');
+  const ampmEl=document.getElementById('clockAmPm');
+  if(!clockEl) return;
+  function pad(n){return String(n).padStart(2,'0')}
+  function tick(){
+    const now=new Date();
+    const opts={timeZone:'Asia/Kolkata',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short',day:'2-digit',month:'short',year:'numeric'};
+    try{
+      const parts=new Intl.DateTimeFormat('en-GB',opts).formatToParts(now);
+      const get=t=> (parts.find(p=>p.type===t)?.value||'');
+      let h=parseInt(get('hour'),10);
+      const m=get('minute'), s=get('second');
+      const ampm=h>=12?'PM':'AM';
+      let h12=h%12; if(h12===0) h12=12;
+      clockEl.textContent= pad(h12)+':'+m+':'+s;
+      if(ampmEl) ampmEl.textContent=ampm;
+      const wd=get('weekday').toUpperCase(), day=get('day'), mon=get('month').toUpperCase(), yr=get('year');
+      if(dateEl) dateEl.textContent= wd+' '+day+' '+mon+' '+yr;
+    }catch(e){
+      let h=now.getHours(), m=pad(now.getMinutes()), s=pad(now.getSeconds());
+      const ampm=h>=12?'PM':'AM'; h=h%12||12;
+      clockEl.textContent= pad(h)+':'+m+':'+s; if(ampmEl) ampmEl.textContent=ampm;
+      if(dateEl) dateEl.textContent= now.toDateString().toUpperCase();
+    }
+  }
+  tick(); setInterval(tick,1000);
+})();
 (function(){
   function reveal(){
     document.querySelectorAll('.reveal').forEach(el=>{
@@ -140,20 +232,19 @@
     });
   }
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.pod,.stats,.culture-card,.quote-card').forEach((el,i)=>{
-      el.classList.add('reveal','reveal-delay-'+(i%4));
-    });
+    document.querySelectorAll('.pod,.stats').forEach((el,i)=>{el.classList.add('reveal','reveal-delay-'+(i%4));});
     reveal();
     window.addEventListener('scroll',reveal);
     setInterval(reveal,300);
   });
 })();
 </script>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js?v=102"></script>
+<script src="songs.js?v=403"></script>
 <script src="radio.js?v=102"></script>
-<script src="script.js?v=102"></script>
-<script src="theme.js?v=102"></script>
+<script src="script.js?v=403"></script>
+<script src="theme.js?v=403"></script>
 <script src="livemode.js?v=102"></script>
 </body>
 </html>

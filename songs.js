@@ -1,6 +1,7 @@
 /* Punjabi Wave — Hindi & Punjabi Hits 2024–2026
-   35 verified playable tracks spanning Bollywood, Punjabi pop, and rap.
-   sourceType notes where a video was freshly cross-verified. */
+   HYBRID v402: youtubeIds + optional spotifyId. If YouTube blocked (101/150), player auto-switches to Spotify.
+   If spotifyId missing, a Spotify search-embed fallback is used automatically — no API key needed.
+   To add a direct Spotify track: open track -> Share -> Copy link -> /track/<ID> -> paste as spotifyId */
 window.SONGS = [
 /* ── Punjabi Bangers ── */
 {title:'Low Fade',artist:'Karan Aujla ft. Virat Kohli',year:2026,youtubeIds:['zwm_sRRVf6U','3j7bhOvW6jw'],lang:'punjabi'},
