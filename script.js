@@ -322,10 +322,10 @@ function initProgressSeek(){
 
 function renderSongGrid(){
   const grid=$('songGrid'),empty=$('emptyState'),matches=getFilteredSongs();if(!grid)return;
-  grid.innerHTML=matches.map(({song,index})=>{
-    const saved=isFavorite(index),initial=esc((song.title||'P').slice(0,1).toUpperCase());
+  grid.innerHTML=matches.map(({song,index},pos)=>{
+    const saved=isFavorite(index),initial=esc((song.title||'P').slice(0,1).toUpperCase()),stagger=pos%18;
     const hasSpotify=!!song.spotifyId;
-    return `<article class="song-card${index===currentIndex?' active':''}" data-index="${index}"><span class="num">${String(index+1).padStart(2,'0')}</span><span class="song-art" aria-hidden="true">${initial}</span><div class="song-main"><strong>${esc(song.title)}${hasSpotify?' <span style="color:var(--teal);font-size:9px">● SPOTIFY</span>':''}</strong><small>${song.lang==='hindi'?'<span class="lang-dot hindi" title="Hindi"></span>':'<span class="lang-dot punjabi" title="Punjabi"></span>'} ${esc(song.artist)} · ${song.year}</small></div><div class="song-actions"><button class="save-btn${saved?' saved':''}" data-save="${index}" type="button" aria-label="${saved?'Remove':'Save'} ${esc(song.title)}" aria-pressed="${saved}">${saved?'★':'☆'}</button><button class="play-song" data-i="${index}" type="button" aria-label="Play ${esc(song.title)}">▶</button></div></article>`
+    return `<article class="song-card${index===currentIndex?' active':''}" data-index="${index}" style="--stagger:${stagger}"><span class="num">${String(index+1).padStart(2,'0')}</span><span class="song-art" aria-hidden="true">${initial}</span><div class="song-main"><strong>${esc(song.title)}${hasSpotify?' <span style="color:var(--teal);font-size:9px">● SPOTIFY</span>':''}</strong><small>${song.lang==='hindi'?'<span class="lang-dot hindi" title="Hindi"></span>':'<span class="lang-dot punjabi" title="Punjabi"></span>'} ${esc(song.artist)} · ${song.year}</small></div><div class="song-actions"><button class="save-btn${saved?' saved':''}" data-save="${index}" type="button" aria-label="${saved?'Remove':'Save'} ${esc(song.title)}" aria-pressed="${saved}">${saved?'★':'☆'}</button><button class="play-song" data-i="${index}" type="button" aria-label="Play ${esc(song.title)}">▶</button></div></article>`
   }).join('');
   if(empty)empty.hidden=matches.length>0;
   if($('drawerCount'))$('drawerCount').textContent=`${matches.length} ${matches.length===1?'track':'tracks'}`;

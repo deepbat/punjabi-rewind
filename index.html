@@ -12,7 +12,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<link rel="stylesheet" href="style.css?v=403">
+<link rel="stylesheet" href="style.css?v=404">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}</script>
 <style>.pulse-attn{animation:pulseAttn 900ms ease-in-out 3}@keyframes pulseAttn{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(255,0,51,0)}50%{transform:scale(1.06);box-shadow:0 0 18px rgba(255,0,51,.45)}}</style>
 </head>
@@ -225,25 +225,49 @@
   tick(); setInterval(tick,1000);
 })();
 (function(){
-  function reveal(){
-    document.querySelectorAll('.reveal').forEach(el=>{
-      const r=el.getBoundingClientRect();
-      if(r.top<window.innerHeight-60)el.classList.add('visible');
-    });
-  }
+  // UX4G-style entrance: IntersectionObserver-driven reveal instead of
+  // scroll polling — lighter, and correctly handles pods that are
+  // already in view on a non-scrolling dashboard layout.
   document.addEventListener('DOMContentLoaded',()=>{
-    document.querySelectorAll('.pod,.stats').forEach((el,i)=>{el.classList.add('reveal','reveal-delay-'+(i%4));});
-    reveal();
-    window.addEventListener('scroll',reveal);
-    setInterval(reveal,300);
+    const targets=document.querySelectorAll('.pod,.stats');
+    targets.forEach((el,i)=>el.classList.add('reveal','reveal-delay-'+(i%4)));
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){entry.target.classList.add('visible');io.unobserve(entry.target)}
+        });
+      },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+      targets.forEach(el=>io.observe(el));
+    }else{
+      targets.forEach(el=>el.classList.add('visible'));
+    }
   });
+})();
+(function(){
+  // Brief indigo "signal flash" + smooth cross-fade whenever a theme
+  // world changes, echoing UX4G's polished state-transition feel.
+  const flash=document.createElement('div');
+  flash.className='theme-flash';
+  document.body.appendChild(flash);
+  let lastTheme=document.documentElement.dataset.theme;
+  const html=document.documentElement;
+  const mo=new MutationObserver(()=>{
+    const t=html.dataset.theme;
+    if(t===lastTheme)return;
+    lastTheme=t;
+    html.classList.add('theme-shifting');
+    flash.classList.add('show');
+    setTimeout(()=>flash.classList.remove('show'),140);
+    setTimeout(()=>html.classList.remove('theme-shifting'),650);
+  });
+  mo.observe(html,{attributes:true,attributeFilter:['data-theme']});
 })();
 </script>
 <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="songs.js?v=403"></script>
 <script src="radio.js?v=102"></script>
-<script src="script.js?v=403"></script>
+<script src="script.js?v=404"></script>
 <script src="theme.js?v=403"></script>
 <script src="livemode.js?v=102"></script>
 </body>

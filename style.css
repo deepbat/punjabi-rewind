@@ -26,6 +26,13 @@
   --shadow-lg:0 20px 80px rgba(0,0,0,.6), 0 0 100px rgba(0,240,255,.07);
   --ease:cubic-bezier(.22,.68,.22,1);
   --ease-out: cubic-bezier(.16,1,.3,1);
+  /* UX4G-inspired system accent — a neutral "civic" indigo layered
+     ON TOP of the four world themes for focus states, scrollbars and
+     cross-world chrome. It never overrides --accent, which stays
+     theme-driven. */
+  --signal:#4A2BC2;
+  --signal-light:#8B6BFF;
+  --signal-glow:rgba(74,43,194,.45);
 }
 [data-theme="truck"]{--accent:var(--orange);--accent2:var(--teal);--accent-grad:linear-gradient(135deg,#FF3B6B,#FF7A18,#FFD23F)}
 [data-theme="cinema"]{--accent:var(--pink);--accent2:var(--purple);--accent-grad:linear-gradient(135deg,#FF2E93,#7B61FF,#FF3B6B);--bg:#0B0614;--bg2:#1A0B2E}
@@ -61,7 +68,25 @@ body{
 }
 button,input{font:inherit}button{cursor:pointer}
 a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:8px}
+:focus-visible{outline:2px solid var(--signal-light);outline-offset:3px;border-radius:8px}
+
+/* system scrollbars — consistent civic-indigo across all four worlds */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--signal-light),var(--signal));border-radius:999px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--signal-light);border:2px solid transparent;background-clip:padding-box}
+*{scrollbar-color:var(--signal) transparent;scrollbar-width:thin}
+
+/* smooth cross-world transition — fires briefly when switching theme worlds */
+html.theme-shifting,html.theme-shifting body,html.theme-shifting .pod,
+html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting .a2{
+  transition:background .6s var(--ease-out),background-color .6s var(--ease-out),
+             box-shadow .6s var(--ease-out),border-color .6s var(--ease-out)!important;
+}
+.theme-flash{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:0;
+  background:radial-gradient(1200px 800px at 50% 40%,var(--signal-glow),transparent 65%);
+  transition:opacity .45s var(--ease-out);}
+.theme-flash.show{opacity:.55;transition:opacity .12s var(--ease-out)}
 
 /* cosmic */
 .cosmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
@@ -147,7 +172,7 @@ a{color:inherit;text-decoration:none}
 .world-dock{display:flex;gap:6px;margin-left:14px;padding:4px;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:999px;backdrop-filter:blur(10px);position:relative;z-index:50}
 .world-btn{width:32px;height:32px;border-radius:50%;border:1px solid transparent;background:rgba(255,255,255,.06);font-size:15px;display:grid;place-items:center;transition:all .28s var(--ease);color:#fff;cursor:pointer;pointer-events:auto;position:relative;z-index:51}
 .world-btn:hover{transform:translateY(-2px) scale(1.06);background:rgba(255,255,255,.12);box-shadow:0 6px 18px rgba(0,0,0,.28)}
-.world-btn.active{background:var(--accent-grad);border-color:rgba(255,255,255,.18);box-shadow:0 0 0 2px rgba(255,255,255,.08), 0 6px 22px rgba(255,59,107,.35);transform:scale(1.08)}
+.world-btn.active{background:var(--accent-grad);border-color:rgba(255,255,255,.18);box-shadow:0 0 0 2px rgba(255,255,255,.08), 0 0 0 4px var(--signal-glow), 0 6px 22px rgba(255,59,107,.35);transform:scale(1.08)}
 .top-actions{margin-left:8px}
 .mute{
   padding:9px 14px;border:1px solid rgba(0,240,255,.22);border-radius:999px;
@@ -190,7 +215,8 @@ a{color:inherit;text-decoration:none}
   content:"";position:absolute;top:10px;right:10px;width:18px;height:18px;
   border-top:1px solid rgba(0,240,255,.35);border-right:1px solid rgba(0,240,255,.35);border-radius:0 12px 0 0;opacity:.6;pointer-events:none;
 }
-.pod:hover{transform:translateY(-6px) rotateX(1deg);box-shadow:var(--shadow-lg);border-color:rgba(0,240,255,.18)}
+.pod{transition:transform .45s var(--ease-out),box-shadow .45s var(--ease-out),border-color .45s var(--ease-out)}
+.pod:hover{transform:translateY(-6px) rotateX(1deg);box-shadow:var(--shadow-lg),0 0 0 1px var(--signal-glow);border-color:rgba(139,107,255,.28)}
 .pod-head{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .pod-num{font:800 11px 'Outfit',sans-serif;color:var(--teal);width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:rgba(0,240,255,.10);border:1px solid rgba(0,240,255,.18)}
 .pod-title{font:700 9px 'Outfit',sans-serif;letter-spacing:.18em;color:var(--dim)}
@@ -380,7 +406,7 @@ a{color:inherit;text-decoration:none}
 
 .deck-actions{display:flex;gap:8px}
 .deck-btn{flex:1;padding:11px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#fff;font:800 9px 'Outfit',sans-serif;letter-spacing:.08em;transition:all .22s}
-.deck-btn:hover{transform:translateY(-1px);border-color:rgba(0,240,255,.22);background:rgba(0,240,255,.08)}
+.deck-btn:hover{transform:translateY(-1px);border-color:rgba(0,240,255,.22);background:rgba(0,240,255,.08);box-shadow:0 6px 18px var(--signal-glow)}
 .deck-btn.primary{background:var(--accent-grad);border-color:transparent;color:#fff;box-shadow:0 6px 20px rgba(255,59,107,.18)}
 .deck-btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(255,59,107,.28)}
 .deck-foot{margin-top:auto;text-align:center;font:700 7px 'Outfit',sans-serif;letter-spacing:.16em;color:var(--muted);padding-top:6px;border-top:1px solid rgba(255,255,255,.05)}
@@ -487,7 +513,11 @@ a{color:inherit;text-decoration:none}
   backdrop-filter:blur(8px);text-align:left;transition:all .28s var(--ease);position:relative;overflow:hidden;
 }
 .song-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--teal),var(--coral));opacity:0;transition:opacity .22s}
-.song-card:hover{border-color:rgba(0,240,255,.18);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.32)}
+.song-card:hover{border-color:rgba(0,240,255,.18);transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,0,0,.32),0 0 0 1px var(--signal-glow)}
+/* staggered entrance — cards rise in one after another when the vault opens */
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.song-card{animation:cardIn .5s var(--ease-out) both;animation-delay:calc(var(--stagger,0) * 22ms)}
+@media(prefers-reduced-motion:reduce){.song-card{animation:none}}
 .song-card:hover::before,.song-card.active::before{opacity:1}
 .song-card.active{border-color:rgba(0,240,255,.28);background:rgba(0,240,255,.06);box-shadow:0 0 22px rgba(0,240,255,.08)}
 .song-card .num{font:700 8px 'JetBrains Mono',monospace;color:var(--teal);width:28px;height:28px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.04);display:grid;place-items:center}
