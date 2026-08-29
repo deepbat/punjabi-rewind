@@ -20,7 +20,7 @@ function toggleFavorite(index){
 function getFilteredSongs(){
   const q=searchTerm.trim().toLowerCase();
   return SONG_LIST.map((song,index)=>({song,index})).filter(({song,index})=>{
-    const matchesFilter=activeFilter==='all'||(activeFilter==='favorites'?isFavorite(index):String(song.year)===activeFilter);
+    const matchesFilter=activeFilter==='all'||(activeFilter==='favorites'?isFavorite(index):song.lang===activeFilter);
     const haystack=`${song.title} ${song.artist} ${song.year}`.toLowerCase();
     return matchesFilter&&(!q||haystack.includes(q));
   });
