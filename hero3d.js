@@ -14,8 +14,8 @@ if (!gauge || !canvas) {
   const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
   camera.position.set(0, 0.35, 7.2);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 1.1);
-  const dir = new THREE.DirectionalLight(0xffffff, 1.4); dir.position.set(3, 5, 4);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.25);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.6); dir.position.set(3, 5, 4);
   const pA = new THREE.PointLight(0x00F0FF, 4, 18); pA.position.set(-2.5, 1, 2);
   const pB = new THREE.PointLight(0xFF3B6B, 3.2, 16); pB.position.set(2.5, -0.8, 2);
   const pC = new THREE.PointLight(0x7B61FF, 2.8, 20); pC.position.set(0, 3, -3);
@@ -72,6 +72,16 @@ if (!gauge || !canvas) {
     const r = gauge.getBoundingClientRect();
     const w = Math.max(1, r.width), h = Math.max(1, r.height);
     if (w < 10 || h < 10) { setTimeout(resize, 100); return; }
+    const isMobile = w < 520;
+    // responsive scale: shrink vinyl on narrow gauge so cyan rim not clipped
+    const s = isMobile ? 0.52 : 0.88;
+    vinylG.scale.set(s, s, s);
+    halo.scale.set(s, s, s);
+    // re-center slightly higher on mobile so text doesn't overlap center hole
+    vinylG.position.set(0, isMobile ? -0.05 : -0.15, 0);
+    halo.position.set(0, isMobile ? -0.05 : -0.15, -1.1);
+    disco.position.set(isMobile ? 1.05 : 1.65, isMobile ? 0.85 : 0.95, 0.3);
+    disco.scale.set(isMobile ? 0.75 : 1, isMobile ? 0.75 : 1, isMobile ? 0.75 : 1);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));

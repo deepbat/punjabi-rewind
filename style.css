@@ -309,7 +309,7 @@ html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting 
 .gauge .kinetic-wrap,.gauge .kinetic-sub,.gauge .wheel-btn{position:relative;z-index:3}
 .now-ctx .status-dot{width:6px;height:6px;background:var(--teal);box-shadow:0 0 10px var(--teal)}
 .now-ctx p{font:700 9px 'Outfit',sans-serif;letter-spacing:.20em;color:var(--dim);margin:0}
-.kinetic-wrap{perspective:900px;margin-top:14px;position:relative;z-index:1}
+.kinetic-wrap{perspective:900px;margin-top:14px;position:relative;z-index:3;padding:10px 14px;border-radius:16px;background:rgba(6,8,16,.38);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06)}
 .kinetic-tilt{transition:transform .12s ease-out;transform-style:preserve-3d}
 .kinetic{
   font:400 clamp(32px,4.2vw,56px)/.98 'Bungee',cursive;color:#fff;margin:0;
@@ -324,7 +324,7 @@ html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting 
 }
 .kinetic.is-playing{animation:kineticPulse .9s ease-in-out infinite}
 @keyframes kineticPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
-.kinetic-sub{font:600 11px 'Outfit',sans-serif;color:var(--teal);margin:10px 0 0;position:relative;z-index:1}
+.kinetic-sub{font:600 11px 'Outfit',sans-serif;color:var(--teal);margin:10px 0 0;position:relative;z-index:3;text-shadow:0 1px 8px rgba(0,0,0,.65)}
 .kinetic-sub span{color:var(--dim);font-weight:500}
 .wheel-btn{background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:16px;cursor:grab;position:relative;z-index:1;transition:transform .25s var(--ease)}
 .wheel-btn:active{cursor:grabbing;transform:scale(.97)}
