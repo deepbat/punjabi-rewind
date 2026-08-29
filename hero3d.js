@@ -73,15 +73,14 @@ if (!gauge || !canvas) {
     const w = Math.max(1, r.width), h = Math.max(1, r.height);
     if (w < 10 || h < 10) { setTimeout(resize, 100); return; }
     const isMobile = w < 520;
-    // responsive scale: shrink vinyl on narrow gauge so cyan rim not clipped
-    const s = isMobile ? 0.52 : 0.88;
+    // responsive: shrink + lift vinyl on narrow so cyan rim not clipped at bottom pill
+    const s = isMobile ? 0.48 : 0.88;
     vinylG.scale.set(s, s, s);
     halo.scale.set(s, s, s);
-    // re-center slightly higher on mobile so text doesn't overlap center hole
-    vinylG.position.set(0, isMobile ? -0.05 : -0.15, 0);
-    halo.position.set(0, isMobile ? -0.05 : -0.15, -1.1);
-    disco.position.set(isMobile ? 1.05 : 1.65, isMobile ? 0.85 : 0.95, 0.3);
-    disco.scale.set(isMobile ? 0.75 : 1, isMobile ? 0.75 : 1, isMobile ? 0.75 : 1);
+    vinylG.position.set(0, isMobile ? -0.55 : -0.15, 0);
+    halo.position.set(0, isMobile ? -0.55 : -0.15, -1.1);
+    disco.position.set(isMobile ? 0.95 : 1.65, isMobile ? 0.55 : 0.95, 0.3);
+    disco.scale.set(isMobile ? 0.65 : 1, isMobile ? 0.65 : 1, isMobile ? 0.65 : 1);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
