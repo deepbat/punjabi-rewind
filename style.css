@@ -7,8 +7,8 @@
   --bg:#060810;
   --bg2:#0D1124;
   --bg3:#131A38;
-  --panel:rgba(16,20,44,.62);
-  --panel-strong:rgba(18,24,56,.82);
+  --panel:rgba(16,20,44,.42);
+  --panel-strong:rgba(18,24,56,.62);
   --card:rgba(22,26,58,.68);
   --card-solid:#121735;
   --glass:rgba(10,14,34,.72);
@@ -88,11 +88,13 @@ html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting 
   transition:opacity .45s var(--ease-out);}
 .theme-flash.show{opacity:.55;transition:opacity .12s var(--ease-out)}
 
-/* ── 3D Portfolio-inspired immersive layer ── */
-#bg3d{position:fixed;inset:0;z-index:1;pointer-events:none;display:block;width:100%;height:100%;opacity:1}
+/* ── 3D Portfolio-inspired immersive layer — make it OBVIOUS ── */
+#bg3d{position:fixed;inset:0;z-index:1;pointer-events:none;display:block;width:100%;height:100%;opacity:1;filter:saturate(1.15) brightness(1.05)}
 .cosmos{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 /* Keep 2D aurora subtle BEHIND the WebGL starfield so Three.js is the hero */
-.cosmos .aurora{opacity:.28}
+.cosmos .aurora{opacity:.18}
+/* visible flag when 3D fails — hidden when three-bg.js loads */
+#bg3d-fallback{position:fixed;top:76px;right:12px;z-index:4;background:rgba(255,59,107,.12);border:1px solid rgba(255,59,107,.28);color:var(--coral);font:700 8px Outfit,sans-serif;letter-spacing:.12em;padding:6px 10px;border-radius:999px;backdrop-filter:blur(8px)}
 .aurora{position:absolute;border-radius:50%;filter:blur(70px);opacity:.38;mix-blend-mode:screen}
 .a1{width:820px;height:820px;background:radial-gradient(circle at 30% 30%, #7B61FF, transparent 70%);top:-280px;left:-220px;animation:drift 28s ease-in-out infinite alternate}
 .a2{width:760px;height:760px;background:radial-gradient(circle at 50% 50%, #00F0FF, transparent 70%);bottom:-240px;right:-180px;animation:drift 32s ease-in-out infinite alternate-reverse}
@@ -200,12 +202,12 @@ html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting 
 /* PODS */
 .pod{
   position:relative;min-height:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.015));
   background-color:var(--panel);
-  border:1px solid rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.10);
   border-radius:20px;padding:20px;overflow:hidden;
-  backdrop-filter:blur(18px) saturate(1.25);
-  box-shadow:var(--shadow);
+  backdrop-filter:blur(22px) saturate(1.35);
+  box-shadow:var(--shadow), 0 0 30px rgba(0,240,255,.06) inset;
   transition:transform .45s var(--ease-out), box-shadow .45s var(--ease), border-color .35s;
   transform-style:preserve-3d;
 }

@@ -17,51 +17,51 @@ if (!canvas) {
   renderer.toneMappingExposure = 1.05;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x060810, 12, 32);
+  scene.fog = new THREE.Fog(0x060810, 14, 38);
 
   const camera = new THREE.PerspectiveCamera(58, 1, 0.1, 100);
   camera.position.set(0, 0.6, 9);
 
   // ── Lights — like 3D Portfolio's Canvas lights ──
-  const ambient = new THREE.AmbientLight(0xffffff, 0.55);
-  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.6);
   dir.position.set(4, 6, 5);
-  const pointA = new THREE.PointLight(0x00F0FF, 2.2, 20);
+  const pointA = new THREE.PointLight(0x00F0FF, 3.2, 20);
   pointA.position.set(-5, 2, 3);
-  const pointB = new THREE.PointLight(0xFF3B6B, 1.8, 18);
+  const pointB = new THREE.PointLight(0xFF3B6B, 2.8, 18);
   pointB.position.set(5, -1, 2);
-  const pointC = new THREE.PointLight(0x7B61FF, 1.4, 22);
+  const pointC = new THREE.PointLight(0x7B61FF, 2.4, 22);
   pointC.position.set(0, 4, -4);
   scene.add(ambient, dir, pointA, pointB, pointC);
+  // remove any fallback badge once 3D starts
+  document.getElementById('bg3d-fallback')?.remove();
 
-  // ── Starfield — maath/random spherical distribution like portfolio ──
+  // ── Starfield — maath/random spherical distribution like portfolio — BIGGER & BRIGHTER ──
   let stars = null;
   (function createStars() {
-    const count = 1800;
+    const count = 2000;
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
     const col = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // spherical shell radius 14-28, biased outward
-      const r = 14 + Math.pow(Math.random(), 1.2) * 16;
+      const r = 12 + Math.pow(Math.random(), 1.1) * 18;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.9;
-      pos[i * 3 + 2] = r * Math.cos(phi) - 8;
-      // subtle tint variation
+      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.92;
+      pos[i * 3 + 2] = r * Math.cos(phi) - 7;
       const t = Math.random();
-      if (t < 0.4) { col[i * 3] = 0.95; col[i * 3 + 1] = 0.95; col[i * 3 + 2] = 1; }
-      else if (t < 0.7) { col[i * 3] = 0.0; col[i * 3 + 1] = 0.94; col[i * 3 + 2] = 1; }
-      else { col[i * 3] = 1; col[i * 3 + 1] = 0.45; col[i * 3 + 2] = 0.65; }
+      if (t < 0.45) { col[i * 3] = 1; col[i * 3 + 1] = 1; col[i * 3 + 2] = 1; }
+      else if (t < 0.72) { col[i * 3] = 0.15; col[i * 3 + 1] = 0.96; col[i * 3 + 2] = 1; }
+      else { col[i * 3] = 1; col[i * 3 + 1] = 0.5; col[i * 3 + 2] = 0.72; }
     }
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     const mat = new THREE.PointsMaterial({
-      size: 0.045,
+      size: 0.16,
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
+      opacity: 1,
       sizeAttenuation: true,
       blending: THREE.AdditiveBlending,
       depthWrite: false
@@ -74,43 +74,52 @@ if (!canvas) {
   const floatGroup = new THREE.Group();
   scene.add(floatGroup);
 
-  // Main vinyl: flat cylinder + hole + grooves (torus stacks)
+  // Main vinyl: flat cylinder + hole + grooves — BRIGHTER & CLOSER so it pops through glass pods
   const vinylGroup = new THREE.Group();
-  // body
   const vinylGeo = new THREE.CylinderGeometry(2.2, 2.2, 0.14, 64);
   const vinylMat = new THREE.MeshStandardMaterial({
-    color: 0x0a0a14,
-    roughness: 0.28,
-    metalness: 0.45,
-    emissive: 0x111122,
-    emissiveIntensity: 0.15
+    color: 0x12122a,
+    roughness: 0.32,
+    metalness: 0.55,
+    emissive: 0x1a1a3a,
+    emissiveIntensity: 0.35
   });
   const vinylMesh = new THREE.Mesh(vinylGeo, vinylMat);
   vinylMesh.rotation.x = Math.PI * 0.12;
-  // label
   const labelGeo = new THREE.CylinderGeometry(0.72, 0.72, 0.155, 32);
-  const labelMat = new THREE.MeshStandardMaterial({ color: 0xFF3B6B, roughness: 0.6, metalness: 0.1, emissive: 0xFF3B6B, emissiveIntensity: 0.25 });
+  const labelMat = new THREE.MeshStandardMaterial({ color: 0xFF3B6B, roughness: 0.45, metalness: 0.15, emissive: 0xFF3B6B, emissiveIntensity: 0.55 });
   const labelMesh = new THREE.Mesh(labelGeo, labelMat);
   labelMesh.position.y = 0.01;
-  // hole
   const holeGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.17, 16);
   const holeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
   const holeMesh = new THREE.Mesh(holeGeo, holeMat);
   holeMesh.position.y = 0.02;
-  // grooves: thin tori
-  for (let i = 0; i < 4; i++) {
-    const r = 0.95 + i * 0.28;
+  for (let i = 0; i < 5; i++) {
+    const r = 0.88 + i * 0.24;
     const t = new THREE.Mesh(
-      new THREE.TorusGeometry(r, 0.015, 8, 64),
-      new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.5, metalness: 0.6 })
+      new THREE.TorusGeometry(r, 0.018, 8, 64),
+      new THREE.MeshStandardMaterial({ color: 0x2a2a4a, roughness: 0.4, metalness: 0.7, emissive: 0x1e1e2e, emissiveIntensity: 0.2 })
     );
     t.rotation.x = Math.PI / 2;
     t.position.y = 0.072;
     vinylGroup.add(t);
   }
   vinylGroup.add(vinylMesh, labelMesh, holeMesh);
-  vinylGroup.position.set(-3.2, 0.9, -2.5);
+  // add outer neon rim so vinyl is obvious even on dark bg
+  const rim = new THREE.Mesh(
+    new THREE.TorusGeometry(2.22, 0.035, 12, 64),
+    new THREE.MeshStandardMaterial({ color: 0x00F0FF, emissive: 0x00F0FF, emissiveIntensity: 1.2, transparent: true, opacity: 0.95 })
+  );
+  rim.rotation.x = Math.PI / 2; rim.position.y = 0.0;
+  vinylGroup.add(rim);
+  vinylGroup.position.set(-2.4, 0.85, -1.2);
   floatGroup.add(vinylGroup);
+
+  // Center hero vinyl — portfolio-style hero 3D front-and-center, visible in gap
+  const heroVinyl = vinylGroup.clone(true);
+  heroVinyl.scale.set(0.85, 0.85, 0.85);
+  heroVinyl.position.set(0.2, -1.55, 0.2);
+  floatGroup.add(heroVinyl);
 
   // Disco icosahedron — faceted, like portfolio's Ball canvas
   const discoGeo = new THREE.IcosahedronGeometry(1.05, 1);
@@ -123,32 +132,31 @@ if (!canvas) {
     emissiveIntensity: 0.08
   });
   const disco = new THREE.Mesh(discoGeo, discoMat);
-  disco.position.set(3.4, -0.6, -1.8);
+  disco.position.set(3.2, -0.35, -0.6);
   floatGroup.add(disco);
 
-  // Wireframe torus — neon halo
-  const haloGeo = new THREE.TorusGeometry(1.35, 0.045, 16, 80);
+  // Wireframe torus — neon halo — CLOSER & BRIGHTER
+  const haloGeo = new THREE.TorusGeometry(1.35, 0.055, 16, 80);
   const haloMat = new THREE.MeshStandardMaterial({
     color: 0x00F0FF,
     emissive: 0x00F0FF,
-    emissiveIntensity: 0.9,
-    roughness: 0.4,
+    emissiveIntensity: 1.4,
+    roughness: 0.35,
     metalness: 0.2,
-    wireframe: false,
     transparent: true,
-    opacity: 0.85
+    opacity: 0.95
   });
   const halo = new THREE.Mesh(haloGeo, haloMat);
-  halo.position.set(0.6, 1.7, -4.2);
+  halo.position.set(0.8, 1.45, -1.8);
   halo.rotation.x = Math.PI * 0.35;
   floatGroup.add(halo);
 
   // Small floating octa — accent
   const octa = new THREE.Mesh(
-    new THREE.OctahedronGeometry(0.55, 0),
-    new THREE.MeshStandardMaterial({ color: 0xFFD23F, emissive: 0xFFD23F, emissiveIntensity: 0.35, roughness: 0.35, metalness: 0.1, transparent: true, opacity: 0.92 })
+    new THREE.OctahedronGeometry(0.68, 0),
+    new THREE.MeshStandardMaterial({ color: 0xFFD23F, emissive: 0xFFD23F, emissiveIntensity: 0.65, roughness: 0.32, metalness: 0.12, transparent: true, opacity: 0.98 })
   );
-  octa.position.set(-1.2, -1.4, -1.2);
+  octa.position.set(-0.9, -1.2, 0.0);
   floatGroup.add(octa);
 
   // ── Mouse parallax (inspired by portfolio's camera positioning) ──
