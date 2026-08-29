@@ -14,18 +14,27 @@ if (!gauge || !canvas) {
   const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 100);
   camera.position.set(0, 0.35, 7.2);
 
-  const ambient = new THREE.AmbientLight(0xffffff, 1.25);
-  const dir = new THREE.DirectionalLight(0xffffff, 1.6); dir.position.set(3, 5, 4);
-  const pA = new THREE.PointLight(0x00F0FF, 4, 18); pA.position.set(-2.5, 1, 2);
-  const pB = new THREE.PointLight(0xFF3B6B, 3.2, 16); pB.position.set(2.5, -0.8, 2);
-  const pC = new THREE.PointLight(0x7B61FF, 2.8, 20); pC.position.set(0, 3, -3);
+  const ambient = new THREE.AmbientLight(0xffffff, 1.5);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.8); dir.position.set(3, 5, 4);
+  const pA = new THREE.PointLight(0x00F0FF, 5, 22); pA.position.set(-2.5, 1, 2);
+  const pB = new THREE.PointLight(0xFF3B6B, 4, 20); pB.position.set(2.5, -0.8, 2);
+  const pC = new THREE.PointLight(0x7B61FF, 3.5, 24); pC.position.set(0, 3, -3);
+  // extra bright fill at vinyl level so vinyl glows
+  const vinylFill = new THREE.PointLight(0x00F0FF, 3, 8); vinylFill.position.set(0, -0.15, 3); scene.add(vinylFill);
   scene.add(ambient, dir, pA, pB, pC);
+
+  // Glow disc behind vinyl — makes it POP against dark background
+  const glowDisc = new THREE.Mesh(
+    new THREE.CircleGeometry(2.4, 64),
+    new THREE.MeshBasicMaterial({ color: 0x00F0FF, transparent: true, opacity: 0.18, side: THREE.DoubleSide })
+  );
+  glowDisc.rotation.x = -Math.PI / 2; glowDisc.position.set(0, -0.16, -0.3); scene.add(glowDisc);
 
   // Vinyl — big, centered, like portfolio's Ball hero
   const vinylG = new THREE.Group();
   const body = new THREE.Mesh(
     new THREE.CylinderGeometry(2.05, 2.05, 0.16, 64),
-    new THREE.MeshStandardMaterial({ color: 0x0f0f1e, roughness: 0.3, metalness: 0.6, emissive: 0x151530, emissiveIntensity: 0.4 })
+    new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.6, emissive: 0x0a0a2a, emissiveIntensity: 0.7 })
   );
   const label = new THREE.Mesh(
     new THREE.CylinderGeometry(0.62, 0.62, 0.18, 32),
@@ -39,7 +48,7 @@ if (!gauge || !canvas) {
     const t = new THREE.Mesh(new THREE.TorusGeometry(r, 0.02, 8, 64), new THREE.MeshStandardMaterial({ color: 0x1e1e2e, roughness: 0.4, metalness: 0.75 }));
     t.rotation.x = Math.PI / 2; t.position.y = 0.082; vinylG.add(t);
   }
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(2.07, 0.06, 12, 64), new THREE.MeshStandardMaterial({ color: 0x00F0FF, emissive: 0x00F0FF, emissiveIntensity: 1.6, transparent: true, opacity: 0.98 }));
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(2.07, 0.06, 12, 64), new THREE.MeshStandardMaterial({ color: 0x00F0FF, emissive: 0x00F0FF, emissiveIntensity: 2.2, transparent: true, opacity: 0.98 }));
   rim.rotation.x = Math.PI / 2; vinylG.add(rim);
   vinylG.rotation.x = 0.92; // tilt so top visible like record on table
   vinylG.position.set(0, -0.15, 0);
@@ -127,8 +136,9 @@ if (!gauge || !canvas) {
     disco.position.y = 0.95 + Math.sin(t * 1.1) * 0.14;
 
     const beat = (window.__nowPlaying && window.__nowPlaying().beatMs) || 700;
-    const pulse = 0.92 + Math.sin(now * (1000 / beat) * 0.0025) * 0.1;
-    pA.intensity = 4 * pulse; pB.intensity = 3.2 * pulse;
+    const pulse = 0.9 + Math.sin(now * (1000 / beat) * 0.0025) * 0.1;
+    pA.intensity = 5 * pulse; pB.intensity = 4 * pulse; pC.intensity = 3.5 * pulse;
+    vinylFill.intensity = 3 * pulse;
 
     renderer.render(scene, camera);
   }
