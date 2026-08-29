@@ -1,7 +1,7 @@
 /* HERO 3D — portfolio-style hero canvas inside .gauge, impossible to miss
-   Large spinning vinyl + neon halo + disco orb, theme-aware, drag to tilt */
-import * as THREE from 'three';
-
+   UMD global THREE — works on file:// */
+(function(){
+if (typeof THREE === 'undefined') { console.warn('[hero3d] THREE not loaded'); return; }
 const gauge = document.querySelector('.gauge');
 const canvas = document.getElementById('hero3d');
 if (!gauge || !canvas) {
@@ -125,4 +125,6 @@ if (!gauge || !canvas) {
   }
   raf = requestAnimationFrame(loop);
   window.__hero3d = { scene, camera, renderer, vinylG };
+  console.log('[hero3d] started, gauge', gauge.getBoundingClientRect().width, 'x', gauge.getBoundingClientRect().height);
 }
+})();

@@ -12,12 +12,11 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<link rel="stylesheet" href="style.css?v=501">
+<link rel="stylesheet" href="style.css?v=503">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pr_theme')||'truck'}catch(e){}</script>
 <style>.pulse-attn{animation:pulseAttn 900ms ease-in-out 3}@keyframes pulseAttn{0%,100%{transform:scale(1);box-shadow:0 0 0 rgba(255,0,51,0)}50%{transform:scale(1.06);box-shadow:0 0 18px rgba(255,0,51,.45)}}</style>
-<!-- 3D Portfolio-inspired: Three.js via importmap — shim MUST load before importmap -->
-<script src="https://unpkg.com/es-module-shims@1.8.2/dist/es-module-shims.js"></script>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<!-- 3D Portfolio-inspired: Three.js — UMD global (works on file:// and http://, no importmap race) -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 </head>
 <body>
 
@@ -277,8 +276,8 @@
 <script src="script.js?v=405"></script>
 <script src="theme.js?v=403"></script>
 <script src="livemode.js?v=102"></script>
-<script type="module" src="three-bg.js?v=501"></script>
-<script type="module" src="hero3d.js?v=502"></script>
+<script src="three-bg.js?v=503"></script>
+<script src="hero3d.js?v=503"></script>
 <script>
 // ── 3D Portfolio-inspired: react-tilt + framer-motion glare for pods ──
 (function(){

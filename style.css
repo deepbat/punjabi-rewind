@@ -296,14 +296,15 @@ html.theme-shifting .cosmos .aurora,html.theme-shifting .a1,html.theme-shifting 
   mask:radial-gradient(80% 70% at 50% 50%, black, transparent 80%);
 }
 .vinyl-holo{
-  position:absolute;top:50%;left:50%;width:320px;height:320px;transform:translate(-50%,-50%);pointer-events:none;opacity:.07;z-index:0;
+  position:absolute;top:50%;left:50%;width:360px;height:360px;transform:translate(-50%,-50%);pointer-events:none;opacity:.22;z-index:1;filter:drop-shadow(0 0 22px rgba(0,240,255,.22));animation:vinylSpin 14s linear infinite;
   display:grid;place-items:center;
 }
 .vinyl-holo span{
   position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,255,255,.18);
 }
-.vinyl-holo span:nth-child(1){inset:18%;border:1px solid rgba(0,240,255,.25);box-shadow:0 0 30px rgba(0,240,255,.12)}
-.vinyl-holo span:nth-child(2){inset:36%;background:radial-gradient(circle, rgba(255,59,107,.18), transparent 70%);border:none}
+.vinyl-holo span:nth-child(1){inset:14%;border:1.5px solid rgba(0,240,255,.35);box-shadow:0 0 30px rgba(0,240,255,.18), inset 0 0 20px rgba(0,240,255,.08)}
+.vinyl-holo span:nth-child(2){inset:32%;background:radial-gradient(circle, rgba(255,59,107,.28), transparent 70%);border:none}
+@keyframes vinylSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 .now-ctx{display:flex;align-items:center;gap:6px;position:relative;z-index:3}
 .gauge .kinetic-wrap,.gauge .kinetic-sub,.gauge .wheel-btn{position:relative;z-index:3}
 .now-ctx .status-dot{width:6px;height:6px;background:var(--teal);box-shadow:0 0 10px var(--teal)}

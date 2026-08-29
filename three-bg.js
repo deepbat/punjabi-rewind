@@ -1,11 +1,10 @@
 /* ═══════════════════════════════════════════════════
    THREE-BG — 3D Portfolio-inspired immersive background
    Inspired by shridharrai/3D-Portfolio: Stars + Ball + Canvas
-   For Punjabi Wave: starfield + floating vinyl/torus + disco icosahedron
-   Vanilla Three.js (no React), theme-aware, low-poly, performant
+   UMD global THREE (no importmap) so it works on file://
    ═══════════════════════════════════════════════════ */
-import * as THREE from 'three';
-
+(function(){
+if (typeof THREE === 'undefined') { console.warn('[three-bg] THREE not loaded'); document.getElementById('bg3d-fallback')?.replaceChildren(document.createTextNode('◉ 3D BLOCKED — check internet/unpkg')); return; }
 const canvas = document.getElementById('bg3d');
 if (!canvas) {
   console.warn('[three-bg] #bg3d not found');
@@ -279,3 +278,4 @@ if (!canvas) {
   // expose for debugging
   window.__threeBg = { scene, camera, renderer, floatGroup };
 }
+})();
