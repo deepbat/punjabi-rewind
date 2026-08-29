@@ -70,11 +70,18 @@ if (!gauge || !canvas) {
 
   function resize() {
     const r = gauge.getBoundingClientRect();
-    const w = r.width, h = r.height;
+    const w = Math.max(1, r.width), h = Math.max(1, r.height);
+    if (w < 10 || h < 10) { setTimeout(resize, 100); return; }
     camera.aspect = w / h; camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
   }
-  window.addEventListener('resize', resize); resize();
+  // gauge may be 0x0 on first tick (flex layout) — retry until has size
+  const ro = new ResizeObserver(resize);
+  ro.observe(gauge);
+  window.addEventListener('resize', resize);
+  // initial + delayed retries to beat flex/grid layout race that caused blink-then-hide
+  resize(); setTimeout(resize, 80); setTimeout(resize, 300); setTimeout(resize, 800);
 
   // drag to spin (portfolio OrbitControls feel)
   let dragging = false, startX = 0, spin = 0, spinVel = 0.018;
