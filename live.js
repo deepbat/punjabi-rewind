@@ -1,7 +1,7 @@
 /* LIVE MODE — full-screen, beat-synced generative visualizer.
    No raw audio access is possible from a cross-origin YouTube iframe, so the
    "beat" is a simulated groove: a deterministic per-song pattern driven by
-   wall-clock time. Reads the live palette so it always matches the site. */
+   wall-clock time. Reads the live palette so it always matches the deck. */
 (function(){
   const $=id=>document.getElementById(id);
   let canvas,ctx,raf=null,active=false,paused=false;
@@ -13,7 +13,7 @@
   function colors(){
     const cs=getComputedStyle(document.documentElement);
     const v=n=>cs.getPropertyValue(n).trim();
-    return {ink:v('--ink'),ink2:v('--ink-2'),marigold:v('--marigold'),crimson:v('--crimson'),cobalt:v('--cobalt'),emerald:v('--emerald'),paper:v('--paper')};
+    return {ink:v('--ink'),metal2:v('--metal-2'),marigold:v('--marigold'),crimson:v('--crimson'),cobalt:v('--cobalt'),emerald:v('--emerald'),paper:v('--paper')};
   }
 
   function patternFor(index){
@@ -81,10 +81,10 @@
     ctx.fillStyle=col.ink;
     ctx.fillRect(0,0,w,h);
     const g=ctx.createRadialGradient(w/2,h*0.5,10,w/2,h*0.5,Math.max(w,h)*0.6);
-    g.addColorStop(0,hexA(col.ink2,.9));g.addColorStop(1,hexA(col.ink,0));
+    g.addColorStop(0,hexA(col.metal2,.9));g.addColorStop(1,hexA(col.ink,0));
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
 
-    // slow rotating screen-print sunburst — echoes the bill's halftone rings
+    // slow rotating dial sweep — echoes the tuner's frequency face
     ctx.save();
     ctx.translate(w/2,h*0.5);
     ctx.rotate((performance.now()/12000)%(Math.PI*2));

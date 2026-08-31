@@ -1,9 +1,8 @@
-/* LIVE CLOCK — IST */
+/* LIVE CLOCK — IST, driving the top-plate LCD */
 (function(){
   const clockEl=document.getElementById('clockDisplay');
   const dateEl=document.getElementById('clockDate');
   if(!clockEl) return;
-  function pad(n){return String(n).padStart(2,'0')}
   function tick(){
     const now=new Date();
     const opts={timeZone:'Asia/Kolkata',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short',day:'2-digit',month:'short'};
@@ -20,16 +19,16 @@
   tick(); setInterval(tick,1000);
 })();
 
-/* One orchestrated load-in — masthead, tuner, and bill settle into place once. No scroll-triggered repeats. */
+/* One quiet settle-in on load for the three console modules — no repeats, no scroll triggers. */
 (function(){
   document.addEventListener('DOMContentLoaded',()=>{
-    const seq=[document.querySelector('.masthead'),document.querySelector('.stat-row'),document.querySelector('.tuner'),document.querySelector('.bill')];
+    const seq=[document.querySelector('.tuner-module'),document.querySelector('.deck-module'),document.querySelector('.vault-module')];
     seq.forEach((el,i)=>{
       if(!el) return;
       el.style.opacity='0';
-      el.style.transform='translateY(10px)';
-      el.style.transition='opacity .5s ease, transform .5s ease';
-      setTimeout(()=>{el.style.opacity='1';el.style.transform='translateY(0)'},80+i*90);
+      el.style.transform='translateY(8px)';
+      el.style.transition='opacity .45s ease, transform .45s ease';
+      setTimeout(()=>{el.style.opacity='1';el.style.transform='translateY(0)'},70+i*80);
     });
   });
 })();

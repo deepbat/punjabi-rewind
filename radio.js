@@ -35,6 +35,15 @@ const RADIO_TIMEOUT_MS = 6000;
     document.querySelectorAll('.radio-station-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
   }
 
+  function setNeedle(i){
+    const needle=$('freqNeedle');if(!needle)return;
+    const len=RADIO_STATIONS.length;
+    const min=-55,max=55;
+    const angle= len>1 ? min+(i/(len-1))*(max-min) : 0;
+    needle.style.setProperty('--rot',angle+'deg');
+    needle.style.transform=`rotate(${angle}deg)`;
+  }
+
   function startRadio(i){
     if(i>=RADIO_STATIONS.length){
       setStatus('All stations unreachable right now');
@@ -46,8 +55,8 @@ const RADIO_TIMEOUT_MS = 6000;
     stationIndex=i;
     const s=RADIO_STATIONS[i];
     setActiveButton(i);
+    setNeedle(i);
     $('radioStationName').textContent=s.name;
-    $('radioDesc').textContent=s.desc;
     setStatus('Tuning in…');
     setShellStatus(`Tuning · ${s.name}`);
     setTuning(true);
@@ -97,7 +106,7 @@ const RADIO_TIMEOUT_MS = 6000;
 
   function setStatus(t){$('radioStatus').textContent=t}
   function setShellStatus(t){if($('shellStatus'))$('shellStatus').textContent=t}
-  function setTuning(on){$('radioToggle').classList.toggle('tuning',on)}
+  function setTuning(on){$('freqNeedle')?.classList.toggle('tuning',on)}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 
   window.__pauseRadio=stopRadio;

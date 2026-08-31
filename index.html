@@ -3,111 +3,152 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Punjabi Wave — Dispatch 2026</title>
-<meta name="description" content="Hindi &amp; Punjabi hits of 2026 — live radio dispatch, a 30-track vault, and full-screen Live Mode.">
-<meta name="theme-color" content="#1B1710">
+<title>Punjabi Wave — Dispatch Deck</title>
+<meta name="description" content="Hindi &amp; Punjabi hits of 2026 — live radio, a 30-track vault, and Live Mode, built as one tape deck console.">
+<meta name="theme-color" content="#15130F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="paper-grain" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
 
-<a class="skip-link" href="#billTitle">Skip to now playing</a>
+<a class="skip-link" href="#playBtn">Skip to playback controls</a>
 
-<header class="masthead">
-  <a class="wordmark" href="#" id="homeLink" aria-label="Punjabi Wave home">
-    <span class="wordmark-mark">ਪ</span>
-    <span class="wordmark-text">PUNJABI<br>WAVE</span>
-  </a>
+<!-- TOP PLATE -->
+<header class="plate top-plate">
+  <button class="brand-plate" id="homeLink" type="button" aria-label="Reset to top">
+    <span class="brand-mark">ਪ</span>
+    <span class="brand-text">PUNJABI WAVE<em>DISPATCH DECK</em></span>
+  </button>
 
-  <div class="masthead-clock" id="clockWrap" title="Local time — Asia/Kolkata">
-    <span id="clockDisplay">00:00:00</span>
+  <div class="lcd clock-lcd">
+    <span id="clockDisplay">00:00:00 IST</span>
     <span id="clockDate">— — —</span>
   </div>
 
-  <div class="masthead-status">
-    <span class="status-dot" aria-hidden="true"></span>
+  <div class="lcd status-lcd">
+    <span class="status-led" aria-hidden="true"></span>
     <span id="shellStatus">Dispatch online</span>
   </div>
 
-  <button class="mute-toggle" id="muteBtn" type="button" aria-pressed="false">Sound on</button>
+  <span class="badge-plate"><strong id="trackCount">30</strong> tapes</span>
+
+  <button class="rocker" id="muteBtn" type="button" aria-pressed="false">
+    <span></span> Sound
+  </button>
 </header>
 
-<div class="stat-row" role="group" aria-label="Catalog overview">
-  <div class="stat-tag"><strong id="trackCount">30</strong><span>tracks in the vault</span></div>
-  <div class="stat-tag"><strong>04</strong><span>live frequencies</span></div>
-  <div class="stat-tag"><strong>2026</strong><span>releases only</span></div>
-</div>
+<!-- MAIN CONSOLE -->
+<main class="console">
 
-<main class="bill-grid">
+  <!-- TUNER MODULE -->
+  <section class="module tuner-module" aria-label="Live radio tuner">
+    <div class="module-label"><span class="screw" aria-hidden="true"></span>Tuner<span class="screw" aria-hidden="true"></span></div>
 
-  <!-- TUNER: live radio -->
-  <section class="tuner" aria-label="Live radio dispatch">
-    <div class="tuner-head">
-      <span class="tuner-eyebrow">Dispatch Frequency</span>
-      <h2>Tune the<br>Live Wire</h2>
+    <div class="freq-face">
+      <div class="freq-ticks" aria-hidden="true"></div>
+      <div class="freq-needle" id="freqNeedle"></div>
+      <div class="freq-hub" aria-hidden="true"></div>
     </div>
 
-    <button class="tuner-dial" id="radioToggle" aria-label="Play live radio" aria-pressed="false">
-      <span class="dial-ring" aria-hidden="true"></span>
-      <span class="dial-glyph" id="dialGlyph">▶</span>
+    <div class="lcd tuner-lcd">
+      <span class="lcd-line-1"><span class="live-led" id="liveDot" hidden></span><span id="radioStatus">Off air · tap to tune in</span></span>
+      <strong id="radioStationName">Choose a frequency</strong>
+    </div>
+
+    <button class="power-btn" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio">
+      <span id="dialGlyph">▶</span>
     </button>
 
-    <p class="tuner-status"><span class="live-dot" id="liveDot" hidden></span><span id="radioStatus">Off air · tap to tune in</span></p>
-    <h3 class="tuner-station" id="radioStationName">Choose a frequency</h3>
-    <p class="tuner-desc" id="radioDesc">Independent community streams. If one drops, dispatch retunes automatically.</p>
-
-    <div class="tuner-list" id="radioStationList"></div>
+    <div class="preset-row" id="radioStationList"></div>
   </section>
 
-  <!-- BILL: the poster / now-playing -->
-  <section class="bill" aria-label="Now playing">
-    <div class="bill-frame">
-      <svg class="bill-burst" id="billBurst" viewBox="0 0 600 600" aria-hidden="true">
-        <circle cx="300" cy="300" r="240" class="burst-ring r1"/>
-        <circle cx="300" cy="300" r="185" class="burst-ring r2"/>
-        <circle cx="300" cy="300" r="130" class="burst-ring r3"/>
-      </svg>
+  <!-- DECK MODULE -->
+  <section class="module deck-module" id="deckModule" aria-label="Now playing">
+    <div class="module-label"><span class="screw" aria-hidden="true"></span>Deck<span class="screw" aria-hidden="true"></span></div>
 
-      <p class="bill-kicker" id="nowLabel">Ready to play</p>
-      <h1 class="bill-title" id="billTitle">Punjabi<br>Wave</h1>
-      <p class="bill-artist" id="billArtist">30 of 2026's loudest Hindi &amp; Punjabi records</p>
+    <div class="cassette">
+      <div class="reel" id="reelL"><span></span></div>
+      <div class="tape-window"><span></span></div>
+      <div class="reel" id="reelR"><span></span></div>
+    </div>
 
-      <div class="bill-actions">
-        <button class="btn-solid" id="enterBtn" type="button"><span aria-hidden="true">▶</span> Play now</button>
-        <button class="btn-outline" id="browseBtn" type="button">Open the vault</button>
-      </div>
+    <div class="vu-meter" id="vuMeter" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
 
-      <button class="btn-live" id="liveModeBtn" type="button">
-        <span class="btn-live-dot" aria-hidden="true"></span> Enter Live Mode
-      </button>
+    <div class="lcd deck-lcd">
+      <span class="lcd-line-1" id="nowLabel">Ready to play</span>
+      <strong id="billTitle">Punjabi Wave</strong>
+      <span id="billArtist">30 of 2026's loudest Hindi &amp; Punjabi records</span>
+    </div>
+
+    <div class="tape-counter">
+      <span id="currentTime">0:00</span>
+      <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+      <span id="duration">0:00</span>
+    </div>
+
+    <div class="transport">
+      <button id="prevBtn" aria-label="Previous track">⏮</button>
+      <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
+      <button id="nextBtn" aria-label="Next track">⏭</button>
+    </div>
+
+    <div class="deck-foot">
+      <button id="youtubeBtn" type="button">YouTube ↗</button>
+      <button id="spotifyBtn" type="button">Spotify ↗</button>
+      <button id="shareBtn" type="button">Share ✦</button>
+      <button id="liveModeBtn" type="button" class="eject-btn">Eject ▸ Live Mode</button>
+    </div>
+
+    <div class="hidden-player"><div id="player"></div></div>
+    <div class="invidious-player" id="invidiousWrap" hidden>
+      <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+      <button class="embed-close" id="invidiousClose" type="button">× Close</button>
+    </div>
+    <div class="spotify-player" id="spotifyPlayerWrap" hidden>
+      <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button>
+    </div>
+  </section>
+
+  <!-- VAULT TEASER / CARD-CATALOG DRAWER FRONT -->
+  <section class="module vault-module" aria-label="Song vault">
+    <div class="module-label"><span class="screw" aria-hidden="true"></span>Vault<span class="screw" aria-hidden="true"></span></div>
+
+    <p class="vault-teaser-copy">A card-catalog of every 2026 track on the dispatch, sorted, searchable, and yours to save.</p>
+
+    <div class="lcd vault-lcd">
+      <span class="lcd-line-1">Up next</span>
+      <strong id="nextTrackName">—</strong>
+      <span id="nextTrackMeta">—</span>
+    </div>
+
+    <div class="vault-teaser-actions">
+      <button class="drawer-pull" id="browseBtn" type="button">Pull out the vault ▸</button>
+      <button class="text-btn" id="teaserShuffle" type="button">Shuffle ↻</button>
     </div>
   </section>
 
 </main>
 
-<!-- NEXT UP: ticket strip -->
-<section class="next-up" aria-label="Up next">
-  <div class="next-up-head">
-    <span>Next on the dispatch</span>
-    <button class="text-btn" id="shuffleFromStrip" type="button">Shuffle ↻</button>
-  </div>
-  <div class="ticket-strip" id="nextUpStrip"></div>
-</section>
-
-<footer class="site-foot">
-  <p>Independent radio streams and YouTube embeds may occasionally drop — the dispatch retunes and reroutes on its own.</p>
+<!-- BASE PLATE -->
+<footer class="plate base-plate">
+  <span class="vent" aria-hidden="true"></span>
+  <p>Independent radio streams and YouTube embeds may drop — the dispatch retunes and reroutes on its own.</p>
+  <span class="vent" aria-hidden="true"></span>
 </footer>
 
-<!-- VAULT DRAWER -->
+<!-- VAULT DRAWER (slides over the console) -->
 <div class="vault-scrim" id="vaultScrim"></div>
-<section class="vault-panel" id="vaultPanel" aria-label="Song vault" aria-hidden="true">
+<section class="vault-panel" id="vaultPanel" aria-label="Song vault drawer" aria-hidden="true">
   <div class="vault-head">
     <div>
-      <span class="vault-eyebrow">The Vault — 2026 only</span>
+      <span class="vault-eyebrow">Card catalog — 2026 only</span>
       <h2>Hindi &amp; Punjabi Hits</h2>
     </div>
     <button class="panel-close" id="closeVault" type="button">Close</button>
@@ -136,43 +177,6 @@
   </div>
 </section>
 
-<!-- PLAYER BAR: cassette strip -->
-<div class="tape-bar" id="playerBar">
-  <div class="tape-reel-icon" id="npArt" aria-hidden="true">♪</div>
-  <div class="tape-meta">
-    <span class="tape-kicker" id="tapeKicker">Nothing queued</span>
-    <strong id="playerTitle">Select a track</strong>
-    <span id="playerMeta">Punjabi Wave — 2026 only</span>
-  </div>
-  <div class="tape-controls">
-    <button id="prevBtn" aria-label="Previous track">⏮</button>
-    <button id="playBtn" class="tape-play" aria-label="Play">▶</button>
-    <button id="nextBtn" aria-label="Next track">⏭</button>
-  </div>
-  <div class="tape-progress">
-    <span id="currentTime">0:00</span>
-    <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-      <span id="progressBar"></span>
-    </div>
-    <span id="duration">0:00</span>
-  </div>
-  <div class="tape-links">
-    <button id="youtubeBtn" type="button">YouTube ↗</button>
-    <button id="spotifyBtn" type="button">Spotify ↗</button>
-    <button id="shareBtn" type="button">Share ✦</button>
-  </div>
-
-  <div class="hidden-player"><div id="player"></div></div>
-  <div class="invidious-player" id="invidiousWrap" hidden>
-    <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="80" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-    <button class="embed-close" id="invidiousClose" type="button">× Close proxy</button>
-  </div>
-  <div class="spotify-player" id="spotifyPlayerWrap" hidden>
-    <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button>
-  </div>
-</div>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- LIVE MODE -->
@@ -196,7 +200,6 @@
   </div>
 </div>
 
-<script>try{document.documentElement.dataset.theme='dispatch'}catch(e){}</script>
 <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="songs.js"></script>
