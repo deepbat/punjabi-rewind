@@ -2,13 +2,15 @@
    These are third-party community streams (not run by this site) — small stations
    go up and down over time, so if one fails to connect within RADIO_TIMEOUT_MS,
    we silently advance to the next one in the list instead of just breaking.
-   To add/remove/reorder stations, edit RADIO_STATIONS only. */
+   RADIO_STATIONS is read by scene.js to place the four beacons on the outer ring —
+   edit it here only, positions in the scene follow automatically. */
 const RADIO_STATIONS = [
   {name:'Punjabi Radio USA', desc:'24/7 Punjabi music & talk, streamed via Voscast.', url:'https://s5.voscast.com:9281/stream'},
   {name:'ClubHouse Punjabi Vibes', desc:'Non-stop Punjabi party & DJ mix from SwaggerBeat.', url:'https://liveradio.swaggerbeat.com:8022/stream'},
   {name:'Harman Radio Australia', desc:'Punjabi geet, culture & community from Down Under.', url:'https://radio.sanbroz.com/listen/harman_radio_australia/radio.mp3'},
   {name:'Start Radio', desc:'AzuraCast Punjabi station, 128kbps MP3.', url:'https://canada.startradio.in:8000/radio.mp3'},
 ];
+window.RADIO_STATIONS = RADIO_STATIONS;
 const RADIO_TIMEOUT_MS = 6000;
 
 (function(){
@@ -27,7 +29,7 @@ const RADIO_TIMEOUT_MS = 6000;
 
   function renderStationButtons(){
     const wrap=$('radioStationList');
-    wrap.innerHTML=RADIO_STATIONS.map((s,i)=>`<button class="radio-station-btn" data-i="${i}" type="button">${esc(s.name)}</button>`).join('');
+    wrap.innerHTML=RADIO_STATIONS.map((s,i)=>`<button class="radio-station-btn" data-i="${i}" type="button" aria-label="${esc(s.name)}" title="${esc(s.name)}"></button>`).join('');
     wrap.querySelectorAll('button').forEach(b=>b.onclick=()=>startRadio(+b.dataset.i));
   }
 
@@ -35,31 +37,19 @@ const RADIO_TIMEOUT_MS = 6000;
     document.querySelectorAll('.radio-station-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
   }
 
-  function setNeedle(i){
-    const needle=$('freqNeedle');if(!needle)return;
-    const len=RADIO_STATIONS.length;
-    const min=-55,max=55;
-    const angle= len>1 ? min+(i/(len-1))*(max-min) : 0;
-    needle.style.setProperty('--rot',angle+'deg');
-    needle.style.transform=`rotate(${angle}deg)`;
-  }
-
   function startRadio(i){
     if(i>=RADIO_STATIONS.length){
       setStatus('All stations unreachable right now');
       setShellStatus('Radio standby');
-      setTuning(false);
       return;
     }
     userStopped=false;
     stationIndex=i;
     const s=RADIO_STATIONS[i];
     setActiveButton(i);
-    setNeedle(i);
     $('radioStationName').textContent=s.name;
     setStatus('Tuning in…');
     setShellStatus(`Tuning · ${s.name}`);
-    setTuning(true);
     isLive=false;
     clearTimeout(connectTimer);
     try{
@@ -80,14 +70,13 @@ const RADIO_TIMEOUT_MS = 6000;
   function onConnected(){
     isLive=true;
     clearTimeout(connectTimer);
-    setTuning(false);
     setStatus('Live now');
     setShellStatus(`Live radio · ${RADIO_STATIONS[stationIndex].name}`);
-    $('liveDot').hidden=false;
     $('dialGlyph').textContent='Ⅱ';
     $('radioToggle').setAttribute('aria-label','Pause live radio');
     $('radioToggle').setAttribute('aria-pressed','true');
     if(window.__pauseSongPlayback) window.__pauseSongPlayback();
+    if(window.__setRadioMood) window.__setRadioMood(stationIndex);
   }
 
   function stopRadio(){
@@ -95,18 +84,16 @@ const RADIO_TIMEOUT_MS = 6000;
     clearTimeout(connectTimer);
     audio.pause();
     isLive=false;
-    setTuning(false);
-    setStatus('Off air · tap to tune in');
+    setStatus('Radio off');
     setShellStatus('Dispatch online');
-    $('liveDot').hidden=true;
-    $('dialGlyph').textContent='▶';
+    $('dialGlyph').textContent='📡';
     $('radioToggle').setAttribute('aria-label','Play live radio');
     $('radioToggle').setAttribute('aria-pressed','false');
+    if(window.__setRadioMood) window.__setRadioMood(null);
   }
 
   function setStatus(t){$('radioStatus').textContent=t}
-  function setShellStatus(t){if($('shellStatus'))$('shellStatus').textContent=t}
-  function setTuning(on){$('freqNeedle')?.classList.toggle('tuning',on)}
+  function setShellStatus(t){/* no dedicated shell-status readout in this build; kept as a no-op hook for future use */}
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 
   window.__pauseRadio=stopRadio;
