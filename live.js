@@ -1,25 +1,22 @@
 /* LIVE MODE — full-screen, beat-synced generative visualizer.
    No raw audio access is possible from a cross-origin YouTube iframe, so the
    "beat" is a simulated groove: a deterministic per-song pattern driven by
-   wall-clock time, the same trick most audio-less visualizers use. It still
-   reads the live theme colors, so switching worlds re-skins it instantly. */
+   wall-clock time. Reads the live palette so it always matches the site. */
 (function(){
   const $=id=>document.getElementById(id);
   let canvas,ctx,raf=null,active=false,paused=false;
   let startedAt=0,pausedAt=0,pausedTotal=0;
   let particles=[],rings=[];
-  let dragging=false,dragStartAngle=0,dragMoved=0;
   let wasPlayingBeforePause=false;
-  let lastBeatIndex=-1,lastSubIndex=-1;
+  let lastSubIndex=-1;
 
   function colors(){
     const cs=getComputedStyle(document.documentElement);
     const v=n=>cs.getPropertyValue(n).trim();
-    return {night:v('--night'),night2:v('--night2'),marigold:v('--marigold'),gulabi:v('--gulabi'),peacock:v('--peacock'),zafran:v('--zafran'),chrome:v('--chrome')};
+    return {ink:v('--ink'),ink2:v('--ink-2'),marigold:v('--marigold'),crimson:v('--crimson'),cobalt:v('--cobalt'),emerald:v('--emerald'),paper:v('--paper')};
   }
 
   function patternFor(index){
-    // 16-step groove, varied a little per song so different tracks feel distinct
     const v=index%4;
     const kicks=[0,8].concat(v>=2?[12]:[]);
     const snares=[4,12];
@@ -39,23 +36,23 @@
 
   function spawnKick(){
     const col=colors();
-    rings.push({x:window.innerWidth/2,y:window.innerHeight*0.56,r:20,alpha:.9,color:[col.marigold,col.gulabi,col.peacock][Math.floor(Math.random()*3)],speed:9+Math.random()*3});
+    rings.push({x:window.innerWidth/2,y:window.innerHeight*0.5,r:20,alpha:.9,color:[col.marigold,col.crimson,col.cobalt][Math.floor(Math.random()*3)],speed:9+Math.random()*3});
   }
   function spawnSnare(){
     const col=colors();
-    const cx=window.innerWidth/2,cy=window.innerHeight*0.56;
+    const cx=window.innerWidth/2,cy=window.innerHeight*0.5;
     const n=14;
     for(let i=0;i<n;i++){
       const a=(Math.PI*2*i)/n+Math.random()*.3;
       const speed=2.5+Math.random()*4.5;
       particles.push({x:cx,y:cy,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-1.5,r:2+Math.random()*3,alpha:1,
-        color:[col.peacock,col.zafran,col.chrome][Math.floor(Math.random()*3)],grav:.06});
+        color:[col.cobalt,col.emerald,col.paper][Math.floor(Math.random()*3)],grav:.06});
     }
   }
   function spawnHat(){
     const col=colors();
     particles.push({
-      x:Math.random()*window.innerWidth, y:window.innerHeight*(0.15+Math.random()*0.5),
+      x:Math.random()*window.innerWidth, y:window.innerHeight*(0.1+Math.random()*0.5),
       vx:0,vy:.3, r:1+Math.random()*1.6, alpha:.8, color:col.marigold, grav:0, twinkle:true
     });
   }
@@ -66,7 +63,6 @@
     const np=(window.__nowPlaying&&window.__nowPlaying())||{title:'—',artist:'',beatMs:900};
     const beatMs=np.beatMs||900;
     const step=beatMs/4;
-    const beatIndex=Math.floor(el/beatMs)%16;
     const subIndex=Math.floor(el/step)%16;
     if(subIndex!==lastSubIndex){
       lastSubIndex=subIndex;
@@ -75,35 +71,29 @@
       if(pat.snares.includes(subIndex))spawnSnare();
       if(pat.hats.includes(subIndex))spawnHat();
     }
-    draw(np);
+    draw();
     raf=requestAnimationFrame(tick);
   }
 
-  function draw(np){
+  function draw(){
     const col=colors();
     const w=window.innerWidth,h=window.innerHeight;
-    ctx.fillStyle=col.night;
+    ctx.fillStyle=col.ink;
     ctx.fillRect(0,0,w,h);
-    // ambient radial glow
     const g=ctx.createRadialGradient(w/2,h*0.5,10,w/2,h*0.5,Math.max(w,h)*0.6);
-    g.addColorStop(0,hexA(col.night2,.9));g.addColorStop(1,hexA(col.night,0));
+    g.addColorStop(0,hexA(col.ink2,.9));g.addColorStop(1,hexA(col.ink,0));
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
 
-    // slow rotating wheel motif (echoes the steering wheel / truck wheel)
+    // slow rotating screen-print sunburst — echoes the bill's halftone rings
     ctx.save();
-    ctx.translate(w/2,h*0.56);
-    ctx.rotate((performance.now()/9000)%(Math.PI*2));
-    ctx.globalAlpha=.14;
-    ctx.strokeStyle=col.marigold;ctx.lineWidth=3;
+    ctx.translate(w/2,h*0.5);
+    ctx.rotate((performance.now()/12000)%(Math.PI*2));
+    ctx.globalAlpha=.16;
+    ctx.strokeStyle=col.marigold;ctx.lineWidth=2;
     for(let rr=60;rr<=Math.min(w,h)*0.42;rr+=70){ctx.beginPath();ctx.arc(0,0,rr,0,Math.PI*2);ctx.stroke()}
-    for(let i=0;i<6;i++){
-      ctx.rotate(Math.PI/3);
-      ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.min(w,h)*0.42,0);ctx.stroke();
-    }
     ctx.restore();
     ctx.globalAlpha=1;
 
-    // rings (kick)
     rings.forEach(r=>{
       ctx.beginPath();
       ctx.strokeStyle=hexA(r.color,r.alpha);
@@ -114,7 +104,6 @@
     rings.forEach(r=>{r.r+=r.speed;r.alpha-=.014});
     rings=rings.filter(r=>r.alpha>0);
 
-    // particles (snare + hats)
     particles.forEach(p=>{
       ctx.beginPath();
       ctx.fillStyle=hexA(p.color,Math.max(p.alpha,0));
@@ -148,6 +137,7 @@
     resize();
     window.addEventListener('resize',resize);
     $('liveMode').classList.add('active');
+    $('liveMode').setAttribute('aria-hidden','false');
     active=true;paused=false;
     startedAt=performance.now();pausedTotal=0;lastSubIndex=-1;
     particles=[];rings=[];
@@ -164,6 +154,7 @@
     if(raf)cancelAnimationFrame(raf);
     window.removeEventListener('resize',resize);
     $('liveMode').classList.remove('active');
+    $('liveMode').setAttribute('aria-hidden','true');
     document.body.style.overflow='';
   }
   function togglePauseLive(){
@@ -192,18 +183,18 @@
     sctx.drawImage(canvas,0,0);
     const dpr=Math.min(window.devicePixelRatio||1,2);
     const col=colors();
-    sctx.fillStyle='rgba(0,0,0,.35)';
+    sctx.fillStyle='rgba(0,0,0,.4)';
     sctx.fillRect(0,shot.height-260*dpr,shot.width,260*dpr);
     const np=(window.__nowPlaying&&window.__nowPlaying())||{};
-    try{await document.fonts.load(`700 ${40*dpr}px Bungee`)}catch(e){}
+    try{await document.fonts.load(`400 ${40*dpr}px Anton`)}catch(e){}
     sctx.fillStyle=col.marigold;
-    sctx.font=`700 ${22*dpr}px Outfit, sans-serif`;
-    sctx.fillText('NOW JAMMING · LIVE MODE', 40*dpr, shot.height-180*dpr);
-    sctx.fillStyle=col.chrome;
-    sctx.font=`700 ${48*dpr}px Bungee, cursive`;
+    sctx.font=`600 ${20*dpr}px 'Work Sans', sans-serif`;
+    sctx.fillText('NOW JAMMING — LIVE MODE', 40*dpr, shot.height-180*dpr);
+    sctx.fillStyle=col.paper;
+    sctx.font=`400 ${46*dpr}px Anton, sans-serif`;
     sctx.fillText((np.title||'').toUpperCase(), 40*dpr, shot.height-120*dpr);
-    sctx.fillStyle=col.peacock;
-    sctx.font=`600 ${24*dpr}px Outfit, sans-serif`;
+    sctx.fillStyle=col.cobalt;
+    sctx.font=`500 ${22*dpr}px 'Work Sans', sans-serif`;
     sctx.fillText(np.artist||'', 40*dpr, shot.height-70*dpr);
     shot.toBlob(async blob=>{
       if(!blob)return;
@@ -216,44 +207,8 @@
     },'image/png');
   }
 
-  // ---- steering wheel: click to enter, light drag rotation for tactility ----
-  function initWheel(){
-    const btn=$('wheelBtn'),svg=$('wheelSvg');
-    if(!btn)return;
-    let rotation=0;
-    function angleFromEvent(e,rect){
-      const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
-      return Math.atan2(e.clientY-cy,e.clientX-cx);
-    }
-    btn.addEventListener('pointerdown',e=>{
-      dragging=true;dragMoved=0;
-      btn.classList.add('dragging');
-      const rect=btn.getBoundingClientRect();
-      dragStartAngle=angleFromEvent(e,rect)-rotation*(Math.PI/180);
-      btn.setPointerCapture(e.pointerId);
-    });
-    btn.addEventListener('pointermove',e=>{
-      if(!dragging)return;
-      const rect=btn.getBoundingClientRect();
-      const a=angleFromEvent(e,rect);
-      rotation=(a-dragStartAngle)*(180/Math.PI);
-      dragMoved++;
-      svg.style.transform=`rotate(${rotation}deg)`;
-    });
-    function release(){
-      if(!dragging)return;
-      dragging=false;
-      btn.classList.remove('dragging');
-      svg.style.transform='';
-      enterLive();
-    }
-    btn.addEventListener('pointerup',release);
-    btn.addEventListener('pointercancel',()=>{dragging=false;btn.classList.remove('dragging');svg.style.transform=''});
-  }
-
   document.addEventListener('DOMContentLoaded',()=>{
-    initWheel();
-    $('enterBtn')?.addEventListener('click',()=>{}); // existing behavior untouched
+    $('liveModeBtn')?.addEventListener('click',enterLive);
     $('liveExit')?.addEventListener('click',exitLive);
     $('livePause')?.addEventListener('click',togglePauseLive);
     $('liveNext')?.addEventListener('click',()=>{window.__nextSong&&window.__nextSong();setTimeout(updateUI,60)});
