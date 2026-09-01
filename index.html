@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Punjabi Wave — 26 on Repeat</title>
+<meta name="description" content="30 Hindi &amp; Punjabi tracks of 2026, one giant title at a time.">
+<meta name="theme-color" content="#F7F4EC">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#playToggle">Skip to playback</a>
+
+<!-- TOP HUD -->
+<header class="hud hud-left">
+  <button class="brand" id="homeLink" type="button" aria-label="Back to start">
+    <span class="brand-mark">ਪ</span>
+    <span class="brand-text">Punjabi<br>Wave</span>
+  </button>
+</header>
+
+<div class="hud hud-right">
+  <span class="mono clock" id="clockDisplay">00:00:00</span>
+  <button class="flat-btn" id="muteBtn" type="button" aria-pressed="false">Sound</button>
+  <button class="flat-btn" id="radioToggle" type="button" aria-pressed="false">Radio</button>
+</div>
+
+<p class="radio-readout mono" id="radioStatus" hidden></p>
+
+<!-- STAGE -->
+<main class="stage" id="stage">
+  <button class="stage-nav prev" id="prevBtn" aria-label="Previous track">‹</button>
+
+  <div class="stage-center">
+    <p class="pagination mono"><span id="pageNum">01</span> / <span id="pageTotal">30</span></p>
+
+    <button class="giant-title" id="billTitle" type="button" aria-label="Play or pause this track">
+      Punjabi Wave
+    </button>
+
+    <p class="byline" id="billArtist">Press play on any title to begin</p>
+
+    <div class="eq-row" id="eqRow" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <button class="stage-nav next" id="nextBtn" aria-label="Next track">›</button>
+</main>
+
+<!-- BOTTOM HUD -->
+<footer class="hud hud-bottom">
+  <button class="flat-btn" id="playToggle" type="button" aria-label="Play">▶ Play</button>
+  <span class="mono time" id="currentTime">0:00</span>
+  <div class="seek-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+  <span class="mono time" id="duration">0:00</span>
+  <button class="flat-btn" id="autoBtn" type="button" aria-pressed="false">Auto</button>
+  <button class="flat-btn strong" id="browseBtn" type="button">Index ↗</button>
+</footer>
+
+<div class="source-row" id="sourceRow">
+  <button id="youtubeBtn" type="button">YouTube</button>
+  <button id="spotifyBtn" type="button">Spotify</button>
+  <button id="shareBtn" type="button">Share</button>
+  <button id="saveBtn" type="button" aria-pressed="false">Save ☆</button>
+</div>
+
+<div class="hidden-player"><div id="player"></div></div>
+<div class="invidious-player" id="invidiousWrap" hidden>
+  <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+  <button class="embed-close" id="invidiousClose" type="button">× Close</button>
+</div>
+<div class="spotify-player" id="spotifyPlayerWrap" hidden>
+  <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  <button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button>
+</div>
+
+<!-- INDEX OVERLAY -->
+<section class="index-overlay" id="vaultPanel" aria-label="Track index" aria-hidden="true">
+  <div class="index-head">
+    <button class="flat-btn" id="closeVault" type="button">← Close</button>
+    <input id="songSearch" type="search" placeholder="Search title, artist, year…" autocomplete="off">
+    <button class="flat-btn" id="clearSearch" type="button">Clear</button>
+  </div>
+  <div class="index-filters">
+    <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+    <button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button>
+    <button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button>
+    <button class="filter-btn" data-filter="favorites" aria-pressed="false">Saved</button>
+    <button class="flat-btn" id="shuffleBtn" type="button">Shuffle ↻</button>
+    <span class="mono vault-count" id="vaultCount">30 tracks</span>
+  </div>
+  <div class="index-list" id="songGrid"></div>
+  <p class="empty-state" id="emptyState" hidden>Nothing matches that search.</p>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="songs.js"></script>
+<script src="radio.js"></script>
+<script src="player.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
