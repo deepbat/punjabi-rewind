@@ -99,8 +99,10 @@ function showFallback() {
   if (fb) fb.hidden = false;
 }
 
-/* ---------------- glow sprite texture (used for stars + markers, avoids needing bloom post-processing) ---------------- */
+/* ---------------- glow sprite texture (cached — avoids 30+ identical canvases) ---------------- */
+const _glowCache=new Map();
 function glowTexture(hex) {
+  if(_glowCache.has(hex)) return _glowCache.get(hex);
   const size = 128;
   const c = document.createElement('canvas');
   c.width = c.height = size;
@@ -116,11 +118,12 @@ function glowTexture(hex) {
   ctx.fillRect(0, 0, size, size);
   const tex = new THREE.CanvasTexture(c);
   tex.needsUpdate = true;
+  _glowCache.set(hex, tex);
   return tex;
 }
 
 function buildStarfield() {
-  const count = 6000;
+  const count = window.innerWidth < 640 ? 3000 : 6000;
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   const palette = [new THREE.Color(0xF1E9D6), new THREE.Color(0x9AA0AE), new THREE.Color(0x5B9BD9)];
@@ -337,6 +340,7 @@ function exitAutopilot() {
 /* ---------------- animation loop ---------------- */
 function animate() {
   requestAnimationFrame(animate);
+  if(document.hidden){ lastFrame=performance.now(); return; }
   const now = performance.now();
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;

@@ -67,7 +67,7 @@
   <button id="prevBtn" aria-label="Previous track">⏮</button>
   <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
   <button id="nextBtn" aria-label="Next track">⏭</button>
-  <div class="transport-meta">
+  <div class="transport-meta" aria-live="polite" aria-atomic="true">
     <strong id="billTitle">Punjabi Wave</strong>
     <span id="billArtist">Click a light in the sky to begin</span>
   </div>
@@ -77,20 +77,20 @@
     <span class="mono tiny" id="duration">0:00</span>
   </div>
   <div class="transport-links">
-    <button id="youtubeBtn" type="button" title="Open on YouTube">YT</button>
-    <button id="spotifyBtn" type="button" title="Open on Spotify">SP</button>
-    <button id="shareBtn" type="button" title="Share">✦</button>
+    <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
+    <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
+    <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
   </div>
 </div>
 
 <div class="hidden-player"><div id="player"></div></div>
-<div class="invidious-player" id="invidiousWrap" hidden>
+<div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
   <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-  <button class="embed-close" id="invidiousClose" type="button">× Close</button>
+  <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
 </div>
-<div class="spotify-player" id="spotifyPlayerWrap" hidden>
+<div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
   <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button>
+  <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
 </div>
 
 <!-- VAULT / STARMAP INDEX — a frosted overlay, the scene keeps drifting behind it -->

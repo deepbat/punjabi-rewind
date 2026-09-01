@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('vaultScrim')?.addEventListener('click',closePanel);
   $('youtubeBtn').onclick=openYoutube;
   $('spotifyBtn').onclick=()=>openSpotify(false);
+  $('shareBtn')?.addEventListener('click',shareCurrent);
   $('spotifyClose')?.addEventListener('click',()=>switchToYouTube(false));
   $('invidiousClose')?.addEventListener('click',()=>{hideInvidious(); switchToYouTube(false); showToast('Proxy closed — back to YouTube');});
   $('muteBtn').onclick=toggleMute;
@@ -70,6 +71,7 @@ function toggleAutopilot(){
 function selectSong(i,autoplay=false){
   if(!SONG_LIST[i])return;
   currentIndex=i;idAttempt=0;
+  clearTimeout(noStreamSkipTimer); clearTimeout(ytErrorSkipTimer);
   const s=SONG_LIST[i];
   $('currentTime').textContent='0:00';$('duration').textContent='0:00';$('progressBar').style.width='0%';
   updateProgressAccessibility(0,0);updateBill(s,false);highlightActiveCard(i);
@@ -96,14 +98,17 @@ function spotifyEmbedUrl(song){
   }
   return null;
 }
+const INVIDIOUS_HOSTS=['https://yewtu.be','https://invidious.perennialte.ch','https://iv.melmac.space'];
+let invidiousHostIdx=0;
 function showInvidious(song, videoId){
   const wrap=$('invidiousWrap'), frame=$('invidiousPlayer');
   if(!wrap||!frame||!song||!videoId) return false;
-  const host='https://yewtu.be';
+  const host=INVIDIOUS_HOSTS[invidiousHostIdx % INVIDIOUS_HOSTS.length];
   frame.src=`${host}/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1`;
   wrap.hidden=false;
+  wrap.setAttribute('aria-hidden','false');
   positionEmbedPanel(wrap);
-  const spWrap=$('spotifyPlayerWrap'); if(spWrap){spWrap.hidden=true;}
+  const spWrap=$('spotifyPlayerWrap'); if(spWrap){spWrap.hidden=true; spWrap.setAttribute('aria-hidden','true');}
   currentSource='youtube';
   showToast('YouTube blocked — proxied via Invidious ✦ tap × to close');
   $('billTitle').textContent=song.title + ' — Proxy';
@@ -115,7 +120,7 @@ function showInvidious(song, videoId){
 }
 function hideInvidious(){
   const wrap=$('invidiousWrap'), frame=$('invidiousPlayer');
-  if(wrap){wrap.hidden=true;}
+  if(wrap){wrap.hidden=true; wrap.setAttribute('aria-hidden','true'); wrap.style.bottom='';}
   if(frame) frame.src='about:blank';
 }
 // Keeps the floating embed panel clear of the player bar regardless of how
@@ -133,7 +138,9 @@ function showSpotify(song){
   frame.src=url;
   frame.height='152';
   wrap.hidden=false;
+  wrap.setAttribute('aria-hidden','false');
   positionEmbedPanel(wrap);
+  hideInvidious();
   currentSource='spotify';
   showToast('YouTube blocked — switched to Spotify ✦');
   $('billTitle').textContent=song.title + ' — Spotify';
@@ -145,8 +152,9 @@ function showSpotify(song){
 let noStreamSkipTimer=null;
 function showNoStreamFallback(song){
   currentSource='youtube';
-  hideSpotify(false);
-  showToast("No working stream for this track — open it manually below, or it'll skip in a few seconds");
+  hideSpotify(false); hideInvidious();
+  const ytId=song?.youtubeIds?.[0];
+  showToast(ytId ? "No auto stream — tap YT to open on YouTube, skipping in 5s" : "No working stream for this track — skipping in 5s");
   $('billTitle').textContent=song.title + ' — no auto stream';
   $('playBtn').textContent='▶';
   $('currentTime').textContent='—';
@@ -160,7 +168,7 @@ function showNoStreamFallback(song){
 }
 function hideSpotify(restoreYouTube){
   const wrap=$('spotifyPlayerWrap'), frame=$('spotifyPlayer');
-  if(wrap){ wrap.hidden=true; }
+  if(wrap){ wrap.hidden=true; wrap.setAttribute('aria-hidden','true'); wrap.style.bottom=''; }
   if(frame) frame.src='about:blank';
   if(restoreYouTube) currentSource='youtube';
   hideInvidious();
@@ -173,11 +181,12 @@ function switchToSpotify(autoplay){
   showSpotify(s);
 }
 function switchToYouTube(autoplay){
-  clearTimeout(noStreamSkipTimer);
+  clearTimeout(noStreamSkipTimer); clearTimeout(ytErrorSkipTimer);
   hideSpotify(true);
   const s=SONG_LIST[currentIndex];
   if(s) updateBill(s,false);
   $('currentTime').textContent='0:00';$('duration').textContent='0:00';$('progressBar').style.width='0%';
+  updateProgressAccessibility(0,0);
   if(autoplay) playCurrent(true);
   else if(playerReady) loadExactSource(false);
 }
@@ -230,10 +239,22 @@ function onYouTubeIframeAPIReady(){
       const blocked=e&&(e.data===101||e.data===150);
       const s=SONG_LIST[currentIndex];
       const vid=SONG_LIST[currentIndex]?.youtubeIds?.[idAttempt]||SONG_LIST[currentIndex]?.youtubeIds?.[0];
-      if(blocked && vid && showInvidious(s, vid)){ return; }
+      if(blocked && vid){
+        const wasHidden=$('invidiousWrap')?.hidden;
+        if(wasHidden && showInvidious(s, vid)) return;
+        if(!wasHidden && invidiousHostIdx < INVIDIOUS_HOSTS.length-1){
+          invidiousHostIdx++; showToast('Proxy failed — trying alternate…');
+          if(showInvidious(s, vid)) return;
+        }
+      }
       if(s){
-        showToast(blocked?'YouTube blocked — switching to Spotify…':'Source blocked — switching to Spotify…');
-        switchToSpotify(true);
+        // Only switch to Spotify if a real embed exists, otherwise show fallback with YT link
+        if(spotifyEmbedUrl(s)){
+          showToast(blocked?'YouTube blocked — switching to Spotify…':'Source blocked — switching to Spotify…');
+          switchToSpotify(true);
+        } else {
+          showNoStreamFallback(s);
+        }
         return;
       }
       const msg=blocked?"Can't embed here — opening YouTube…":'YouTube blocked this embed — skipping…';
@@ -309,6 +330,16 @@ function openSpotify(externalOnly){
     const wrap=$('spotifyPlayerWrap');
     if(wrap && wrap.hidden) showSpotify(s);
   }
+}
+function shareCurrent(){
+  const s=SONG_LIST[currentIndex];
+  if(!s){showToast('No track selected');return}
+  const ytId=s.youtubeIds?.[idAttempt]||s.youtubeIds?.[0];
+  const url=ytId ? `https://www.youtube.com/watch?v=${ytId}` : location.href;
+  const text=`${s.title} — ${s.artist} (${s.year}) ${url}`;
+  if(navigator.share){navigator.share({title:s.title,text:`${s.artist} — ${s.title}`,url}).catch(()=>{}); return}
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(text).then(()=>showToast('Link copied ✦')).catch(()=>showToast(url)); return}
+  window.prompt('Copy link:', text);
 }
 function toggleMute(){
   if(currentSource==='spotify'){showToast('Spotify volume — use the Spotify card slider');return}
