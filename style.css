@@ -41,11 +41,17 @@ p{margin:0}
 
 /* ============================== SCENE MOUNT ============================== */
 #scene-mount{position:fixed;inset:0;z-index:1}
-#scene-mount canvas{display:block;width:100%;height:100%;touch-action:none}
+#scene-mount canvas{display:block;width:100%;height:100%;touch-action:none;position:relative;z-index:2}
 .scene-fallback{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   padding:40px;text-align:center;color:var(--muted);font-size:14px;background:var(--ink);
+  z-index:1;
 }
+/* The [hidden] attribute is what JS toggles to show this only when WebGL truly
+   isn't available. Without this rule, the class's own `display:flex` above
+   silently wins the cascade over the browser's default [hidden]{display:none},
+   so the fallback would render on top of a perfectly working scene. */
+.scene-fallback[hidden]{display:none}
 .vignette{
   position:fixed;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,.55) 100%);

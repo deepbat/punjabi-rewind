@@ -53,6 +53,7 @@ function init() {
   labelRenderer.domElement.style.position = 'absolute';
   labelRenderer.domElement.style.top = '0';
   labelRenderer.domElement.style.left = '0';
+  labelRenderer.domElement.style.zIndex = '3';
   labelRenderer.domElement.style.pointerEvents = 'none';
   mount.appendChild(labelRenderer.domElement);
 
