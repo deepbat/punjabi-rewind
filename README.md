@@ -1,61 +1,58 @@
-# Punjabi Wave — A Sonic Constellation
+# Punjabi Wave — 26 on Repeat
 
-Third pass, and a genuinely different kind of thing: the entire page is one
-WebGL scene, not a website with 3D bits bolted on.
+Fourth pass, and a real genre change: no dark glass, no hardware metaphor, no
+3D space. This is stark, high-contrast **kinetic typography** — closer to a
+Swiss poster or a record label's flagship site than a dashboard.
 
-Your 30 tracks are arranged as glowing points along a spiral around a
-slowly-rotating core, radius growing with each track so it reads as a galaxy
-arm rather than a flat grid. The four radio stations sit as blue beacons on
-an outer ring. The camera drifts on autorotate until you touch it:
+One song title fills most of the screen at a time, set in huge black display
+type on warm paper white. Every track gets its own accent hue computed from
+its position in the list (song 1 sits near amber, song 30 wraps most of the
+way around the color wheel) — so as you move through the set, the accent
+color drifts with it. There's no card grid on the main stage, no console,
+no scene — just the title, the artist line, a small paginated counter, and
+a row of equalizer bars that comes alive when something's playing.
 
-- **Drag** to orbit around the core.
-- **Scroll / pinch** to dive in or pull back.
-- **Click a light** to select it — the camera eases in on its own, the song
-  starts, and its label appears. Click another light or scroll back out to
-  keep exploring.
-- **Autopilot** (top right) lets go of your input entirely and flies the
-  camera through the field on its own, speeding up and pulsing with the
-  simulated beat of whatever's playing.
-- **☰** opens the "starmap index" — search, language filters, favorites,
-  shuffle — a frosted panel that slides in without stopping the scene behind
-  it, for when you want to find a specific track by name instead of hunting
-  for its light.
+- **Scroll, arrow keys, or the ‹ › buttons** move between tracks — the title
+  swaps with a quick fade/slide rather than a page transition.
+- **Click the giant title itself** (or the small Play button) to play or
+  pause.
+- **Auto** lets it advance on its own every few seconds, for browsing
+  hands-free.
+- **Index ↗** opens a full-screen typographic list — search, language
+  filters, favorites, shuffle — titles set at the same large display scale
+  as the main stage, not small cards.
+- **Radio** in the top-right does the same four-station live-radio failover
+  as always; while it's live the accent hue shifts to signal you're
+  listening to a stream rather than a track.
 
-Everything else — the 30-track library, the four-station radio failover, the
-hybrid YouTube → Invidious → Spotify fallback chain, favorites, search — is
-unchanged underneath. Only the shell is new, and this time the shell *is*
-the experience rather than a container around it.
+Underneath, everything is the same engine as the earlier builds: all 30
+tracks, the YouTube → Invidious → Spotify hybrid fallback, favorites, search.
+Only the shell changed — and this time the shell has no 3D and no
+skeuomorphism at all, just type, color, and motion.
 
 ## Local preview
-
-This needs a real server (ES modules and CSS2DRenderer won't load over
-`file://`):
 
 ```bash
 python3 -m http.server 8080
 ```
-Then open <http://localhost:8080>. A WebGL-capable browser is required —
-there's a plain-text fallback message if WebGL isn't available, but no
-visual experience without it.
+Then open <http://localhost:8080>.
 
 ## Files
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | Scene mount point + the thin glass HUD layered on top |
-| `style.css` | HUD styling only — the scene itself is drawn by `scene.js` |
-| `scene.js` | The 3D experience: starfield, spiral of song markers, radio beacons, camera flight, raycasting, autopilot |
+| `index.html` | The stage, HUD, index overlay markup |
+| `style.css` | The typographic system — fonts, per-track accent variable, layout |
 | `songs.js` | Curated track data (unchanged) |
-| `radio.js` | Live-radio stations, failover, and scene "mood" color hooks |
-| `player.js` | Playback, search, filtering, favorites, hybrid source fallback |
-| `app.js` | Live clock and the onboarding hint fade |
+| `radio.js` | Live-radio stations, failover, accent-shift hook |
+| `player.js` | Playback, title-swap animation, accent color engine, auto-advance, search/filter/favorites, hybrid source fallback |
+| `app.js` | Live clock |
 
-## A note on testing
+## Testing note
 
-I don't have a browser available in the environment I built this in, so I
-verified it the only way I could without eyes on it: every DOM id the
-JavaScript looks up exists in the HTML, every CSS class used in the markup
-has a matching rule, all tags balance, and all the JavaScript — including
-`scene.js` as a real ES module — parses cleanly. That catches wiring
-mistakes, not whether the 3D actually looks right at your screen size and
-GPU. Please give it a real look before you push it anywhere.
+Same caveat as the last few builds: no browser available in the environment
+I built this in. I verified every DOM id and CSS class referenced actually
+exists on the other side, and all JavaScript parses cleanly — that catches
+wiring mistakes, not whether the type scale, color drift, or transitions
+actually feel right on your screen. Please look at it for real before
+judging it.

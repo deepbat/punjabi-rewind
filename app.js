@@ -1,4 +1,4 @@
-/* LIVE CLOCK — compact IST readout in the top-right HUD pill */
+/* LIVE CLOCK — IST, shown small in the top-right HUD */
 (function(){
   const clockEl=document.getElementById('clockDisplay');
   if(!clockEl) return;
@@ -12,12 +12,4 @@
     }
   }
   tick(); setInterval(tick,1000);
-})();
-
-/* First-interaction hint fade: hide the onboarding line after a few seconds
-   even if the person hasn't touched anything yet (they may just be watching). */
-(function(){
-  setTimeout(()=>{
-    document.getElementById('onboardHint')?.classList.add('faded');
-  }, 6000);
 })();
