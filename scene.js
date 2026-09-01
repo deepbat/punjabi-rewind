@@ -99,10 +99,8 @@ function showFallback() {
   if (fb) fb.hidden = false;
 }
 
-/* ---------------- glow sprite texture (cached — one canvas per color) ---------------- */
-const _glowCache=new Map();
+/* ---------------- glow sprite texture (used for stars + markers, avoids needing bloom post-processing) ---------------- */
 function glowTexture(hex) {
-  if(_glowCache.has(hex)) return _glowCache.get(hex);
   const size = 128;
   const c = document.createElement('canvas');
   c.width = c.height = size;
@@ -118,7 +116,6 @@ function glowTexture(hex) {
   ctx.fillRect(0, 0, size, size);
   const tex = new THREE.CanvasTexture(c);
   tex.needsUpdate = true;
-  _glowCache.set(hex, tex);
   return tex;
 }
 
@@ -271,7 +268,7 @@ function onPointerUpTrack(e) {
   onUserInteract();
   document.getElementById('onboardHint')?.classList.add('faded');
   // Only treat this as a "click a light" selection if the pointer barely
-  // moved ΓÇö otherwise it was a drag-to-orbit gesture, not a pick.
+  // moved ╬ô├ç├╢ otherwise it was a drag-to-orbit gesture, not a pick.
   const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
   if (moved > 6) return;
   pointerNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -337,10 +334,9 @@ function exitAutopilot() {
   document.getElementById('liveModeBtn')?.setAttribute('aria-pressed', 'false');
 }
 
-/* ---------------- animation loop (pauses when tab hidden to save battery) ---------------- */
+/* ---------------- animation loop ---------------- */
 function animate() {
   requestAnimationFrame(animate);
-  if(document.hidden){ lastFrame=performance.now(); return; }
   const now = performance.now();
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
