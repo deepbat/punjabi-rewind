@@ -99,8 +99,10 @@ function showFallback() {
   if (fb) fb.hidden = false;
 }
 
-/* ---------------- glow sprite texture (used for stars + markers, avoids needing bloom post-processing) ---------------- */
+/* ---------------- glow sprite texture (cached — one canvas per color) ---------------- */
+const _glowCache=new Map();
 function glowTexture(hex) {
+  if(_glowCache.has(hex)) return _glowCache.get(hex);
   const size = 128;
   const c = document.createElement('canvas');
   c.width = c.height = size;
@@ -116,6 +118,7 @@ function glowTexture(hex) {
   ctx.fillRect(0, 0, size, size);
   const tex = new THREE.CanvasTexture(c);
   tex.needsUpdate = true;
+  _glowCache.set(hex, tex);
   return tex;
 }
 
@@ -334,9 +337,10 @@ function exitAutopilot() {
   document.getElementById('liveModeBtn')?.setAttribute('aria-pressed', 'false');
 }
 
-/* ---------------- animation loop ---------------- */
+/* ---------------- animation loop (pauses when tab hidden to save battery) ---------------- */
 function animate() {
   requestAnimationFrame(animate);
+  if(document.hidden){ lastFrame=performance.now(); return; }
   const now = performance.now();
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
