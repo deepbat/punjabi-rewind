@@ -3,142 +3,70 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Punjabi Wave — A Sonic Constellation</title>
-<meta name="description" content="30 Hindi &amp; Punjabi tracks of 2026, arranged as a galaxy you fly through.">
+<title>Punjabi Wave | 2026 Music Galaxy</title>
+<meta name="description" content="Explore Punjabi and Hindi music through an interactive sonic galaxy.">
 <meta name="theme-color" content="#05070C">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
-  }
-}
-</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
 </head>
 <body>
-
-<a class="skip-link" href="#playBtn">Skip to playback controls</a>
-
-<!-- The 3D scene mounts here: <canvas> + a CSS2D label layer, both added by scene.js -->
-<div id="scene-mount"><div class="scene-fallback" id="sceneFallback" hidden>
-  <p>Your browser can't render the 3D scene — here's the audio player without the visuals.</p>
-</div></div>
-
+<a class="skip-link" href="#playBtn">Skip to player</a>
+<div id="scene-mount"><div class="scene-fallback" id="sceneFallback" hidden><div><strong>3D mode unavailable</strong><p>Your browser cannot render this scene.</p></div></div></div>
 <div class="vignette" aria-hidden="true"></div>
 
-<p class="onboard-hint" id="onboardHint">Drag to look around · scroll to dive in · click a light to play</p>
-
-<!-- HUD -->
-<header class="hud hud-top-left">
-  <button class="brand" id="homeLink" type="button" aria-label="Recenter view">
-    <span class="brand-mark">ਪ</span>
-    <span class="brand-text">Punjabi Wave<em>A Sonic Constellation — 2026</em></span>
+<header class="topbar">
+  <button class="brand" id="homeLink" type="button" aria-label="Recenter galaxy">
+    <span class="brand-mark">ਪ</span><span><b>Punjabi Wave</b><small>SONIC ATLAS · 2026</small></span>
   </button>
+  <div class="top-actions">
+    <button class="autopilot" id="liveModeBtn" type="button" aria-pressed="false"><i></i><span>Autopilot</span></button>
+    <button class="icon-btn" id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
+  </div>
 </header>
 
-<div class="hud hud-top-right">
-  <span class="glass-pill mono" id="clockDisplay">00:00:00</span>
-  <button class="glass-icon-btn" id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
-</div>
+<section class="hero-copy" id="heroCopy">
+  <p class="eyebrow">30 TRACKS · 4 LIVE STATIONS</p>
+  <h1>Music is<br><em>somewhere</em><br>out there.</h1>
+  <p class="hero-sub">Explore a living constellation of Punjabi and Hindi music. Every light is a song.</p>
+  <button class="begin-btn" id="beginExplore" type="button">Explore constellation <span>↘</span></button>
+</section>
 
-<div class="hud hud-radio">
-  <button class="glass-icon-btn radio-power" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio">
-    <span id="dialGlyph">📡</span>
-  </button>
-  <div class="radio-readout">
-    <span class="mono small" id="radioStatus">Radio off</span>
-    <strong id="radioStationName">4 beacons on the rim</strong>
-  </div>
+<p class="onboard-hint" id="onboardHint"><kbd>Drag</kbd> to explore <span>·</span> <kbd>Scroll</kbd> to dive <span>·</span> <kbd>Click</kbd> a light to play</p>
+
+<div class="live-radio">
+  <button class="radio-power" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio"><span id="dialGlyph">◉</span></button>
+  <div class="radio-copy"><small id="radioStatus">LIVE RADIO</small><strong id="radioStationName">4 stations on orbit</strong></div>
   <div class="radio-presets" id="radioStationList"></div>
 </div>
 
-<button class="live-toggle" id="liveModeBtn" type="button" aria-pressed="false">
-  <span class="live-toggle-dot" aria-hidden="true"></span> Autopilot
-</button>
+<button class="browse-fab" id="browseBtn" type="button" aria-label="Browse all tracks"><span>☰</span><b>Browse</b></button>
 
-<button class="glass-icon-btn hud-vault-btn" id="browseBtn" type="button" aria-label="Open the vault index" title="Browse all tracks">☰</button>
-
-<!-- Player dock: the transport bar and any embed panel above it are flex
-     siblings in one anchored column, so the browser stacks them by actual
-     rendered height — no fixed pixel offsets, so they cannot overlap. -->
-<div class="player-dock" id="playerDock">
-  <div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
-    <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="90" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-    <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
-  </div>
-  <div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
-    <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
-  </div>
-
-  <div class="transport-glass" id="transportGlass">
-    <button id="prevBtn" aria-label="Previous track">⏮</button>
+<div class="now-playing" id="transportGlass">
+  <div class="playing-glow"></div>
+  <div class="transport-controls">
+    <button id="prevBtn" aria-label="Previous track">‹</button>
     <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
-    <button id="nextBtn" aria-label="Next track">⏭</button>
-    <div class="transport-meta" aria-live="polite" aria-atomic="true">
-      <strong id="billTitle">Punjabi Wave</strong>
-      <span id="billArtist">Click a light in the sky to begin</span>
-    </div>
-    <div class="transport-progress">
-      <span class="mono tiny" id="currentTime">0:00</span>
-      <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
-      <span class="mono tiny" id="duration">0:00</span>
-    </div>
-    <div class="transport-links">
-      <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
-      <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
-      <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
-    </div>
+    <button id="nextBtn" aria-label="Next track">›</button>
   </div>
+  <div class="track-info" aria-live="polite"><span class="status-dot"></span><div><small>NOW IN ORBIT</small><strong id="billTitle">Choose a star</strong><p id="billArtist">Click any light to begin exploring</p></div></div>
+  <div class="transport-progress"><span class="mono tiny" id="currentTime">0:00</span><div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div><span class="mono tiny" id="duration">0:00</span></div>
+  <div class="transport-links"><button id="youtubeBtn" type="button" title="Open on YouTube">YT</button><button id="spotifyBtn" type="button" title="Open on Spotify">SP</button><button id="shareBtn" type="button" title="Share">↗</button></div>
 </div>
 
 <div class="hidden-player"><div id="player"></div></div>
+<div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true"><iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe><button class="embed-close" id="invidiousClose" type="button">× Close</button></div>
+<div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true"><iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button></div>
 
-<!-- VAULT / STARMAP INDEX — a frosted overlay, the scene keeps drifting behind it -->
 <div class="vault-scrim" id="vaultScrim"></div>
 <section class="vault-panel" id="vaultPanel" aria-label="Track index" aria-hidden="true">
-  <div class="vault-head">
-    <div>
-      <span class="vault-eyebrow mono">Starmap index — 2026 only</span>
-      <h2>Every light in the sky</h2>
-    </div>
-    <button class="panel-close" id="closeVault" type="button">Close</button>
-  </div>
-
-  <div class="vault-tools">
-    <label class="vault-search">
-      <input id="songSearch" type="search" placeholder="Search song, artist, or year" autocomplete="off">
-      <button id="clearSearch" type="button" aria-label="Clear search">×</button>
-    </label>
-    <button class="text-btn" id="shuffleBtn" type="button">Shuffle ↻</button>
-  </div>
-
-  <div class="filter-row" role="group" aria-label="Filter by">
-    <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
-    <button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button>
-    <button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button>
-    <button class="filter-btn" data-filter="favorites" aria-pressed="false">★ Saved</button>
-    <span class="vault-count mono" id="vaultCount">30 tracks</span>
-  </div>
-
-  <div class="vault-body">
-    <div class="song-grid" id="songGrid"></div>
-    <p class="empty-state" id="emptyState" hidden>No tracks match that search.</p>
-  </div>
+ <div class="vault-head"><div><span class="vault-eyebrow">CONSTELLATION INDEX</span><h2>Find your sound</h2><p>Every light, one destination.</p></div><button class="panel-close" id="closeVault" type="button">Close ×</button></div>
+ <div class="vault-tools"><label class="vault-search"><span>⌕</span><input id="songSearch" type="search" placeholder="Search artist or song" autocomplete="off"><button id="clearSearch" type="button" aria-label="Clear search">×</button></label><button class="text-btn" id="shuffleBtn" type="button">Surprise me ↗</button></div>
+ <div class="filter-row" role="group" aria-label="Filter tracks"><button class="filter-btn active" data-filter="all" aria-pressed="true">All</button><button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button><button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button><button class="filter-btn" data-filter="favorites" aria-pressed="false">Saved</button><span class="vault-count mono" id="vaultCount">30 tracks</span></div>
+ <div class="vault-body"><div class="song-grid" id="songGrid"></div><p class="empty-state" id="emptyState" hidden>No signals found.</p></div>
 </section>
-
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="songs.js"></script>
-<script src="radio.js"></script>
-<script src="player.js"></script>
-<script src="app.js"></script>
-<script type="module" src="scene.js"></script>
-</body>
-</html>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script><script src="https://www.youtube.com/iframe_api"></script><script src="songs.js"></script><script src="radio.js"></script><script src="player.js"></script><script src="app.js"></script><script type="module" src="scene.js"></script>
+</body></html>

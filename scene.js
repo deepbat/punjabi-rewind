@@ -284,6 +284,7 @@ function onPointerUpTrack(e) {
 
 let idleTimer = null;
 function onUserInteract() {
+  window.__enterExperience?.();
   if (autopilot) exitAutopilot();
   document.getElementById('onboardHint')?.classList.add('faded');
   document.querySelectorAll('.hud, #transportGlass').forEach(el => el.classList.remove('idle-fade'));
@@ -348,8 +349,9 @@ function animate() {
   const np = (window.__nowPlaying && window.__nowPlaying()) || null;
   markers.forEach((m, idx) => {
     const isPlaying = np && np.playing && idx === selectedIndex;
-    const pulse = isPlaying ? 1 + Math.sin(now * 0.006) * 0.22 : 1;
-    const s = m.userData.baseScale * (idx === hoveredIndex || idx === selectedIndex ? 1.5 : 1) * pulse;
+    const pulse = isPlaying ? 1 + Math.sin(now * 0.006) * 0.28 : 1;
+    const selectedBoost = idx === selectedIndex ? 1.8 : (idx === hoveredIndex ? 1.35 : 1);
+    const s = m.userData.baseScale * selectedBoost * pulse;
     m.scale.set(s, s, 1);
   });
 
