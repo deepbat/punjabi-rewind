@@ -118,17 +118,27 @@ p{margin:0}
 
 .hud-vault-btn{position:fixed;z-index:20;bottom:24px;right:20px}
 
-/* ============================== TRANSPORT ============================== */
-.transport-glass{
+/* ============================== PLAYER DOCK ============================== */
+/* One fixed, bottom-anchored flex column. The transport bar is always the
+   last child, so it's always the visually bottom-most element; any embed
+   panel is a flex sibling above it. Stacking is handled by flexbox using
+   each element's real rendered height — there is no fixed pixel offset
+   anywhere in this block, so an embed panel can never overlap the bar. */
+.player-dock{
   position:fixed;z-index:20;left:50%;bottom:24px;transform:translateX(-50%);
   width:min(680px,92vw);
+  display:flex;flex-direction:column;align-items:stretch;gap:10px;
+  max-height:calc(100vh - 48px);
+}
+
+.transport-glass{
   background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);
-  border-radius:20px;padding:12px 16px;
+  border-radius:20px;padding:12px 16px;flex:none;
   display:grid;grid-template-columns:auto auto auto 1fr auto;align-items:center;gap:12px;
   transition:opacity .5s ease, transform .5s ease;
 }
-.transport-glass.idle-fade{opacity:.22;transform:translateX(-50%) translateY(4px)}
-.transport-glass.idle-fade:hover{opacity:1;transform:translateX(-50%)}
+.transport-glass.idle-fade{opacity:.22}
+.transport-glass.idle-fade:hover{opacity:1}
 
 .transport-glass button{
   background:rgba(255,255,255,.06);border:1px solid var(--glass-line);border-radius:50%;
@@ -155,12 +165,14 @@ p{margin:0}
 
 .hidden-player{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
 .invidious-player,.spotify-player{
-  position:fixed;left:50%;bottom:92px;transform:translateX(-50%);width:min(360px,92vw);z-index:22;
+  flex:none;width:100%;
   background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);border-radius:12px;
-  display:flex;align-items:center;gap:8px;padding:8px;
+  display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px;
+  overflow-y:auto;
 }
 .invidious-player[hidden],.spotify-player[hidden]{display:none}
-.embed-close{background:rgba(0,0,0,.4);color:var(--paper);border:1px solid var(--glass-line);border-radius:999px;padding:6px 10px;font-size:10px;flex:none}
+.invidious-player iframe,.spotify-player iframe{border-radius:8px}
+.embed-close{background:rgba(0,0,0,.4);color:var(--paper);border:1px solid var(--glass-line);border-radius:999px;padding:6px 10px;font-size:10px;align-self:flex-end}
 
 /* ============================== CSS2D LABELS (song titles in the scene) ============================== */
 .star-label{
@@ -246,6 +258,6 @@ p{margin:0}
   .hud-top-left{top:16px;left:12px}
   .hud-top-right{top:16px;right:12px}
   .hud-vault-btn{bottom:100px}
-  .invidious-player,.spotify-player{width:calc(100vw - 24px);bottom:96px}
-  .transport-glass{width:calc(100vw - 24px);padding:10px 12px;gap:8px}
+  .player-dock{width:calc(100vw - 24px)}
+  .transport-glass{padding:10px 12px;gap:8px}
 }

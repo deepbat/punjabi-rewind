@@ -107,7 +107,6 @@ function showInvidious(song, videoId){
   frame.src=`${host}/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1`;
   wrap.hidden=false;
   wrap.setAttribute('aria-hidden','false');
-  positionEmbedPanel(wrap);
   const spWrap=$('spotifyPlayerWrap'); if(spWrap){spWrap.hidden=true; spWrap.setAttribute('aria-hidden','true');}
   currentSource='youtube';
   showToast('YouTube blocked — proxied via Invidious ✦ tap × to close');
@@ -120,15 +119,8 @@ function showInvidious(song, videoId){
 }
 function hideInvidious(){
   const wrap=$('invidiousWrap'), frame=$('invidiousPlayer');
-  if(wrap){wrap.hidden=true; wrap.setAttribute('aria-hidden','true'); wrap.style.bottom='';}
+  if(wrap){wrap.hidden=true; wrap.setAttribute('aria-hidden','true');}
   if(frame) frame.src='about:blank';
-}
-// Keeps the floating embed panel clear of the player bar regardless of how
-// tall the bar actually renders (it can wrap onto two lines on narrow screens).
-function positionEmbedPanel(el){
-  const bar=$('playerBar')||$('transportGlass');
-  const h=bar?bar.getBoundingClientRect().height:78;
-  el.style.bottom=(h+24)+'px';
 }
 function showSpotify(song){
   const wrap=$('spotifyPlayerWrap'), frame=$('spotifyPlayer');
@@ -139,7 +131,6 @@ function showSpotify(song){
   frame.height='152';
   wrap.hidden=false;
   wrap.setAttribute('aria-hidden','false');
-  positionEmbedPanel(wrap);
   hideInvidious();
   currentSource='spotify';
   showToast('YouTube blocked — switched to Spotify ✦');
@@ -168,7 +159,7 @@ function showNoStreamFallback(song){
 }
 function hideSpotify(restoreYouTube){
   const wrap=$('spotifyPlayerWrap'), frame=$('spotifyPlayer');
-  if(wrap){ wrap.hidden=true; wrap.setAttribute('aria-hidden','true'); wrap.style.bottom=''; }
+  if(wrap){ wrap.hidden=true; wrap.setAttribute('aria-hidden','true'); }
   if(frame) frame.src='about:blank';
   if(restoreYouTube) currentSource='youtube';
   hideInvidious();
@@ -347,8 +338,3 @@ function toggleMute(){
   isMuted=!isMuted;if(isMuted)player.mute();else player.unMute();$('muteBtn').textContent=isMuted?'🔇':'🔊';$('muteBtn').setAttribute('aria-pressed',String(isMuted))}
 function showToast(message){const toast=$('toast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>toast.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-window.addEventListener('resize',()=>{
-  const inv=$('invidiousWrap'), sp=$('spotifyPlayerWrap');
-  if(inv && !inv.hidden) positionEmbedPanel(inv);
-  if(sp && !sp.hidden) positionEmbedPanel(sp);
-});

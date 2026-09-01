@@ -62,36 +62,41 @@
 
 <button class="glass-icon-btn hud-vault-btn" id="browseBtn" type="button" aria-label="Open the vault index" title="Browse all tracks">☰</button>
 
-<!-- Transport -->
-<div class="transport-glass" id="transportGlass">
-  <button id="prevBtn" aria-label="Previous track">⏮</button>
-  <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
-  <button id="nextBtn" aria-label="Next track">⏭</button>
-  <div class="transport-meta" aria-live="polite" aria-atomic="true">
-    <strong id="billTitle">Punjabi Wave</strong>
-    <span id="billArtist">Click a light in the sky to begin</span>
+<!-- Player dock: the transport bar and any embed panel above it are flex
+     siblings in one anchored column, so the browser stacks them by actual
+     rendered height — no fixed pixel offsets, so they cannot overlap. -->
+<div class="player-dock" id="playerDock">
+  <div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
+    <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="90" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+    <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
   </div>
-  <div class="transport-progress">
-    <span class="mono tiny" id="currentTime">0:00</span>
-    <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
-    <span class="mono tiny" id="duration">0:00</span>
+  <div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
+    <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
   </div>
-  <div class="transport-links">
-    <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
-    <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
-    <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
+
+  <div class="transport-glass" id="transportGlass">
+    <button id="prevBtn" aria-label="Previous track">⏮</button>
+    <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
+    <button id="nextBtn" aria-label="Next track">⏭</button>
+    <div class="transport-meta" aria-live="polite" aria-atomic="true">
+      <strong id="billTitle">Punjabi Wave</strong>
+      <span id="billArtist">Click a light in the sky to begin</span>
+    </div>
+    <div class="transport-progress">
+      <span class="mono tiny" id="currentTime">0:00</span>
+      <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+      <span class="mono tiny" id="duration">0:00</span>
+    </div>
+    <div class="transport-links">
+      <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
+      <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
+      <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
+    </div>
   </div>
 </div>
 
 <div class="hidden-player"><div id="player"></div></div>
-<div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
-  <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-  <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
-</div>
-<div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
-  <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
-</div>
 
 <!-- VAULT / STARMAP INDEX — a frosted overlay, the scene keeps drifting behind it -->
 <div class="vault-scrim" id="vaultScrim"></div>
