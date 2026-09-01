@@ -120,7 +120,7 @@ function glowTexture(hex) {
 }
 
 function buildStarfield() {
-  const count = 6000;
+  const count = window.innerWidth < 640 ? 3000 : 6000;
   const positions = new Float32Array(count * 3);
   const colors = new Float32Array(count * 3);
   const palette = [new THREE.Color(0xF1E9D6), new THREE.Color(0x9AA0AE), new THREE.Color(0x5B9BD9)];
