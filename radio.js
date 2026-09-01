@@ -2,7 +2,8 @@
    These are third-party community streams (not run by this site) — small stations
    go up and down over time, so if one fails to connect within RADIO_TIMEOUT_MS,
    we silently advance to the next one in the list instead of just breaking.
-   To add/remove/reorder stations, edit RADIO_STATIONS only. */
+   RADIO_STATIONS is read by scene.js to place the four beacons on the outer ring —
+   edit it here only, positions in the scene follow automatically. */
 const RADIO_STATIONS = [
   {name:'Punjabi Radio USA', desc:'24/7 Punjabi music & talk, streamed via Voscast.', url:'https://s5.voscast.com:9281/stream'},
   {name:'ClubHouse Punjabi Vibes', desc:'Non-stop Punjabi party & DJ mix from SwaggerBeat.', url:'https://liveradio.swaggerbeat.com:8022/stream'},
@@ -19,21 +20,36 @@ const RADIO_TIMEOUT_MS = 6000;
   function init(){
     audio=new Audio();
     audio.preload='none';
+    renderStationButtons();
     $('radioToggle').onclick=()=>{isLive?stopRadio():startRadio(stationIndex)};
     audio.addEventListener('playing',onConnected);
     audio.addEventListener('error',()=>tryNext('stream error'));
     audio.addEventListener('stalled',()=>tryNext('stalled'));
   }
 
+  function renderStationButtons(){
+    const wrap=$('radioStationList');
+    wrap.innerHTML=RADIO_STATIONS.map((s,i)=>`<button class="radio-station-btn" data-i="${i}" type="button" aria-label="${esc(s.name)}" title="${esc(s.name)}"></button>`).join('');
+    wrap.querySelectorAll('button').forEach(b=>b.onclick=()=>startRadio(+b.dataset.i));
+  }
+
+  function setActiveButton(i){
+    document.querySelectorAll('.radio-station-btn').forEach((b,idx)=>b.classList.toggle('active',idx===i));
+  }
+
   function startRadio(i){
     if(i>=RADIO_STATIONS.length){
       setStatus('All stations unreachable right now');
+      setShellStatus('Radio standby');
       return;
     }
     userStopped=false;
     stationIndex=i;
     const s=RADIO_STATIONS[i];
-    setStatus(`Tuning · ${s.name}…`);
+    setActiveButton(i);
+    $('radioStationName').textContent=s.name;
+    setStatus('Tuning in…');
+    setShellStatus(`Tuning · ${s.name}`);
     isLive=false;
     clearTimeout(connectTimer);
     try{
@@ -54,12 +70,13 @@ const RADIO_TIMEOUT_MS = 6000;
   function onConnected(){
     isLive=true;
     clearTimeout(connectTimer);
-    setStatus(`Live · ${RADIO_STATIONS[stationIndex].name}`);
-    $('radioToggle').textContent='Radio ●';
+    setStatus('Live now');
+    setShellStatus(`Live radio · ${RADIO_STATIONS[stationIndex].name}`);
+    $('dialGlyph').textContent='Ⅱ';
     $('radioToggle').setAttribute('aria-label','Pause live radio');
     $('radioToggle').setAttribute('aria-pressed','true');
     if(window.__pauseSongPlayback) window.__pauseSongPlayback();
-    if(window.__setAccentFromStation) window.__setAccentFromStation(stationIndex);
+    if(window.__setRadioMood) window.__setRadioMood(stationIndex);
   }
 
   function stopRadio(){
@@ -67,14 +84,18 @@ const RADIO_TIMEOUT_MS = 6000;
     clearTimeout(connectTimer);
     audio.pause();
     isLive=false;
-    setStatus('');
-    $('radioToggle').textContent='Radio';
+    setStatus('Radio off');
+    setShellStatus('Dispatch online');
+    $('dialGlyph').textContent='📡';
     $('radioToggle').setAttribute('aria-label','Play live radio');
     $('radioToggle').setAttribute('aria-pressed','false');
-    if(window.__setAccentFromStation) window.__setAccentFromStation(null);
+    if(window.__setRadioMood) window.__setRadioMood(null);
   }
 
-  function setStatus(t){const el=$('radioStatus');el.hidden=!t;el.textContent=t}
+  function setStatus(t){$('radioStatus').textContent=t}
+  function setShellStatus(t){/* no dedicated shell-status readout in this build; kept as a no-op hook for future use */}
+  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+
   window.__pauseRadio=stopRadio;
   document.addEventListener('DOMContentLoaded',init);
 })();
