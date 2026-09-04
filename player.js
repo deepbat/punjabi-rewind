@@ -84,6 +84,10 @@ window.selectSong=selectSong;
 function updateBill(s,playing){
   $('billTitle').textContent=s.title;
   $('billArtist').textContent=`${s.artist} · ${s.year}`;
+  const status=$('billStatus'); if(status) status.textContent = playing ? '▶ NOW PLAYING' : '▸ SELECTED';
+  const art=$('trackArt'); if(art) art.textContent = (s.title||'♪')[0].toUpperCase();
+  // pixel eq bars animate
+  const eq=document.querySelector('.eq-bars'); if(eq) eq.style.opacity = playing ? '1' : '.35';
 }
 function highlightActiveCard(i){document.querySelectorAll('.song-card').forEach(c=>c.classList.toggle('active',Number(c.dataset.index)===i))}
 

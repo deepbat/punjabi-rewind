@@ -3,70 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Punjabi Rewind | 50 All-Time Punjabi Hits</title>
-<meta name="description" content="Punjabi Rewind — 50 all-time Punjabi hits from Chamkila to today. Songs that lived on everyone's mouth, from 1976 to 2023.">
-<meta name="theme-color" content="#05070C">
+<title>PUNJABI REWIND — 50 PIXEL HITS · 1976—2023</title>
+<meta name="description" content="Punjabi Rewind — 50 all-time Punjabi hits in bold pixel art. From Chamkila to Shubh, now in 8-bit.">
+<meta name="theme-color" content="#070A14">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Space+Mono:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
 </head>
-<body>
-<a class="skip-link" href="#playBtn">Skip to player</a>
-<div id="scene-mount"><div class="scene-fallback" id="sceneFallback" hidden><div><strong>3D mode unavailable</strong><p>Your browser cannot render this scene.</p></div></div></div>
-<div class="vignette" aria-hidden="true"></div>
+<body class="theme-0">
 
-<header class="topbar">
+<!-- PIXEL STAGE: changing graphics every 5s -->
+<div id="pixel-stage" aria-hidden="true">
+  <canvas id="pixelCanvas" width="320" height="180"></canvas>
+  <div class="stage-vignette"></div>
+  <div class="stage-grid"></div>
+</div>
+
+<!-- THREE galaxy mount (pixelated) -->
+<div id="scene-mount"><div class="scene-fallback" id="sceneFallback" hidden><div><strong>3D OFFLINE</strong><p>PIXEL MODE ONLY</p></div></div></div>
+
+<!-- CRT + SCANLINES -->
+<div class="crt-overlay" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+
+<a class="skip-link" href="#playBtn">Skip to player</a>
+
+<!-- TOPBAR - PIXEL WINDOW -->
+<header class="topbar pixel-window">
   <button class="brand" id="homeLink" type="button" aria-label="Recenter galaxy">
-    <span class="brand-mark">ਪ</span><span><b>Punjabi Rewind</b><small>ALL-TIME HITS · 1976 — 2023</small></span>
+    <span class="brand-mark">ਪ</span>
+    <span class="brand-text">
+      <b>PUNJABI REWIND</b>
+      <small>◼ 50 HITS · 1976—2023 ◼</small>
+    </span>
   </button>
   <div class="top-actions">
-    <button class="autopilot" id="liveModeBtn" type="button" aria-pressed="false"><i></i><span>Autopilot</span></button>
-    <button class="icon-btn" id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
+    <div class="scene-badge pixel-window mini" id="sceneBadge">
+      <span class="badge-dot"></span>
+      <span class="badge-label" id="sceneBadgeLabel">MUSTARD FIELDS</span>
+      <span class="badge-idx" id="sceneBadgeIdx">01/06</span>
+    </div>
+    <button class="pix-btn small" id="prevSceneBtn" type="button" title="Prev scene">◀</button>
+    <button class="pix-btn small" id="nextSceneBtn" type="button" title="Next scene">▶</button>
+    <button class="pix-btn autopilot" id="liveModeBtn" type="button" aria-pressed="false"><i></i><span>AUTO</span></button>
+    <button class="pix-btn icon" id="muteBtn" type="button" aria-pressed="false" title="Mute">♪</button>
   </div>
 </header>
 
-<section class="hero-copy" id="heroCopy">
-  <p class="eyebrow">50 TRACKS · 4 LIVE STATIONS · 1976 — 2023</p>
-  <h1>Music that<br><em>never left</em><br>our mouth.</h1>
-  <p class="hero-sub">From Chamkila & Kuldeep Manak to Sidhu Moose Wala & Shubh — 50 Punjabi anthems that ruled weddings, buses, and every jukebox.</p>
-  <button class="begin-btn" id="beginExplore" type="button">Explore constellation <span>↘</span></button>
+<!-- HERO - PIXEL WINDOW -->
+<section class="hero-copy pixel-window" id="heroCopy">
+  <p class="eyebrow">▓ 50 TRACKS · 4 STATIONS · LVL 1976—2023 ▓</p>
+  <h1>PUNJAB<br><span class="hollow">NEVER</span><br>STOPPED</h1>
+  <p class="hero-sub">From Chamkila & Kuldeep Manak to Sidhu Moose Wala & Shubh — 50 anthems in <b>BOLD 8-BIT</b>. Tap a star to play.</p>
+  <div class="hero-cta-row">
+    <button class="pix-btn primary" id="beginExplore" type="button">▶ EXPLORE GALAXY</button>
+    <span class="hero-hint">OR DRAG TO ROTATE</span>
+  </div>
+  <div class="pixel-divider"></div>
+  <div class="scene-dots" id="sceneDots" aria-label="Scene selector"></div>
 </section>
 
-<p class="onboard-hint" id="onboardHint"><kbd>Drag</kbd> to explore <span>·</span> <kbd>Scroll</kbd> to dive <span>·</span> <kbd>Click</kbd> a light to play</p>
+<p class="onboard-hint pixel-window mini" id="onboardHint"><span>[DRAG]</span> ORBIT · <span>[SCROLL]</span> ZOOM · <span>[CLICK]</span> STAR TO PLAY</p>
 
-<div class="live-radio">
-  <button class="radio-power" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio"><span id="dialGlyph">◉</span></button>
-  <div class="radio-copy"><small id="radioStatus">LIVE RADIO</small><strong id="radioStationName">4 stations on orbit</strong></div>
+<!-- LIVE RADIO - PIXEL CASSETTE -->
+<div class="live-radio pixel-window">
+  <button class="radio-power pix-btn small" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio"><span id="dialGlyph">▶</span></button>
+  <div class="radio-copy"><small id="radioStatus">▸ LIVE RADIO</small><strong id="radioStationName">4 STATIONS ON ORBIT</strong></div>
   <div class="radio-presets" id="radioStationList"></div>
+  <div class="cassette-reels" aria-hidden="true"><span></span><span></span></div>
 </div>
 
-<button class="browse-fab" id="browseBtn" type="button" aria-label="Browse all tracks"><span>☰</span><b>Browse</b></button>
+<button class="browse-fab pix-btn primary" id="browseBtn" type="button" aria-label="Browse all tracks"><span>≡</span><b>BROWSE 50</b></button>
 
-<div class="now-playing" id="transportGlass">
-  <div class="playing-glow"></div>
-  <div class="transport-controls">
-    <button id="prevBtn" aria-label="Previous track">‹</button>
-    <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
-    <button id="nextBtn" aria-label="Next track">›</button>
+<!-- NOW PLAYING - PIXEL BOOMBOX -->
+<div class="now-playing pixel-window" id="transportGlass">
+  <div class="boombox-top"><span class="led"></span><span class="boombox-label">NOW PLAYING — TAPE DECK 01</span><span class="led blink"></span></div>
+  <div class="transport-row">
+    <div class="transport-controls">
+      <button id="prevBtn" class="pix-btn small" aria-label="Previous track">◀◀</button>
+      <button id="playBtn" class="pix-btn primary transport-play" aria-label="Play">▶</button>
+      <button id="nextBtn" class="pix-btn small" aria-label="Next track">▶▶</button>
+    </div>
+    <div class="track-info" aria-live="polite">
+      <div class="track-art pixel-window mini" id="trackArt">♪</div>
+      <div class="track-meta"><small id="billStatus">▸ SELECT A STAR</small><strong id="billTitle">CHOOSE A STAR</strong><p id="billArtist">Click any light to begin</p></div>
+    </div>
+    <div class="transport-links">
+      <button id="youtubeBtn" type="button" class="pix-btn small">YT</button>
+      <button id="spotifyBtn" type="button" class="pix-btn small">SP</button>
+      <button id="shareBtn" type="button" class="pix-btn small">↗</button>
+    </div>
   </div>
-  <div class="track-info" aria-live="polite"><span class="status-dot"></span><div><small>NOW IN ORBIT</small><strong id="billTitle">Choose a star</strong><p id="billArtist">Click any light to begin exploring</p></div></div>
-  <div class="transport-progress"><span class="mono tiny" id="currentTime">0:00</span><div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div><span class="mono tiny" id="duration">0:00</span></div>
-  <div class="transport-links"><button id="youtubeBtn" type="button" title="Open on YouTube">YT</button><button id="spotifyBtn" type="button" title="Open on Spotify">SP</button><button id="shareBtn" type="button" title="Share">↗</button></div>
+  <div class="transport-progress">
+    <span class="mono tiny" id="currentTime">0:00</span>
+    <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span><i class="tape-head"></i></div>
+    <span class="mono tiny" id="duration">0:00</span>
+  </div>
+  <div class="eq-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
 </div>
 
 <div class="hidden-player"><div id="player"></div></div>
-<div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true"><iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe><button class="embed-close" id="invidiousClose" type="button">× Close</button></div>
-<div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true"><iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><button class="embed-close" id="spotifyClose" type="button">× Use YouTube</button></div>
+<div class="invidious-player pixel-window" id="invidiousWrap" hidden aria-hidden="true"><iframe id="invidiousPlayer" title="Proxy player" width="100%" height="70" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe><button class="embed-close pix-btn small" id="invidiousClose" type="button">× CLOSE</button></div>
+<div class="spotify-player pixel-window" id="spotifyPlayerWrap" hidden aria-hidden="true"><iframe id="spotifyPlayer" title="Spotify player" width="100%" height="70" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><button class="embed-close pix-btn small" id="spotifyClose" type="button">× YOUTUBE</button></div>
 
+<!-- VAULT - PIXEL INVENTORY -->
 <div class="vault-scrim" id="vaultScrim"></div>
-<section class="vault-panel" id="vaultPanel" aria-label="Track index" aria-hidden="true">
- <div class="vault-head"><div><span class="vault-eyebrow">CONSTELLATION INDEX</span><h2>Find your sound</h2><p>Every light, one destination.</p></div><button class="panel-close" id="closeVault" type="button">Close ×</button></div>
- <div class="vault-tools"><label class="vault-search"><span>⌕</span><input id="songSearch" type="search" placeholder="Search artist or song" autocomplete="off"><button id="clearSearch" type="button" aria-label="Clear search">×</button></label><button class="text-btn" id="shuffleBtn" type="button">Surprise me ↗</button></div>
-  <div class="filter-row" role="group" aria-label="Filter tracks"><button class="filter-btn active" data-filter="all" aria-pressed="true">All</button><button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button><button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button><button class="filter-btn" data-filter="favorites" aria-pressed="false">Saved</button><span class="vault-count mono" id="vaultCount">50 tracks</span></div>
- <div class="vault-body"><div class="song-grid" id="songGrid"></div><p class="empty-state" id="emptyState" hidden>No signals found.</p></div>
+<section class="vault-panel pixel-window" id="vaultPanel" aria-label="Track index" aria-hidden="true">
+  <div class="vault-head">
+    <div><span class="vault-eyebrow">▓ INVENTORY — 50 ITEMS</span><h2>SELECT TRACK</h2><p>▼ Every light = one anthem ▼</p></div>
+    <button class="pix-btn small panel-close" id="closeVault" type="button">× CLOSE</button>
+  </div>
+  <div class="vault-tools">
+    <label class="vault-search pixel-window mini"><span>⌕</span><input id="songSearch" type="search" placeholder="SEARCH ARTIST / SONG" autocomplete="off"><button id="clearSearch" type="button" aria-label="Clear search">×</button></label>
+    <button class="pix-btn small" id="shuffleBtn" type="button">RANDOM ▶</button>
+  </div>
+  <div class="filter-row" role="group" aria-label="Filter tracks">
+    <button class="filter-btn pix-btn small active" data-filter="all" aria-pressed="true">ALL 50</button>
+    <button class="filter-btn pix-btn small" data-filter="punjabi" aria-pressed="false">PUNJABI</button>
+    <button class="filter-btn pix-btn small" data-filter="hindi" aria-pressed="false">HINDI</button>
+    <button class="filter-btn pix-btn small" data-filter="favorites" aria-pressed="false">★ SAVED</button>
+    <span class="vault-count mono" id="vaultCount">50 tracks</span>
+  </div>
+  <div class="vault-body"><div class="song-grid" id="songGrid"></div><p class="empty-state" id="emptyState" hidden>NO SIGNAL FOUND.</p></div>
 </section>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="https://open.spotify.com/embed/iframe-api/v1" async></script><script src="https://www.youtube.com/iframe_api"></script><script src="songs.js"></script><script src="radio.js"></script><script src="player.js"></script><script src="app.js"></script><script type="module" src="scene.js"></script>
-</body></html>
+
+<div class="toast pixel-window mini" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="songs.js"></script>
+<script src="radio.js"></script>
+<script src="player.js"></script>
+<script src="app.js"></script>
+<script src="pixelStage.js"></script>
+<script type="module" src="scene.js"></script>
+</body>
+</html>
