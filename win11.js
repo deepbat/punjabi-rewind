@@ -140,6 +140,7 @@
 
   /* ---------------- Start menu ---------------- */
   function openStart() {
+    if (window.__closeVault) window.__closeVault();
     startMenu.setAttribute('aria-hidden', 'false');
     startScrim.classList.add('open');
   }
@@ -147,6 +148,7 @@
     startMenu.setAttribute('aria-hidden', 'true');
     startScrim.classList.remove('open');
   }
+  window.__closeStart = closeStart; // player.js closes Start when the starmap opens
   taskbarStartBtn.addEventListener('click', () => {
     if (startMenu.getAttribute('aria-hidden') === 'false') closeStart();
     else openStart();
@@ -161,6 +163,49 @@
       showWindow();
     });
   });
+
+  /* ---------------- search (taskbar pill + Start menu box) ---------------- */
+  const taskbarSearchBtn = document.getElementById('taskbarSearchBtn');
+  const startSearchInput = document.getElementById('startSearchInput');
+
+  if (taskbarSearchBtn) {
+    taskbarSearchBtn.addEventListener('click', () => {
+      openStart();
+      setTimeout(() => startSearchInput && startSearchInput.focus(), 60);
+    });
+  }
+
+  if (startSearchInput) {
+    // Typing filters the pinned apps by name...
+    startSearchInput.addEventListener('input', () => {
+      const q = startSearchInput.value.trim().toLowerCase();
+      document.querySelectorAll('.start-app').forEach((tile) => {
+        tile.style.display = !q || tile.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+    // ...and Enter hands the same query to the full track index.
+    startSearchInput.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const q = startSearchInput.value.trim();
+      closeStart();
+      showWindow();
+      if (window.__openVault) window.__openVault();
+      const songSearch = document.getElementById('songSearch');
+      if (songSearch && q) {
+        songSearch.value = q;
+        songSearch.dispatchEvent(new Event('input'));
+      }
+    });
+  }
+
+  /* "All apps" opens the File Explorer, which lists every track on the desktop. */
+  const allAppsBtn = document.getElementById('allAppsBtn');
+  if (allAppsBtn) {
+    allAppsBtn.addEventListener('click', () => {
+      closeStart();
+      openOrFocusApp('explorer');
+    });
+  }
 
   /* ---------------- taskbar clock ---------------- */
   function updateClock() {
@@ -249,7 +294,7 @@
     pre.textContent = [
       'Punjabi Rewind — A Sonic Constellation',
       '',
-      '30 Hindi & Punjabi tracks from 2026, arranged as a galaxy',
+      '27 Hindi & Punjabi tracks from 2026, arranged as a galaxy',
       'you fly through.',
       '',
       'Drag to orbit. Scroll to dive in or pull back. Click a',
@@ -257,7 +302,7 @@
       'its own, in time with whatever is playing.',
       '',
       'Everything on this desktop is one app — File Explorer and',
-      'Photos both open onto the same 30-track library.',
+      'Photos both open onto the same 27-track library.',
     ].join('\n');
     return pre;
   }
@@ -271,7 +316,7 @@
       </div>
       <div class="edge-newtab">
         <h2>Punjabi Rewind</h2>
-        <p>30 Hindi &amp; Punjabi tracks of 2026, presented as a galaxy you fly through.</p>
+        <p>27 Hindi &amp; Punjabi tracks of 2026, presented as a galaxy you fly through.</p>
         <div class="edge-shortcuts">
           <div class="edge-shortcut" data-shortcut="rewind">
             <span class="edge-shortcut-icon">ਪ</span><span>Punjabi Rewind</span>
