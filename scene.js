@@ -28,6 +28,8 @@ let raycaster, pointerNDC = new THREE.Vector2(-10, -10);
 let hoveredIndex = -1, selectedIndex = -1;
 let focusTarget = null; // {position: Vector3, distance: number} | null
 let autopilot = false, autopilotT = 0;
+const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reducedMotion = reducedMotionQuery.matches;
 let lastFrame = performance.now();
 let markers = [];
 let radioMoodColor = null;
@@ -78,8 +80,12 @@ function init() {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.autoRotate = true;
+  controls.autoRotate = !reducedMotion;
   controls.autoRotateSpeed = 0.35;
+  reducedMotionQuery.addEventListener?.('change', (e) => {
+    reducedMotion = e.matches;
+    controls.autoRotate = !reducedMotion;
+  });
   controls.minDistance = 4;
   controls.maxDistance = 55;
   controls.enablePan = false;
@@ -108,6 +114,7 @@ function init() {
   renderer.domElement.addEventListener('wheel', onUserInteract, { passive: true });
 
   window.__focusMarker = focusMarkerByIndex;
+  window.__recenterView = recenterView;
   window.__setRadioMood = setRadioMood;
   window.__enterAutopilot = enterAutopilot;
   window.__exitAutopilot = exitAutopilot;
@@ -291,7 +298,7 @@ function onPointerUpTrack(e) {
   onUserInteract();
   document.getElementById('onboardHint')?.classList.add('faded');
   // Only treat this as a "click a light" selection if the pointer barely
-  // moved ╬ô├ç├╢ otherwise it was a drag-to-orbit gesture, not a pick.
+  // moved - otherwise it was a drag-to-orbit gesture, not a pick.
   const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
   if (moved > 6) return;
   const p = toNDC(e);
@@ -330,6 +337,17 @@ function focusMarkerByIndex(i) {
   });
 }
 
+function recenterView() {
+  if (autopilot) exitAutopilot();
+  selectedIndex = -1;
+  // Reuse the focus-flight path, aimed at the origin from the opening distance.
+  focusTarget = { position: new THREE.Vector3(0, 0, 0), distance: 28.5 };
+  markers.forEach((m, idx) => {
+    m.userData.labelEl?.classList.toggle('visible', idx === hoveredIndex);
+    m.userData.labelEl?.classList.remove('playing');
+  });
+}
+
 function setRadioMood(stationIndex) {
   if (stationIndex === null || stationIndex === undefined) {
     radioMoodColor = null;
@@ -361,13 +379,16 @@ function exitAutopilot() {
 /* ---------------- animation loop ---------------- */
 function animate() {
   requestAnimationFrame(animate);
+  if (document.hidden) { lastFrame = performance.now(); return; }
   const now = performance.now();
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
 
-  core.rotation.y += dt * 0.15;
-  core.rotation.x += dt * 0.05;
-  if (scene.userData.starfield) scene.userData.starfield.rotation.y += dt * 0.005;
+  if (!reducedMotion) {
+    core.rotation.y += dt * 0.15;
+    core.rotation.x += dt * 0.05;
+    if (scene.userData.starfield) scene.userData.starfield.rotation.y += dt * 0.005;
+  }
 
   const np = (window.__nowPlaying && window.__nowPlaying()) || null;
   markers.forEach((m, idx) => {

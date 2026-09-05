@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('spotifyClose')?.addEventListener('click',()=>switchToYouTube(false));
   $('invidiousClose')?.addEventListener('click',()=>{hideInvidious(); switchToYouTube(false); showToast('Proxy closed — back to YouTube');});
   $('muteBtn').onclick=toggleMute;
-  $('homeLink').onclick=()=>{closePanel();};
+  $('homeLink').onclick=()=>{closePanel();if(window.__recenterView)window.__recenterView();};
   $('liveModeBtn').onclick=toggleAutopilot;
   $('songSearch')?.addEventListener('input',e=>{searchTerm=e.target.value;renderSongGrid()});
   $('clearSearch')?.addEventListener('click',()=>{$('songSearch').value='';searchTerm='';renderSongGrid();$('songSearch').focus()});
@@ -271,11 +271,11 @@ window.__pauseSongPlayback=function(){if(currentSource==='spotify')return; if(pl
 window.__nowPlaying=function(){
   if(currentSource==='spotify'){
     const s=SONG_LIST[currentIndex]||{};
-    return{title:s.title||"Punjabi Wave",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:false,time:0,duration:0,beatMs:beatMsFor(currentIndex),source:'spotify'};
+    return{title:s.title||"Punjabi Rewind",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:false,time:0,duration:0,beatMs:beatMsFor(currentIndex),source:'spotify'};
   }
   const s=SONG_LIST[currentIndex]||{};const playing=playerReady&&player&&player.getPlayerState&&player.getPlayerState()===YT.PlayerState.PLAYING;
   const t=playerReady&&player&&player.getCurrentTime?player.getCurrentTime():0,d=playerReady&&player&&player.getDuration?player.getDuration():0;
-  return{title:s.title||"Punjabi Wave",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:!!playing,time:t,duration:d,beatMs:beatMsFor(currentIndex),source:'youtube'};
+  return{title:s.title||"Punjabi Rewind",artist:s.artist||'',year:s.year||'',index:currentIndex,playing:!!playing,time:t,duration:d,beatMs:beatMsFor(currentIndex),source:'youtube'};
 };
 window.__togglePlayback=togglePlay;window.__nextSong=next;window.__prevSong=previous;window.__playCurrentSong=()=>playCurrent(true);
 
@@ -302,9 +302,12 @@ function renderSongGrid(){
   grid.querySelectorAll('.save-btn').forEach(button=>button.addEventListener('click',()=>toggleFavorite(Number(button.dataset.save))));
 }
 function openPanel(){
+  if(window.__closeStart)window.__closeStart();
   $('vaultPanel').classList.add('open');$('vaultPanel').setAttribute('aria-hidden','false');$('vaultScrim')?.classList.add('open');
   setTimeout(()=>$('songSearch')?.focus(),180);
 }
+window.__openVault=openPanel;
+window.__closeVault=closePanel;
 function closePanel(){
   $('vaultPanel')?.classList.remove('open');$('vaultPanel')?.setAttribute('aria-hidden','true');$('vaultScrim')?.classList.remove('open');
 }

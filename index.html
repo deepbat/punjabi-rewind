@@ -4,8 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Punjabi Rewind — Windows 11 Desktop</title>
-<meta name="description" content="Punjabi Rewind: 30 Hindi &amp; Punjabi tracks of 2026, presented as an app inside a simulated Windows 11 desktop.">
+<meta name="description" content="Punjabi Rewind: 27 Hindi &amp; Punjabi tracks of 2026, presented as an app inside a simulated Windows 11 desktop.">
 <meta name="theme-color" content="#0C0C0C">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Punjabi Rewind">
+<meta property="og:title" content="Punjabi Rewind — A Sonic Constellation">
+<meta property="og:description" content="27 Hindi &amp; Punjabi tracks of 2026, arranged as a 3D galaxy you fly through — inside a simulated Windows 11 desktop.">
+<meta property="og:url" content="https://deepbat.github.io/punjabi-rewind/">
+<meta property="og:image" content="https://deepbat.github.io/punjabi-rewind/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Punjabi Rewind — A Sonic Constellation">
+<meta name="twitter:description" content="27 Hindi &amp; Punjabi tracks of 2026, arranged as a 3D galaxy you fly through — inside a simulated Windows 11 desktop.">
+<meta name="twitter:image" content="https://deepbat.github.io/punjabi-rewind/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -66,7 +79,7 @@
 <header class="hud hud-top-left">
   <button class="brand" id="homeLink" type="button" aria-label="Recenter view">
     <span class="brand-mark">ਪ</span>
-    <span class="brand-text">Punjabi Wave<em>A Sonic Constellation — 2026</em></span>
+    <span class="brand-text">Punjabi Rewind<em>A Sonic Constellation — 2026</em></span>
   </button>
 </header>
 
@@ -110,7 +123,7 @@
     <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
     <button id="nextBtn" aria-label="Next track">⏭</button>
     <div class="transport-meta" aria-live="polite" aria-atomic="true">
-      <strong id="billTitle">Punjabi Wave</strong>
+      <strong id="billTitle">Punjabi Rewind</strong>
       <span id="billArtist">Click a light in the sky to begin</span>
     </div>
     <div class="transport-progress">
@@ -152,7 +165,7 @@
     <button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button>
     <button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button>
     <button class="filter-btn" data-filter="favorites" aria-pressed="false">★ Saved</button>
-    <span class="vault-count mono" id="vaultCount">30 tracks</span>
+    <span class="vault-count mono" id="vaultCount">27 tracks</span>
   </div>
 
   <div class="vault-body">
@@ -176,7 +189,7 @@
     <div class="start-pinned">
       <div class="start-section-head">
         <span>Pinned</span>
-        <span class="start-section-link">All apps &gt;</span>
+        <button class="start-section-link" id="allAppsBtn" type="button">All apps &gt;</button>
       </div>
       <div class="start-app-grid">
         <button class="start-app" id="startAppPunjabiRewind" type="button">
@@ -199,9 +212,9 @@
       <div class="start-recent-grid">
         <button class="start-recent" id="startRecentPunjabiRewind" type="button">
           <span class="start-recent-icon">ਪ</span>
-          <span class="start-recent-text"><strong>Punjabi Rewind</strong><em>30 tracks &middot; 2026</em></span>
+          <span class="start-recent-text"><strong>Punjabi Rewind</strong><em>27 tracks &middot; 2026</em></span>
         </button>
-        <div class="start-recent" tabindex="-1"><span class="start-recent-icon">&#128196;</span><span class="start-recent-text"><strong>Welcome.txt</strong><em>Recently added</em></span></div>
+        <button class="start-recent" id="startRecentWelcome" type="button" data-app="notepad"><span class="start-recent-icon">&#128196;</span><span class="start-recent-text"><strong>Welcome.txt</strong><em>Recently added</em></span></button>
       </div>
     </div>
 
@@ -218,10 +231,10 @@
       <button class="taskbar-btn taskbar-start" id="taskbarStartBtn" type="button" aria-label="Start">
         <span class="win-logo">&#8862;</span>
       </button>
-      <div class="taskbar-search" id="taskbarSearchBtn">
+      <button class="taskbar-search" id="taskbarSearchBtn" type="button" aria-label="Search">
         <span class="search-icon">&#128269;</span>
         <span class="search-text">Search</span>
-      </div>
+      </button>
       <button class="taskbar-btn taskbar-app-icon running active" id="taskbarAppBtn" type="button" aria-label="Punjabi Rewind">
         <span>ਪ</span>
         <i class="taskbar-indicator"></i>
