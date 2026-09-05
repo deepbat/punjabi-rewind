@@ -2,7 +2,7 @@
 
 **Live at <https://deepbat.github.io/punjabi-rewind/>**
 
-27 Hindi & Punjabi tracks of 2026, arranged as glowing points along a spiral
+40 Hindi & Punjabi tracks of 2026, arranged as glowing points along a spiral
 around a slowly-rotating core — a galaxy you fly through — presented as an
 app inside a simulated Windows 11 desktop, with wallpaper, draggable windows,
 a Start menu, and a taskbar. The four live radio stations sit as blue beacons

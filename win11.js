@@ -294,7 +294,7 @@
     pre.textContent = [
       'Punjabi Rewind — A Sonic Constellation',
       '',
-      '27 Hindi & Punjabi tracks from 2026, arranged as a galaxy',
+      '40 Hindi & Punjabi tracks from 2026, arranged as a galaxy',
       'you fly through.',
       '',
       'Drag to orbit. Scroll to dive in or pull back. Click a',
@@ -302,7 +302,7 @@
       'its own, in time with whatever is playing.',
       '',
       'Everything on this desktop is one app — File Explorer and',
-      'Photos both open onto the same 27-track library.',
+      'Photos both open onto the same 40-track library.',
     ].join('\n');
     return pre;
   }
@@ -316,7 +316,7 @@
       </div>
       <div class="edge-newtab">
         <h2>Punjabi Rewind</h2>
-        <p>27 Hindi &amp; Punjabi tracks of 2026, presented as a galaxy you fly through.</p>
+        <p>40 Hindi &amp; Punjabi tracks of 2026, presented as a galaxy you fly through.</p>
         <div class="edge-shortcuts">
           <div class="edge-shortcut" data-shortcut="rewind">
             <span class="edge-shortcut-icon">ਪ</span><span>Punjabi Rewind</span>
