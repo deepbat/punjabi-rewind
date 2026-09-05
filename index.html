@@ -30,7 +30,7 @@
       <span class="desktop-icon-img app-icon-glyph">ਪ</span>
       <span class="desktop-icon-label">Punjabi<br>Rewind</span>
     </button>
-    <button class="desktop-icon" type="button" tabindex="-1" aria-hidden="true">
+    <button class="desktop-icon" type="button" data-app="recyclebin">
       <span class="desktop-icon-img">&#128465;&#65039;</span>
       <span class="desktop-icon-label">Recycle Bin</span>
     </button>
@@ -182,15 +182,15 @@
         <button class="start-app" id="startAppPunjabiRewind" type="button">
           <span class="start-app-icon">ਪ</span><span>Punjabi Rewind</span>
         </button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#128196;</span><span>File Explorer</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#127760;</span><span>Edge</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#9993;&#65039;</span><span>Mail</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#128197;</span><span>Calendar</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#128220;</span><span>Notepad</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#9881;&#65039;</span><span>Settings</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#128247;</span><span>Photos</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#128193;</span><span>Store</span></button>
-        <button class="start-app" type="button" tabindex="-1"><span class="start-app-icon">&#127925;</span><span>Media Player</span></button>
+        <button class="start-app" type="button" data-app="explorer"><span class="start-app-icon">&#128196;</span><span>File Explorer</span></button>
+        <button class="start-app" type="button" data-app="edge"><span class="start-app-icon">&#127760;</span><span>Edge</span></button>
+        <button class="start-app" type="button" data-app="mail"><span class="start-app-icon">&#9993;&#65039;</span><span>Mail</span></button>
+        <button class="start-app" type="button" data-app="calendar"><span class="start-app-icon">&#128197;</span><span>Calendar</span></button>
+        <button class="start-app" type="button" data-app="notepad"><span class="start-app-icon">&#128220;</span><span>Notepad</span></button>
+        <button class="start-app" type="button" data-app="settings"><span class="start-app-icon">&#9881;&#65039;</span><span>Settings</span></button>
+        <button class="start-app" type="button" data-app="photos"><span class="start-app-icon">&#128247;</span><span>Photos</span></button>
+        <button class="start-app" type="button" data-app="store"><span class="start-app-icon">&#128193;</span><span>Store</span></button>
+        <button class="start-app" type="button" data-app="rewind"><span class="start-app-icon">&#127925;</span><span>Media Player</span></button>
       </div>
     </div>
 
@@ -226,9 +226,9 @@
         <span>ਪ</span>
         <i class="taskbar-indicator"></i>
       </button>
-      <button class="taskbar-btn taskbar-icon" type="button" tabindex="-1" aria-hidden="true">&#128196;</button>
-      <button class="taskbar-btn taskbar-icon" type="button" tabindex="-1" aria-hidden="true">&#127760;</button>
-      <button class="taskbar-btn taskbar-icon" type="button" tabindex="-1" aria-hidden="true">&#128221;</button>
+      <button class="taskbar-btn taskbar-icon" type="button" data-app="explorer" aria-label="File Explorer">&#128196;<i class="taskbar-indicator"></i></button>
+      <button class="taskbar-btn taskbar-icon" type="button" data-app="edge" aria-label="Edge">&#127760;<i class="taskbar-indicator"></i></button>
+      <button class="taskbar-btn taskbar-icon" type="button" data-app="notepad" aria-label="Notepad">&#128221;<i class="taskbar-indicator"></i></button>
     </div>
     <div class="taskbar-cluster taskbar-tray">
       <span class="tray-icons" aria-hidden="true">&#128279; &#128246; &#128266;</span>
