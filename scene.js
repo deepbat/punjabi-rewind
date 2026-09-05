@@ -392,9 +392,15 @@ function animate() {
 
   const np = (window.__nowPlaying && window.__nowPlaying()) || null;
   markers.forEach((m, idx) => {
+    const isSelected = idx === selectedIndex;
     const isPlaying = np && np.playing && idx === selectedIndex;
-    const pulse = isPlaying ? 1 + Math.sin(now * 0.006) * 0.22 : 1;
-    const s = m.userData.baseScale * (idx === hoveredIndex || idx === selectedIndex ? 1.5 : 1) * pulse;
+    const base = m.userData.baseScale * (idx === hoveredIndex || isSelected ? 1.5 : 1);
+    // The selected marker always has a gentle focus pulse so autopilot reads
+    // as "live" even before the first beat lands; an extra beat-synced pulse
+    // layers on top when audio is actually playing.
+    const idlePulse = isSelected ? 1 + Math.sin(now * 0.004) * 0.08 : 1;
+    const beatPulse = isPlaying ? 1 + Math.sin(now * 0.006) * 0.22 : 1;
+    const s = base * idlePulse * beatPulse;
     m.scale.set(s, s, 1);
   });
 
