@@ -1,20 +1,7 @@
 const SONG_LIST=window.SONGS||[];
 let currentIndex=0, player=null, playerReady=false, isMuted=false, timer=null, idAttempt=0;
 let activeFilter='all', searchTerm='';
-let currentSource='youtube'; // youtube | spotify | radio
-let youtubeUnavailable=false;
-const YOUTUBE_READY_TIMEOUT_MS=8000;
-let readyTimer=null;
-const audioFallback=$( 'audioFallback');
-function setYoutubeUnavailable(){
-  if(youtubeUnavailable) return;
-  youtubeUnavailable=true;
-  clearTimeout(readyTimer);
-  showToast('YouTube didn\'t come through — tracks will open in a new tab, or tap Radio for live Punjabi streams');
-  $('playBtn').textContent='▶';
-  $('playBtn').setAttribute('aria-label','Open this track on YouTube');
-  $('transportGlass').classList.add('youtube-down');
-}
+let currentSource='youtube'; // youtube | spotify
 const FAVORITES_KEY='pr_favorites';
 const $=id=>document.getElementById(id);
 
@@ -57,7 +44,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('songSearch')?.addEventListener('input',e=>{searchTerm=e.target.value;renderSongGrid()});
   $('clearSearch')?.addEventListener('click',()=>{$('songSearch').value='';searchTerm='';renderSongGrid();$('songSearch').focus()});
   $('shuffleBtn')?.addEventListener('click',shuffleFiltered);
-  $('radioFromPlayerBtn')?.addEventListener('click',()=>{ if(window.__playRadioStation) window.__playRadioStation(0); else showToast('Radio isn\'t available right now'); });
   document.querySelectorAll('.filter-btn').forEach(button=>button.addEventListener('click',()=>{
     activeFilter=button.dataset.filter||'all';
     document.querySelectorAll('.filter-btn').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
@@ -65,16 +51,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   }));
   initProgressSeek();
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){closeTopOverlay();return}
+    if(e.key==='Escape'){if($('vaultPanel')?.classList.contains('open'))closePanel();return}
     if(e.target.matches('input,button'))return;
     if(e.code==='Space'){e.preventDefault();togglePlay()}
     if(e.code==='ArrowRight')next();
     if(e.code==='ArrowLeft')previous();
   });
-  // Hand the radio engine a shared <audio> element so radio (and any future
-  // in-page audio) runs through one engine, and the hidden fallback element
-  // is genuinely used.
-  setTimeout(()=>{ if(window.__setRadioAudioTarget) window.__setRadioAudioTarget(audioFallback); },0);
 });
 
 function beatMsFor(i){const bpm=84+((i*7)%22);return Math.round(60000/bpm)}
@@ -96,8 +78,6 @@ function selectSong(i,autoplay=false){
   hideSpotify(false); hideInvidious();
   currentSource='youtube';
   if(playerReady)loadExactSource(autoplay);
-  else  if(youtubeUnavailable){$('transportGlass').classList.add('youtube-down');updateBill(s,true);$('playBtn').textContent='▶';$('playBtn').setAttribute('aria-label','Open '+s.title+' on YouTube');$('billArtist').textContent=(s.artist+' · '+s.year)+' — YouTube unavailable, tap the Radio button or YT to hear this track';}
-  else $('transportGlass').classList.remove('youtube-down');
 }
 window.selectSong=selectSong;
 
@@ -226,12 +206,6 @@ function togglePlay(){
     showToast('Use the Spotify card to play/pause — Spotify needs a tap inside its player');
     return;
   }
-  if(youtubeUnavailable){
-    const s=SONG_LIST[currentIndex];
-    if(s) window.open('https://www.youtube.com/watch?v='+encodeURIComponent(s.youtubeIds?.[idAttempt]||s.youtubeIds?.[0]||''),'_blank','noopener');
-    else showToast('Select a track first');
-    return;
-  }
   if(!playerReady){showToast('Player is still tuning in — try again in a moment');return}
   const state=player.getPlayerState();
   if(state===YT.PlayerState.PLAYING)player.pauseVideo();else playCurrent(true);
@@ -249,7 +223,7 @@ function onYouTubeIframeAPIReady(){
   const origin = (location.origin && location.origin !== 'null') ? location.origin : undefined;
   const host = 'https://www.youtube.com';
   player=new YT.Player('player',{height:'1',width:'1',videoId:'',host,playerVars:{autoplay:0,controls:0,rel:0,playsinline:1,modestbranding:1,enablejsapi:1,origin,widget_referrer:origin},events:{
-    onReady:()=>{clearTimeout(readyTimer);playerReady=true;if(SONG_LIST.length)selectSong(0,false);},
+    onReady:()=>{playerReady=true;if(SONG_LIST.length)selectSong(0,false)},
     onError:e=>{
       const ids=SONG_LIST[currentIndex]?.youtubeIds||[];
       if(idAttempt<ids.length-1){idAttempt++;showToast('YouTube alt source…');loadExactSource(true);return}
@@ -292,11 +266,6 @@ function onYouTubeIframeAPIReady(){
 }
 
 window.onSpotifyIframeApiReady = ()=>{};
-
-// If the YouTube iframe API never fires, don't leave the person stuck on
-// "Player is still tuning in" forever — declare it unavailable so the UX
-// degrades to "tap YT to open in a new tab" instead.
-readyTimer=setTimeout(setYoutubeUnavailable,YOUTUBE_READY_TIMEOUT_MS);
 
 window.__pauseSongPlayback=function(){if(currentSource==='spotify')return; if(playerReady&&player&&player.getPlayerState&&player.getPlayerState()===YT.PlayerState.PLAYING)player.pauseVideo()};
 window.__nowPlaying=function(){
@@ -341,17 +310,6 @@ window.__openVault=openPanel;
 window.__closeVault=closePanel;
 function closePanel(){
   $('vaultPanel')?.classList.remove('open');$('vaultPanel')?.setAttribute('aria-hidden','true');$('vaultScrim')?.classList.remove('open');
-}
-function closeTopOverlay(){
-  // Start menu sits above the vault panel (z-index 900 vs 60), so close the
-  // top-most open overlay first. We manipulate the DOM directly here so this
-  // works regardless of which script opened the overlay.
-  const startMenu=$('startMenu'), startScrim=$('startScrim');
-  if(startMenu&&startScrim&&startMenu.getAttribute('aria-hidden')==='false'){
-    startMenu.setAttribute('aria-hidden','true'); startScrim.classList.remove('open');
-    return;
-  }
-  if($('vaultPanel')?.classList.contains('open')) closePanel();
 }
 function openYoutube(){const id=SONG_LIST[currentIndex]?.youtubeIds?.[idAttempt];if(id)window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,'_blank','noopener')}
 function openSpotify(externalOnly){

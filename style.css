@@ -157,8 +157,6 @@ p{margin:0}
 .transport-links{display:flex;gap:6px}
 .transport-links button{width:auto !important;border-radius:999px !important;padding:0 10px;font-size:10px;font-weight:700}
 .transport-links button:hover{border-color:var(--marigold);color:var(--marigold)}
-#radioFromPlayerBtn{visibility:hidden}
-.transport-glass.youtube-down #radioFromPlayerBtn{visibility:visible}
 
 @media (min-width:560px){
   .transport-glass{grid-template-columns:auto auto auto 1fr auto}
@@ -166,7 +164,6 @@ p{margin:0}
 }
 
 .hidden-player{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
-#audioFallback{display:none}
 .invidious-player,.spotify-player{
   flex:none;width:100%;
   background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);border-radius:12px;

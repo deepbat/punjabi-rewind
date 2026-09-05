@@ -22,23 +22,9 @@ const RADIO_TIMEOUT_MS = 6000;
     audio.preload='none';
     renderStationButtons();
     $('radioToggle').onclick=()=>{isLive?stopRadio():startRadio(stationIndex)};
-    attachListeners(audio);
-    // The music player may hand us a shared <audio> element at any time;
-    // when it does, switch the radio engine onto it so there is one engine
-    // across music + radio and the hidden fallback element is genuinely used.
-    window.__setRadioAudioTarget=setRadioAudioTarget;
-  }
-  function attachListeners(target){
-    target.addEventListener('playing',onConnected);
-    target.addEventListener('error',()=>tryNext('stream error'));
-    target.addEventListener('stalled',()=>tryNext('stalled'));
-  }
-  function setRadioAudioTarget(el){
-    if(!el) return;
-    if(el===audio) return;
-    audio.pause();
-    attachListeners(el);
-    window.__radioAudioEl=el;
+    audio.addEventListener('playing',onConnected);
+    audio.addEventListener('error',()=>tryNext('stream error'));
+    audio.addEventListener('stalled',()=>tryNext('stalled'));
   }
 
   function renderStationButtons(){
@@ -67,11 +53,10 @@ const RADIO_TIMEOUT_MS = 6000;
     isLive=false;
     clearTimeout(connectTimer);
     try{
-      const target=window.__radioAudioEl&&window.__radioAudioEl!==audio?window.__radioAudioEl:audio;
-      target.pause();
-      target.src=s.url;
-      target.load();
-      target.play().catch(()=>{});
+      audio.pause();
+      audio.src=s.url;
+      audio.load();
+      audio.play().catch(()=>{});
     }catch(e){tryNext('exception');return}
     connectTimer=setTimeout(()=>{ if(!isLive) tryNext('timeout') },RADIO_TIMEOUT_MS);
   }
@@ -112,6 +97,5 @@ const RADIO_TIMEOUT_MS = 6000;
   function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 
   window.__pauseRadio=stopRadio;
-  window.__playRadioStation=(i)=>startRadio(i);
   document.addEventListener('DOMContentLoaded',init);
 })();
