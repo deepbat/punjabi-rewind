@@ -64,8 +64,15 @@
   width:min(1180px,92vw); height:min(720px,84vh);
   top:6vh; left:50%; margin-left:min(-590px,-46vw);
 }
+/* Anchor the window to the desktop container (top + bottom) instead of vh math.
+   On mobile browsers vh units track the LARGE viewport (address-bar-hidden), so
+   calc(100vh - 48px) can be up to ~56px taller than the visible area — the window
+   bottom then slides under the taskbar and the player dock (fixed 24px above the
+   window bottom) collides with it. The desktop container is position:fixed inset:0,
+   exactly like the taskbar, so bottom:48px always lands precisely on the taskbar's
+   top edge on every browser. */
 .win-window.maximized{
-  top:0; left:0; margin-left:0; width:100vw; height:calc(100vh - 48px);
+  top:0; left:0; right:0; bottom:48px; margin-left:0; width:auto; height:auto;
   border-radius:0; border-width:0;
 }
 .win-window.hidden-window{display:none}
@@ -301,5 +308,5 @@
   .taskbar-search{min-width:0; padding:0 10px}
   .desktop-icon{width:64px}
   .start-app-grid{grid-template-columns:repeat(4,1fr)}
-  .win-window.windowed{width:100vw; height:calc(100vh - 48px); top:0; left:0; margin-left:0; border-radius:0}
+  .win-window.windowed{top:0; left:0; right:0; bottom:48px; width:auto; height:auto; margin-left:0; border-radius:0}
 }
