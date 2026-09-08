@@ -71,6 +71,8 @@
   <p>Your browser can't render the 3D scene — here's the audio player without the visuals.</p>
 </div></div>
 
+<div id="nightFilter" aria-hidden="true"></div>
+
 <div class="vignette" aria-hidden="true"></div>
 
 <p class="onboard-hint" id="onboardHint">Drag to look around · scroll to dive in · click a light to play</p>
@@ -231,10 +233,12 @@
       <button class="taskbar-btn taskbar-start" id="taskbarStartBtn" type="button" aria-label="Start">
         <span class="win-logo">&#8862;</span>
       </button>
+      <button class="taskbar-btn" id="taskviewBtn" type="button" aria-label="Task view" title="Task view">&#128499;&#65039;</button>
       <button class="taskbar-search" id="taskbarSearchBtn" type="button" aria-label="Search">
         <span class="search-icon">&#128269;</span>
         <span class="search-text">Search</span>
       </button>
+      <button class="taskbar-btn" id="widgetBtn" type="button" aria-label="Widgets" title="Widgets">&#9964;</button>
       <button class="taskbar-btn taskbar-app-icon running active" id="taskbarAppBtn" type="button" aria-label="Punjabi Rewind">
         <span>ਪ</span>
         <i class="taskbar-indicator"></i>
@@ -244,7 +248,7 @@
       <button class="taskbar-btn taskbar-icon" type="button" data-app="notepad" aria-label="Notepad">&#128221;<i class="taskbar-indicator"></i></button>
     </div>
     <div class="taskbar-cluster taskbar-tray">
-      <span class="tray-icons" aria-hidden="true">&#128279; &#128246; &#128266;</span>
+      <button class="tray-icons-btn" id="trayQuickBtn" type="button" aria-label="Quick settings"><span class="tray-icons" aria-hidden="true">&#128246; &#128266;</span></button>
       <button class="tray-clock" id="trayClockBtn" type="button">
         <span id="trayTime">1:00 PM</span>
         <span id="trayDate">9/4/2026</span>
@@ -252,6 +256,90 @@
       <button class="show-desktop" id="showDesktopBtn" type="button" aria-label="Show desktop" title="Show desktop"></button>
     </div>
   </footer>
+
+  <!-- ===== Task View ===== -->
+  <div class="taskview-scrim" id="taskviewScrim"></div>
+  <section class="taskview" id="taskView" aria-hidden="true" aria-label="Task view">
+    <div class="taskview-grid" id="taskviewGrid"></div>
+  </section>
+
+  <!-- ===== Quick Settings flyout ===== -->
+  <section class="flyout quick-settings" id="quickSettings" aria-hidden="true" aria-label="Quick settings">
+    <div class="qs-grid">
+      <button class="qs-tile" data-qs="wifi" type="button" aria-pressed="true"><span>&#128246;</span><b>Wi-Fi</b><i>Home-Network</i></button>
+      <button class="qs-tile" data-qs="bluetooth" type="button" aria-pressed="false"><span>&#128494;</span><b>Bluetooth</b><i>Not connected</i></button>
+      <button class="qs-tile" data-qs="airplane" type="button" aria-pressed="false"><span>&#9992;&#65039;</span><b>Airplane mode</b><i>&nbsp;</i></button>
+      <button class="qs-tile" data-qs="nightlight" type="button" aria-pressed="false"><span>&#127769;</span><b>Night light</b><i>&nbsp;</i></button>
+      <button class="qs-tile" data-qs="focus" type="button" aria-pressed="false"><span>&#127769;</span><b>Focus assist</b><i>&nbsp;</i></button>
+      <button class="qs-tile" data-qs="accessibility" type="button" aria-pressed="false"><span>&#9855;</span><b>Accessibility</b><i>&nbsp;</i></button>
+    </div>
+    <div class="qs-slider-row">
+      <span>&#128266;</span>
+      <input id="qsVolume" type="range" min="0" max="100" value="100" aria-label="Volume">
+      <b class="mono" id="qsVolumeVal">100%</b>
+    </div>
+    <div class="qs-slider-row">
+      <span>&#9728;</span>
+      <input id="qsBrightness" type="range" min="30" max="100" value="100" aria-label="Brightness">
+      <b class="mono" id="qsBrightnessVal">100%</b>
+    </div>
+    <div class="qs-footer">
+      <span class="qs-battery" id="qsBattery">&#128267; Battery</span>
+      <button class="qs-footer-btn" id="qsSettingsBtn" type="button" title="All settings">&#9881;&#65039;</button>
+    </div>
+  </section>
+
+  <!-- ===== Calendar / notification center ===== -->
+  <section class="flyout notif-center" id="notifCenter" aria-hidden="true" aria-label="Calendar and notifications">
+    <div class="notif-head"><b>Notifications</b><span class="mono small" id="notifCount">No new notifications</span></div>
+    <div class="notif-list" id="notifList"></div>
+    <div class="cal-head">
+      <b id="calMonthLabel">September 2026</b>
+      <span class="cal-nav"><button type="button" id="calPrev" aria-label="Previous month">&#8249;</button><button type="button" id="calToday" aria-label="Today">&#9679;</button><button type="button" id="calNext" aria-label="Next month">&#8250;</button></span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+  </section>
+
+  <!-- ===== Power overlay ===== -->
+  <div class="power-overlay" id="powerOverlay" aria-hidden="true">
+    <div class="power-clock" id="powerClock">12:00<span id="powerDate">Monday, January 1</span></div>
+    <div class="power-actions">
+      <button data-power="sleep" type="button">&#127769;<span>Sleep</span></button>
+      <button data-power="shutdown" type="button">&#9211;<span>Shut down</span></button>
+      <button data-power="restart" type="button">&#8635;<span>Restart</span></button>
+      <button data-power="lock" type="button">&#128274;<span>Lock</span></button>
+    </div>
+    <button class="power-cancel" id="powerCancel" type="button">Cancel</button>
+  </div>
+  <div class="shutdown-screen" id="shutdownScreen" aria-hidden="true">
+    <div class="shutdown-message" id="shutdownMessage">Shutting down<span class="shutdown-dots"></span></div>
+    <button class="power-btn-back" id="powerBack" type="button">Power on</button>
+  </div>
+
+  <!-- ===== Snap layout preview (follows a dragged window) ===== -->
+  <div class="snap-preview" id="snapPreview" aria-hidden="true"></div>
+
+  <!-- ===== Widgets flyout ===== -->
+  <section class="widgets-flyout" id="widgetsFlyout" aria-hidden="true" aria-label="Widgets">
+    <div class="widget-card">
+      <h4>&#127925; Now playing</h4>
+      <p id="widgetNowPlaying">Nothing yet — click a light in the sky to begin.</p>
+    </div>
+    <div class="widget-card">
+      <h4>&#127769; Weather · Amritsar</h4>
+      <p>31°C · Haze · Feels like 34°C · AQI 118 (moderate)</p>
+    </div>
+    <div class="widget-card">
+      <h4>&#11088; Tip of the day</h4>
+      <p>Drag a window to the top edge to maximize it, or to a side to snap it in half.</p>
+    </div>
+  </section>
+
+  <!-- ===== Context menu root ===== -->
+  <div id="ctxMenuRoot"></div>
+
+  <!-- ===== Toast for desktop-level messages ===== -->
+  <div class="toast desktop-toast" id="desktopToast" role="status" aria-live="polite"></div>
 
 </div>
 

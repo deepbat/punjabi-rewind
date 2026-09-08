@@ -339,5 +339,14 @@ function toggleMute(){
   if(currentSource==='spotify'){showToast('Spotify volume — use the Spotify card slider');return}
   if(!playerReady){showToast('Select a song first to control sound');return}
   isMuted=!isMuted;if(isMuted)player.mute();else player.unMute();$('muteBtn').textContent=isMuted?'🔇':'🔊';$('muteBtn').setAttribute('aria-pressed',String(isMuted))}
+/* System volume bridge: the Win11 shell (Quick Settings / Settings app) drives real YouTube volume */
+window.__setPlayerVolume=function(pct){
+  if(!playerReady||!player||!player.setVolume)return;
+  try{
+    player.setVolume(Math.max(0,Math.min(100,pct)));
+    if(pct<=0){if(!isMuted){isMuted=true;player.mute();const b=$('muteBtn');if(b){b.textContent='🔇';b.setAttribute('aria-pressed','true')}}}
+    else{if(isMuted){isMuted=false;player.unMute();const b=$('muteBtn');if(b){b.textContent='🔊';b.setAttribute('aria-pressed','false')}}}
+  }catch(e){}
+};
 function showToast(message){const toast=$('toast');if(!toast)return;toast.textContent=message;toast.classList.add('show');clearTimeout(toast._timer);toast._timer=setTimeout(()=>toast.classList.remove('show'),2600)}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
