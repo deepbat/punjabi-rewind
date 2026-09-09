@@ -48,6 +48,7 @@
   const settings = Object.assign({
     wallpaper: 'bloom', accent: '#60CDFF', brightness: 100, nightLight: false,
     wifi: true, bluetooth: false, airplane: false, focus: false, volume: 100, muted: false,
+    scale: 100, textSize: 100,
   }, (() => { try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch (e) { return {}; } })());
 
   function saveSettings() { try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {} }
@@ -56,12 +57,26 @@
     document.documentElement.style.setProperty('--win-accent-2', shade(settings.accent, -0.25));
     const desktopEl = $('win11Desktop');
     if (desktopEl) desktopEl.dataset.wallpaper = settings.wallpaper;
+    // Display scale (screen size): plain zoom keeps stretched boxes filling the viewport
+    if (desktopEl) desktopEl.style.zoom = (settings.scale || 100) === 100 ? '' : (settings.scale / 100);
+    applyTextZoom();
     document.getElementById('nightFilter')?.classList.toggle('on', !!settings.nightLight);
     const dim = document.createElement('style');
     dim.id = 'brightnessStyle';
     if (!document.getElementById('brightnessStyle')) document.head.appendChild(dim);
     document.getElementById('brightnessStyle').textContent = `.win11-desktop{filter:brightness(${settings.brightness / 100})}`;
     if (typeof window.__setPlayerVolume === 'function') window.__setPlayerVolume(settings.muted ? 0 : settings.volume);
+  }
+  // Display zoom factor (layout px = device px / zf). All pointer-driven
+  // geometry must convert device pixels to layout pixels through zf().
+  function zf() { return (settings.scale || 100) / 100; }
+  // Text size: extra zoom on app content areas only (window chrome untouched,
+  // internal scroll absorbs overflow) — multiplies with display scale.
+  function applyTextZoom() {
+    const off = (settings.textSize || 100) === 100;
+    document.querySelectorAll('#win11Desktop .win-content, #win11Desktop .generic-content').forEach((el) => {
+      el.style.zoom = off ? '' : (settings.textSize / 100);
+    });
   }
   function shade(hex, amt) {
     const n = parseInt(hex.slice(1), 16);
@@ -154,16 +169,16 @@
       shakeDir = 0; shakeCount = 0; lastShakeX = e.clientX; lastShakeT = performance.now();
       tbar.setPointerCapture(e.pointerId);
       const rect = el.getBoundingClientRect();
-      sx = e.clientX; sy = e.clientY; wx = rect.left; wy = rect.top;
+      sx = e.clientX; sy = e.clientY; wx = rect.left / zf(); wy = rect.top / zf();
       el.style.marginLeft = '0';
       el.style.left = rect.left + 'px';
       el.style.top = rect.top + 'px';
     });
     tbar.addEventListener('pointermove', (e) => {
       if (!dragging) return;
-      const dx = e.clientX - sx, dy = e.clientY - sy;
-      el.style.left = clamp(wx + dx, -el.offsetWidth + 120, window.innerWidth - 80) + 'px';
-      el.style.top = clamp(wy + dy, 0, window.innerHeight - 48 - 24) + 'px';
+      const dx = (e.clientX - sx) / zf(), dy = (e.clientY - sy) / zf();
+      el.style.left = clamp(wx + dx, -el.offsetWidth + 120, window.innerWidth / zf() - 80) + 'px';
+      el.style.top = clamp(wy + dy, 0, (window.innerHeight - 48 - 24) / zf()) + 'px';
       checkSnap(e.clientX, e.clientY);
       // Aero Shake: rapid horizontal reversals minimize every other window
       const nowT = performance.now();
@@ -184,7 +199,9 @@
       if (!dragging) return;
       dragging = false;
       try { tbar.releasePointerCapture(e.pointerId); } catch (_) {}
-      applySnap(e.clientX, e.clientY, key);
+      if (pendingSnap) applySnap(pendingSnap, key);
+      else hideSnapPreview();
+      pendingSnap = null;
     }
     tbar.addEventListener('pointerup', endDrag);
     tbar.addEventListener('pointercancel', (e) => { dragging = false; hideSnapPreview(); });
@@ -203,14 +220,14 @@
         e.preventDefault();
         h.setPointerCapture(e.pointerId);
         const rect = el.getBoundingClientRect();
-        const sx = e.clientX, sy = e.clientY, r = { left: rect.left, top: rect.top, w: rect.width, h: rect.height };
+        const sx = e.clientX, sy = e.clientY, r = { left: rect.left / zf(), top: rect.top / zf(), w: rect.width / zf(), h: rect.height / zf() };
         const move = (ev) => {
-          const dx = ev.clientX - sx, dy = ev.clientY - sy;
+          const dx = (ev.clientX - sx) / zf(), dy = (ev.clientY - sy) / zf();
           let { left, top, w: width, h: height } = r;
-          if (dir.includes('e')) width = clamp(r.w + dx, 320, window.innerWidth);
-          if (dir.includes('s')) height = clamp(r.h + dy, 180, window.innerHeight);
-          if (dir.includes('w')) { width = clamp(r.w - dx, 320, window.innerWidth); left = r.left + (r.w - width); }
-          if (dir.includes('n')) { height = clamp(r.h - dy, 180, window.innerHeight); top = r.top + (r.h - height); }
+          if (dir.includes('e')) width = clamp(r.w + dx, 320, window.innerWidth / zf());
+          if (dir.includes('s')) height = clamp(r.h + dy, 180, (window.innerHeight - 48) / zf());
+          if (dir.includes('w')) { width = clamp(r.w - dx, 320, window.innerWidth / zf()); left = r.left + (r.w - width); }
+          if (dir.includes('n')) { height = clamp(r.h - dy, 180, (window.innerHeight - 48) / zf()); top = r.top + (r.h - height); }
           Object.assign(el.style, { left: left + 'px', top: top + 'px', width: width + 'px', height: height + 'px', marginLeft: '0' });
         };
         const up = () => { h.releasePointerCapture(e.pointerId); h.removeEventListener('pointermove', move); h.removeEventListener('pointerup', up); };
@@ -221,20 +238,24 @@
   }
 
   /* -------- edge snapping + snap layouts flyout -------- */
+  // Snap zones in layout px (device px / zf) so snapped windows land exactly
+  // on screen edges at any display scale.
+  function zw() { return window.innerWidth / zf(); }
+  function zh() { return (window.innerHeight - 48) / zf(); }
   const SNAP_ZONES = {
-    left:   () => ({ left: 0, top: 0, width: window.innerWidth / 2, height: window.innerHeight - 48 }),
-    right:  () => ({ left: window.innerWidth / 2, top: 0, width: window.innerWidth / 2, height: window.innerHeight - 48 }),
-    tl:     () => ({ left: 0, top: 0, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
-    tr:     () => ({ left: window.innerWidth / 2, top: 0, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
-    br:     () => ({ left: window.innerWidth / 2, top: (window.innerHeight - 48) / 2, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
-    bl:     () => ({ left: 0, top: (window.innerHeight - 48) / 2, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
-     third1: () => ({ left: 0, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
-     third2: () => ({ left: window.innerWidth / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
-     third3: () => ({ left: (window.innerWidth * 2) / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
-     wideL:  () => ({ left: 0, top: 0, width: (window.innerWidth * 2) / 3, height: window.innerHeight - 48 }),
-     wideR:  () => ({ left: (window.innerWidth * 2) / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
-     max:    () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight - 48 }),
-   };
+    left:   () => ({ left: 0, top: 0, width: zw() / 2, height: zh() }),
+    right:  () => ({ left: zw() / 2, top: 0, width: zw() / 2, height: zh() }),
+    tl:     () => ({ left: 0, top: 0, width: zw() / 2, height: zh() / 2 }),
+    tr:     () => ({ left: zw() / 2, top: 0, width: zw() / 2, height: zh() / 2 }),
+    br:     () => ({ left: zw() / 2, top: zh() / 2, width: zw() / 2, height: zh() / 2 }),
+    bl:     () => ({ left: 0, top: zh() / 2, width: zw() / 2, height: zh() / 2 }),
+    third1: () => ({ left: 0, top: 0, width: zw() / 3, height: zh() }),
+    third2: () => ({ left: zw() / 3, top: 0, width: zw() / 3, height: zh() }),
+    third3: () => ({ left: (zw() * 2) / 3, top: 0, width: zw() / 3, height: zh() }),
+    wideL:  () => ({ left: 0, top: 0, width: (zw() * 2) / 3, height: zh() }),
+    wideR:  () => ({ left: (zw() * 2) / 3, top: 0, width: zw() / 3, height: zh() }),
+    max:    () => ({ left: 0, top: 0, width: zw(), height: zh() }),
+  };
   let pendingSnap = null;
 
   /* -------- snap layouts flyout (hover the maximize button, like real Win11) -------- */
@@ -256,8 +277,8 @@
     const r = btn.getBoundingClientRect();
     fly.hidden = false;
     const fw = 300;
-    fly.style.left = clamp(r.right - fw, 4, window.innerWidth - fw - 4) + 'px';
-    fly.style.top = (r.bottom + 6) + 'px';
+    fly.style.left = clamp(r.right - fw, 4, window.innerWidth - fw - 4) / zf() + 'px';
+    fly.style.top = (r.bottom + 6) / zf() + 'px';
   }
   $('snapFlyout').addEventListener('pointerleave', () => { $('snapFlyout').hidden = true; });
   $('snapFlyout').querySelectorAll('[data-zone]').forEach((z) => {
@@ -608,11 +629,24 @@
       wrap.querySelectorAll('.st2-nav button').forEach((b) => b.classList.toggle('active', b.dataset.page === id));
       if (id === 'system') {
         page.innerHTML = `<h2>System</h2><p class="sub">Display, sound, and about</p>
+          <div class="st2-card"><div class="grow"><b>Scale</b><em>Change the size of text, apps, and other items</em></div>
+            <select id="sScale">${[80, 90, 100, 110, 125, 150].map((v) => `<option value="${v}" ${(settings.scale || 100) === v ? 'selected' : ''}>${v}%${v === 100 ? ' (Recommended)' : ''}</option>`).join('')}</select></div>
+          <div class="st2-card"><div class="grow"><b>Text size</b><em>Make text bigger across apps</em><div id="sSample" style="margin-top:8px;font-size:${15 * (settings.textSize || 100) / 100}px;color:var(--win-text)">Sample text — the quick brown fox jumps over the lazy dog</div></div>
+            <input type="range" id="sText" min="80" max="130" value="${settings.textSize || 100}" aria-label="Text size"></div>
           ${rg('Brightness', 'Screen brightness', 'sBri', 30, 100, settings.brightness)}
           ${tg('Night light', 'Warmer colors, easier on the eyes', 'nightLight')}
           ${rg('Volume', 'System output level', 'sVol', 0, 100, settings.volume)}
           ${tg('Mute', 'Silence the whole system', 'muted')}
           <div class="st2-card"><div class="grow"><b>About this PC</b><em>REWIND-PC · Punjabi Rewind Desktop · simulated Windows 11</em></div><span class="mono small" style="color:var(--win-text-dim)">v2.0</span></div>`;
+        page.querySelector('#sScale').addEventListener('change', (e) => {
+          settings.scale = Number(e.target.value); saveSettings(); applySettings();
+          desktopToast('Display scale: ' + settings.scale + '%');
+        });
+        page.querySelector('#sText').addEventListener('input', (e) => {
+          settings.textSize = Number(e.target.value); saveSettings(); applyTextZoom();
+          const sample = page.querySelector('#sSample');
+          if (sample) sample.style.fontSize = (15 * settings.textSize / 100) + 'px';
+        });
         page.querySelector('#sBri').addEventListener('input', (e) => { settings.brightness = Number(e.target.value); saveSettings(); applySettings(); });
         page.querySelector('#sVol').addEventListener('input', (e) => { settings.volume = Number(e.target.value); settings.muted = settings.volume === 0; saveSettings(); applySettings(); });
       } else if (id === 'bluetooth') {
@@ -1130,6 +1164,7 @@
     `;
     win.querySelector('.generic-content').appendChild(cfg.build());
     desktop.insertBefore(win, $('startScrim'));
+    applyTextZoom();
     const key = 'app:' + appId;
     const taskbarBtn = ensureTaskbarButton(appId, cfg.title, cfg.icon);
     registerWindow(key, { el: win, titlebar: win.querySelector('.win-titlebar'), maxBtn: win.querySelector('.win-max'), taskbarBtn, appId });
@@ -1652,14 +1687,14 @@
     if (e.button !== 0) return;
     if (e.target.closest('.win-window, .taskbar, .start-menu, .flyout, .desktop-icon, .ctx-menu, .os-toast, .os-lock, .os-login, .os-boot')) return;
     rubberStart = { x: e.clientX, y: e.clientY };
-    Object.assign(rubber.style, { left: e.clientX + 'px', top: e.clientY + 'px', width: '0px', height: '0px' });
+    Object.assign(rubber.style, { left: (e.clientX / zf()) + 'px', top: (e.clientY / zf()) + 'px', width: '0px', height: '0px' });
     rubber.hidden = false;
     clearIconSelection();
   });
   document.addEventListener('pointermove', (e) => {
     if (!rubberStart) return;
-    const x = Math.min(e.clientX, rubberStart.x), y = Math.min(e.clientY, rubberStart.y);
-    Object.assign(rubber.style, { left: x + 'px', top: y + 'px', width: Math.abs(e.clientX - rubberStart.x) + 'px', height: Math.abs(e.clientY - rubberStart.y) + 'px' });
+    const x = Math.min(e.clientX, rubberStart.x) / zf(), y = Math.min(e.clientY, rubberStart.y) / zf();
+    Object.assign(rubber.style, { left: x + 'px', top: y + 'px', width: (Math.abs(e.clientX - rubberStart.x) / zf()) + 'px', height: (Math.abs(e.clientY - rubberStart.y) / zf()) + 'px' });
   });
   document.addEventListener('pointerup', () => {
     if (!rubberStart) return;
