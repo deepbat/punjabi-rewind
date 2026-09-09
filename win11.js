@@ -435,6 +435,402 @@
     return wrap;
   }
 
+  /* -------- Calculator: fully working, mouse + keyboard -------- */
+  function buildCalculatorContent() {
+    const wrap = document.createElement('div');
+    wrap.className = 'calc-app';
+    wrap.tabIndex = 0;
+    wrap.innerHTML = `
+      <div class="calc-display" aria-live="polite">0</div>
+      <div class="calc-grid">
+        ${['C', '⌫', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '±', '0', '.', '='].map((k) => `<button class="calc-btn${k === '=' ? ' calc-eq' : ''}${'C⌫%'.includes(k) ? ' calc-fn' : ''}" data-k="${k}" type="button">${k}</button>`).join('')}
+      </div>`;
+    const disp = wrap.querySelector('.calc-display');
+    let cur = '0', prev = null, op = null, fresh = true;
+    const show = (v) => { disp.textContent = v; };
+    function inputDigit(d) {
+      if (fresh || cur === '0' || cur === '-0') { cur = (d === '.' ? '0.' : (/[0-9]/.test(d) ? (cur.startsWith('-') ? '-' + d : d) : cur)); fresh = false; }
+      else if (d === '.' && cur.includes('.')) return;
+      else if (/[0-9.]/.test(d)) cur += d;
+      show(cur);
+    }
+    function compute(a, b, o) {
+      a = parseFloat(a); b = parseFloat(b);
+      if (o === '+') return a + b;
+      if (o === '−') return a - b;
+      if (o === '×') return a * b;
+      if (o === '÷') return b === 0 ? NaN : a / b;
+      return b;
+    }
+    function fmt(n) {
+      if (!Number.isFinite(n)) return 'Error';
+      const r = Math.round(n * 1e10) / 1e10;
+      return String(r).length > 14 ? r.toExponential(6) : String(r);
+    }
+    function press(k) {
+      if (/[0-9.]/.test(k)) return inputDigit(k);
+      if (k === 'C') { cur = '0'; prev = null; op = null; fresh = true; return show(cur); }
+      if (k === '⌫') { cur = fresh ? '0' : cur.slice(0, -1) || '0'; if (cur === '-' || cur === '') cur = '0'; return show(cur); }
+      if (k === '±') { cur = cur.startsWith('-') ? cur.slice(1) : (cur !== '0' ? '-' + cur : cur); return show(cur); }
+      if (k === '%') { cur = fmt(parseFloat(cur) / 100); fresh = true; return show(cur); }
+      if (k === '=') {
+        if (op !== null && prev !== null) { cur = fmt(compute(prev, cur, op)); prev = null; op = null; fresh = true; show(cur); }
+        return;
+      }
+      if ('+-×÷−'.includes(k)) {
+        const mapped = k === '-' ? '−' : (k === '*' ? '×' : (k === '/' ? '÷' : k));
+        if (op !== null && prev !== null && !fresh) { cur = fmt(compute(prev, cur, op)); show(cur); }
+        prev = cur; op = mapped; fresh = true;
+      }
+    }
+    wrap.querySelectorAll('.calc-btn').forEach((b) => b.addEventListener('click', () => { press(b.dataset.k); wrap.focus({ preventScroll: true }); }));
+    wrap.addEventListener('keydown', (e) => {
+      const map = { Enter: '=', '=': '=', Escape: 'C', Backspace: '⌫', '*': '×', '/': '÷', '-': '−', '+': '+', '%': '%', '.': '.' };
+      if (/^[0-9]$/.test(e.key)) { press(e.key); e.preventDefault(); }
+      else if (map[e.key] !== undefined) { press(map[e.key]); e.preventDefault(); }
+    });
+    setTimeout(() => wrap.focus({ preventScroll: true }), 120);
+    return wrap;
+  }
+
+  /* -------- Terminal: fake command prompt -------- */
+  function buildTerminalContent() {
+    const wrap = document.createElement('div');
+    wrap.className = 'term-app';
+    wrap.innerHTML = `<div class="term-out" aria-live="polite"></div>
+      <div class="term-line"><span class="term-prompt">C:\\Users\\Deepak&gt;</span><input class="term-in" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Terminal input"></div>`;
+    const out = wrap.querySelector('.term-out');
+    const input = wrap.querySelector('.term-in');
+    const hist = [];
+    let hi = -1;
+    function print(t, cls) {
+      const d = document.createElement('div');
+      if (cls) d.className = cls;
+      d.textContent = t;
+      out.appendChild(d);
+      out.scrollTop = out.scrollHeight;
+    }
+    print('Punjabi Rewind OS [Version 11.0.2026.40]');
+    print('(c) Deepak. Type "help" for a list of commands.');
+    const APP_NAMES = { calculator: 'calculator', calc: 'calculator', terminal: 'terminal', cmd: 'terminal', paint: 'paint', taskmgr: 'taskmanager', taskmanager: 'taskmanager', minesweeper: 'minesweeper', mines: 'minesweeper', notes: 'stickynotes', sticky: 'stickynotes', stickynotes: 'stickynotes', explorer: 'explorer', files: 'explorer', edge: 'edge', browser: 'edge', notepad: 'notepad', settings: 'settings', photos: 'photos', music: 'rewind', rewind: 'rewind', player: 'rewind' };
+    function closeSelf() {
+      const wEl = wrap.closest('.win-window');
+      if (wEl && wEl.dataset.app) closeWindow('app:' + wEl.dataset.app);
+    }
+    function run(raw) {
+      const line = raw.trim();
+      print('C:\\Users\\Deepak>' + raw, 'term-echo');
+      if (!line) return;
+      const parts = line.split(/\s+/);
+      const cmd = parts[0].toLowerCase();
+      const arg = line.slice(parts[0].length).trim();
+      if (cmd === 'help') print('Commands: help · ver · whoami · date · time · echo <text> · dir · apps · open <app> · cls · exit');
+      else if (cmd === 'ver') print('Punjabi Rewind OS [Version 11.0.2026.40]');
+      else if (cmd === 'whoami') print('rewind-pc\\deepak');
+      else if (cmd === 'hostname') print('REWIND-PC');
+      else if (cmd === 'date') print(new Date().toDateString());
+      else if (cmd === 'time') print(new Date().toLocaleTimeString());
+      else if (cmd === 'echo') print(arg);
+      else if (cmd === 'dir') {
+        print(' Directory of C:\\Users\\Deepak\\Music\\Punjabi Rewind');
+        print('');
+        print(String(songList().length).padStart(4) + ' track(s) in the library');
+        print(' 4 radio station(s) on the dial');
+      }
+      else if (cmd === 'apps') print(Object.keys(APP_NAMES).filter((k) => APP_NAMES[k] === k).join('  '));
+      else if (cmd === 'open') {
+        const id = APP_NAMES[arg.toLowerCase()];
+        if (id) { print('Starting ' + arg + '…'); openOrFocusApp(id); }
+        else print(`'${arg}' is not recognized. Try "apps".`);
+      }
+      else if (cmd === 'cls' || cmd === 'clear') out.innerHTML = '';
+      else if (cmd === 'exit') closeSelf();
+      else print(`'${parts[0]}' is not recognized as a command. Type "help".`);
+    }
+    input.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') { const v = input.value; input.value = ''; hi = -1; if (v.trim()) hist.unshift(v); run(v); }
+      else if (e.key === 'ArrowUp') { if (hist.length) { hi = Math.min(hi + 1, hist.length - 1); input.value = hist[hi]; } e.preventDefault(); }
+      else if (e.key === 'ArrowDown') { hi = Math.max(hi - 1, -1); input.value = hi >= 0 ? hist[hi] : ''; e.preventDefault(); }
+    });
+    wrap.addEventListener('click', () => input.focus());
+    setTimeout(() => input.focus(), 120);
+    return wrap;
+  }
+
+  /* -------- Paint: canvas drawing -------- */
+  function buildPaintContent() {
+    const wrap = document.createElement('div');
+    wrap.className = 'paint-app';
+    const COLORS = ['#000000', '#ffffff', '#e81123', '#ECA31C', '#4FBE8C', '#5B9BD9', '#9b6bd6', '#e0729a'];
+    wrap.innerHTML = `
+      <div class="paint-toolbar">
+        <div class="paint-colors">${COLORS.map((c, i) => `<button class="paint-color${i === 0 ? ' active' : ''}" data-c="${c}" style="background:${c}" type="button" aria-label="Color ${c}"></button>`).join('')}</div>
+        <input class="paint-size" type="range" min="1" max="30" value="5" aria-label="Brush size" title="Brush size">
+        <button class="paint-tool active" data-t="brush" type="button" title="Brush">🖌️</button>
+        <button class="paint-tool" data-t="eraser" type="button" title="Eraser">🧽</button>
+        <button class="paint-tool" data-t="clear" type="button" title="Clear canvas">🗑️</button>
+        <button class="paint-tool" data-t="save" type="button" title="Save as PNG">💾</button>
+      </div>
+      <canvas class="paint-canvas"></canvas>`;
+    const canvas = wrap.querySelector('.paint-canvas');
+    const ctx = canvas.getContext('2d');
+    let color = COLORS[0], tool = 'brush', drawing = false, last = null;
+    function blank() { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+    requestAnimationFrame(() => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(300, Math.round(r.width * dpr));
+      canvas.height = Math.max(200, Math.round((wrap.clientHeight - 46) * dpr));
+      blank();
+    });
+    function pos(e) {
+      const r = canvas.getBoundingClientRect();
+      return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) };
+    }
+    canvas.addEventListener('pointerdown', (e) => {
+      drawing = true; last = pos(e);
+      canvas.setPointerCapture(e.pointerId);
+      ctx.fillStyle = tool === 'eraser' ? '#ffffff' : color;
+      ctx.beginPath(); ctx.arc(last.x, last.y, Number(wrap.querySelector('.paint-size').value) / 2, 0, Math.PI * 2); ctx.fill();
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      const p = pos(e);
+      ctx.strokeStyle = tool === 'eraser' ? '#ffffff' : color;
+      ctx.lineWidth = Number(wrap.querySelector('.paint-size').value) * (canvas.width / canvas.getBoundingClientRect().width);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+      last = p;
+    });
+    const stop = () => { drawing = false; };
+    canvas.addEventListener('pointerup', stop);
+    canvas.addEventListener('pointercancel', stop);
+    wrap.querySelectorAll('.paint-color').forEach((b) => b.addEventListener('click', () => {
+      color = b.dataset.c; tool = 'brush';
+      wrap.querySelectorAll('.paint-color').forEach((x) => x.classList.toggle('active', x === b));
+      wrap.querySelectorAll('.paint-tool').forEach((x) => x.classList.toggle('active', x.dataset.t === 'brush'));
+    }));
+    wrap.querySelectorAll('.paint-tool').forEach((b) => b.addEventListener('click', () => {
+      const t = b.dataset.t;
+      if (t === 'clear') { blank(); desktopToast('Canvas cleared'); return; }
+      if (t === 'save') {
+        const a = document.createElement('a');
+        a.download = 'punjabi-rewind-painting.png';
+        a.href = canvas.toDataURL('image/png');
+        a.click();
+        desktopToast('Painting saved');
+        return;
+      }
+      tool = t;
+      wrap.querySelectorAll('.paint-tool').forEach((x) => x.classList.toggle('active', x === b));
+    }));
+    return wrap;
+  }
+
+  /* -------- Task Manager: live processes -------- */
+  function buildTaskManagerContent() {
+    const wrap = document.createElement('div');
+    wrap.className = 'taskmgr-app';
+    wrap.innerHTML = `
+      <div class="taskmgr-stats">
+        <div class="taskmgr-stat"><span>CPU</span><div class="taskmgr-bar"><i></i></div><b class="mono">0%</b></div>
+        <div class="taskmgr-stat"><span>Memory</span><div class="taskmgr-bar mem"><i></i></div><b class="mono">0%</b></div>
+      </div>
+      <div class="taskmgr-list"></div>`;
+    const FAKE = [
+      { name: 'System', icon: '⚙️', base: 3 }, { name: 'Desktop Window Manager', icon: '🖥️', base: 5 },
+      { name: 'Audio Service', icon: '🔊', base: 2 }, { name: 'Radio Tuner', icon: '📡', base: 4 },
+    ];
+    const list = wrap.querySelector('.taskmgr-list');
+    const bars = wrap.querySelectorAll('.taskmgr-bar i');
+    const nums = wrap.querySelectorAll('.taskmgr-stat b');
+    function tick() {
+      let rows = FAKE.map((f) => ({ icon: f.icon, name: f.name, kind: 'fake', ref: f, cpu: Math.max(0, f.base + (Math.random() * 8 - 4)), mem: Math.round(40 + Math.random() * 220) }));
+      windows.forEach((w, key) => {
+        const title = w.appId ? (GENERIC_APPS[w.appId] ? GENERIC_APPS[w.appId].title : w.appId) : 'Punjabi Rewind — Media Player';
+        const icon = w.appId ? (GENERIC_APPS[w.appId] ? GENERIC_APPS[w.appId].icon : '❔') : 'ਪ';
+        rows.push({ icon, name: title, kind: 'win', ref: key, cpu: Math.max(1, 6 + (Math.random() * 14 - 7)), mem: Math.round(120 + Math.random() * 400) });
+      });
+      rows.sort((a, b) => b.cpu - a.cpu);
+      const cpuTotal = Math.min(96, Math.round(rows.reduce((s, r) => s + r.cpu, 0) / 2));
+      const memTotal = Math.min(94, 28 + Math.round(rows.length * 4 + Math.random() * 6));
+      bars[0].style.width = cpuTotal + '%'; nums[0].textContent = cpuTotal + '%';
+      bars[1].style.width = memTotal + '%'; nums[1].textContent = memTotal + '%';
+      list.innerHTML = '';
+      rows.forEach((r) => {
+        const row = document.createElement('div');
+        row.className = 'taskmgr-row';
+        row.innerHTML = `<span class="taskmgr-ico">${r.icon}</span><span class="taskmgr-name">${esc(r.name)}</span>
+          <span class="mono small">${r.cpu.toFixed(1)}%</span><span class="mono small">${r.mem} MB</span>
+          <button class="text-btn" type="button">End task</button>`;
+        row.querySelector('button').addEventListener('click', () => {
+          if (r.kind === 'fake') { const i = FAKE.indexOf(r.ref); if (i >= 0) FAKE.splice(i, 1); desktopToast(r.name + ' ended'); }
+          else if (r.ref === 'main') { minimizeWindow('main'); desktopToast('Punjabi Rewind minimized'); }
+          else closeWindow(r.ref);
+          tick();
+        });
+        list.appendChild(row);
+      });
+    }
+    tick();
+    const iv = setInterval(() => { if (!wrap.isConnected) { clearInterval(iv); return; } tick(); }, 1500);
+    return wrap;
+  }
+
+  /* -------- Minesweeper: playable 9x9 -------- */
+  function buildMinesweeperContent() {
+    const ROWS = 9, COLS = 9, MINES = 10;
+    const wrap = document.createElement('div');
+    wrap.className = 'mines-app';
+    wrap.innerHTML = `
+      <div class="mines-head">
+        <span class="mono mines-count">10</span>
+        <button class="mines-face" type="button" aria-label="New game">🙂</button>
+        <span class="mono mines-time">0</span>
+      </div>
+      <div class="mines-grid" role="grid" aria-label="Minesweeper board"></div>
+      <p class="mines-hint">Left-click to reveal · right-click to flag</p>`;
+    const grid = wrap.querySelector('.mines-grid');
+    const countEl = wrap.querySelector('.mines-count');
+    const faceEl = wrap.querySelector('.mines-face');
+    const timeEl = wrap.querySelector('.mines-time');
+    let board, revealed, flags, over, won, timer, secs;
+    function newGame() {
+      board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+      revealed = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+      flags = 0; over = false; won = false; secs = 0;
+      timeEl.textContent = '0'; countEl.textContent = String(MINES); faceEl.textContent = '🙂';
+      clearInterval(timer); timer = null;
+      let placed = 0;
+      while (placed < MINES) {
+        const r = Math.floor(Math.random() * ROWS), c = Math.floor(Math.random() * COLS);
+        if (board[r][c] !== -1) {
+          board[r][c] = -1; placed++;
+          for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && board[nr][nc] !== -1) board[nr][nc]++;
+          }
+        }
+      }
+      grid.innerHTML = '';
+      for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const b = document.createElement('button');
+        b.className = 'mines-cell'; b.type = 'button';
+        b.dataset.r = r; b.dataset.c = c;
+        b.setAttribute('role', 'gridcell');
+        b.setAttribute('aria-label', 'Cell ' + (r + 1) + ',' + (c + 1));
+        b.addEventListener('click', () => reveal(r, c));
+        b.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); flag(r, c); });
+        grid.appendChild(b);
+      }
+    }
+    function startTimer() {
+      if (timer || over) return;
+      timer = setInterval(() => {
+        if (!wrap.isConnected) { clearInterval(timer); return; }
+        secs++; timeEl.textContent = String(Math.min(secs, 999));
+      }, 1000);
+    }
+    function cell(r, c) { return grid.children[r * COLS + c]; }
+    function reveal(r, c) {
+      if (over || won || revealed[r][c]) return;
+      const el = cell(r, c);
+      if (el.classList.contains('flagged')) return;
+      startTimer();
+      if (board[r][c] === -1) {
+        over = true; faceEl.textContent = '💀'; clearInterval(timer);
+        for (let i = 0; i < ROWS; i++) for (let j = 0; j < COLS; j++) {
+          if (board[i][j] === -1) { cell(i, j).classList.add('mine'); cell(i, j).textContent = '💣'; }
+        }
+        desktopToast('Boom! Hit New game to retry');
+        return;
+      }
+      flood(r, c);
+      checkWin();
+    }
+    function flood(r, c) {
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLS || revealed[r][c]) return;
+      const el = cell(r, c);
+      if (el.classList.contains('flagged')) return;
+      revealed[r][c] = true;
+      el.classList.add('open');
+      if (board[r][c] > 0) { el.textContent = board[r][c]; el.dataset.n = board[r][c]; }
+      else { for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) flood(r + dr, c + dc); }
+    }
+    function flag(r, c) {
+      if (over || won || revealed[r][c]) return;
+      startTimer();
+      const el = cell(r, c);
+      const on = el.classList.toggle('flagged');
+      el.textContent = on ? '🚩' : '';
+      flags += on ? 1 : -1;
+      countEl.textContent = String(MINES - flags);
+    }
+    function checkWin() {
+      for (let i = 0; i < ROWS; i++) for (let j = 0; j < COLS; j++) {
+        if (board[i][j] !== -1 && !revealed[i][j]) return;
+      }
+      won = true; faceEl.textContent = '😎'; clearInterval(timer);
+      desktopToast('You cleared the minefield in ' + secs + 's!');
+    }
+    faceEl.addEventListener('click', newGame);
+    newGame();
+    return wrap;
+  }
+
+  /* -------- Sticky Notes: persisted desktop notes -------- */
+  const STICKY_KEY = 'pr_sticky_notes';
+  const STICKY_COLORS = ['#FFF3B0', '#FFC9DE', '#C5F0C8', '#CDE7FF', '#E8D9FF'];
+  function buildStickyNotesContent() {
+    const wrap = document.createElement('div');
+    wrap.className = 'sticky-app';
+    wrap.innerHTML = `<div class="sticky-bar"><button class="w11-ghost" type="button" id="stickyAdd">+ New note</button></div><div class="sticky-grid"></div>`;
+    const gridEl = wrap.querySelector('.sticky-grid');
+    let notes = [];
+    try { notes = JSON.parse(localStorage.getItem(STICKY_KEY) || '[]'); } catch (e) { notes = []; }
+    if (!notes.length) notes = [{ id: Date.now(), color: STICKY_COLORS[0], text: 'Welcome to Sticky Notes!\n\nDouble-click ideas here — they save automatically.' }];
+    function save() { try { localStorage.setItem(STICKY_KEY, JSON.stringify(notes)); } catch (e) {} }
+    let t = null;
+    function render() {
+      gridEl.innerHTML = '';
+      notes.forEach((n) => {
+        const card = document.createElement('div');
+        card.className = 'sticky-note';
+        card.style.background = n.color;
+        card.innerHTML = `
+          <div class="sticky-dots">${STICKY_COLORS.map((c) => `<button class="sticky-dot${c === n.color ? ' active' : ''}" data-c="${c}" style="background:${c}" type="button" aria-label="Note color"></button>`).join('')}
+          <button class="sticky-del" type="button" aria-label="Delete note">×</button></div>
+          <textarea class="sticky-text" spellcheck="false" aria-label="Note text"></textarea>`;
+        const ta = card.querySelector('.sticky-text');
+        ta.value = n.text;
+        ta.addEventListener('input', () => {
+          n.text = ta.value;
+          clearTimeout(t);
+          t = setTimeout(save, 500);
+        });
+        card.querySelectorAll('.sticky-dot').forEach((d) => d.addEventListener('click', () => {
+          n.color = d.dataset.c; card.style.background = n.color; save();
+          card.querySelectorAll('.sticky-dot').forEach((x) => x.classList.toggle('active', x === d));
+        }));
+        card.querySelector('.sticky-del').addEventListener('click', () => {
+          notes = notes.filter((x) => x.id !== n.id);
+          if (!notes.length) notes = [{ id: Date.now(), color: STICKY_COLORS[0], text: '' }];
+          save(); render();
+        });
+        gridEl.appendChild(card);
+      });
+    }
+    wrap.querySelector('#stickyAdd').addEventListener('click', () => {
+      notes.push({ id: Date.now(), color: STICKY_COLORS[notes.length % STICKY_COLORS.length], text: '' });
+      save(); render();
+      const last = gridEl.querySelector('.sticky-note:last-child textarea');
+      if (last) last.focus();
+    });
+    render();
+    return wrap;
+  }
+
   function buildPlaceholder(title, icon, note) {
     const wrap = document.createElement('div');
     wrap.className = 'app-placeholder';
@@ -452,6 +848,12 @@
     mail: { title: 'Mail', icon: '&#9993;&#65039;', w: 460, h: 320, build: () => buildPlaceholder('Mail', '&#9993;&#65039;', 'No new mail. This app is just for show in the simulation.') },
     calendar: { title: 'Calendar', icon: '&#128197;', w: 460, h: 320, build: () => buildPlaceholder('Calendar', '&#128197;', 'Nothing scheduled today.') },
     store: { title: 'Microsoft Store', icon: '&#128193;', w: 460, h: 320, build: () => buildPlaceholder('Microsoft Store', '&#128193;', 'Nothing to install — the whole desktop is one app.') },
+    calculator: { title: 'Calculator', icon: '&#129518;', w: 320, h: 500, build: buildCalculatorContent },
+    terminal: { title: 'Terminal', icon: '&#9000;', w: 640, h: 440, build: buildTerminalContent },
+    paint: { title: 'Paint', icon: '&#127912;', w: 720, h: 580, build: buildPaintContent },
+    taskmanager: { title: 'Task Manager', icon: '&#128202;', w: 640, h: 500, build: buildTaskManagerContent },
+    minesweeper: { title: 'Minesweeper', icon: '&#128163;', w: 340, h: 540, build: buildMinesweeperContent },
+    stickynotes: { title: 'Sticky Notes', icon: '&#128221;', w: 640, h: 500, build: buildStickyNotesContent },
   };
 
   let cascadeCount = 0;
@@ -468,6 +870,7 @@
     win.style.width = cfg.w + 'px';
     win.style.height = cfg.h + 'px';
     win.style.top = (60 + offset) + 'px';
+    win.style.marginLeft = '0'; // neutralize the .windowed centering margin — we position explicitly
     win.style.left = `calc(50% - ${Math.round(cfg.w / 2)}px + ${offset}px)`;
     win.innerHTML = `
       <header class="win-titlebar">
