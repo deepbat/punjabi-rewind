@@ -1258,6 +1258,7 @@
         !e.target.closest('#trayQuickBtn') && !e.target.closest('#trayClockBtn') &&
         !e.target.closest('#trayChevronBtn') && !e.target.closest('#trayOverflow') &&
         !e.target.closest('#trayBellBtn') && !e.target.closest('#snapFlyout') &&
+        !e.target.closest('.ctx-menu') &&
         !e.target.closest('.start-menu') && !e.target.closest('#taskbarStartBtn')) {
       closeAllFlyouts();
     }
@@ -1346,7 +1347,7 @@
     } catch (e) {}
   }, 2000);
   document.addEventListener('pointerdown', (e) => {
-    if (!e.target.closest('#widgetsFlyout') && !e.target.closest('#widgetBtn')) {
+    if (!e.target.closest('#widgetsFlyout') && !e.target.closest('#widgetBtn') && !e.target.closest('.ctx-menu')) {
       if ($('widgetsFlyout').getAttribute('aria-hidden') === 'false' && !quickSettings.contains(e.target) && !notifCenter.contains(e.target)) closeAllFlyouts();
     }
   });
