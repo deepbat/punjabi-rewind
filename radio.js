@@ -1,9 +1,7 @@
 /* Live Punjabi radio: independent internet-radio streams with automatic fail-over.
    These are third-party community streams (not run by this site) — small stations
    go up and down over time, so if one fails to connect within RADIO_TIMEOUT_MS,
-   we silently advance to the next one in the list instead of just breaking.
-   RADIO_STATIONS is read by scene.js to place the four beacons on the outer ring —
-   edit it here only, positions in the scene follow automatically. */
+   we silently advance to the next one in the list instead of just breaking. */
 const RADIO_STATIONS = [
   {name:'Punjabi Radio USA', desc:'24/7 Punjabi music & talk, streamed via Voscast.', url:'https://s5.voscast.com:9281/stream'},
   {name:'ClubHouse Punjabi Vibes', desc:'Non-stop Punjabi party & DJ mix from SwaggerBeat.', url:'https://liveradio.swaggerbeat.com:8022/stream'},

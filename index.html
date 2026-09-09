@@ -4,34 +4,26 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Punjabi Rewind — Windows 11 Desktop</title>
-<meta name="description" content="Punjabi Rewind: 40 Hindi &amp; Punjabi tracks of 2026, presented as an app inside a simulated Windows 11 desktop.">
+<meta name="description" content="Punjabi Rewind: 40 Hindi &amp; Punjabi tracks of 2026, presented as a native-style Windows 11 media player.">
 <meta name="theme-color" content="#0C0C0C">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Punjabi Rewind">
 <meta property="og:title" content="Punjabi Rewind — A Sonic Constellation">
-<meta property="og:description" content="40 Hindi &amp; Punjabi tracks of 2026, arranged as a 3D galaxy you fly through — inside a simulated Windows 11 desktop.">
+<meta property="og:description" content="40 Hindi &amp; Punjabi tracks of 2026, presented as a native-style Windows 11 media player.">
 <meta property="og:url" content="https://deepbat.github.io/punjabi-rewind/">
 <meta property="og:image" content="https://deepbat.github.io/punjabi-rewind/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Punjabi Rewind — A Sonic Constellation">
-<meta name="twitter:description" content="40 Hindi &amp; Punjabi tracks of 2026, arranged as a 3D galaxy you fly through — inside a simulated Windows 11 desktop.">
+<meta name="twitter:title" content="Punjabi Rewind — Windows 11 Media Player">
+<meta name="twitter:description" content="40 Hindi &amp; Punjabi tracks of 2026, presented as a native-style Windows 11 media player.">
 <meta name="twitter:image" content="https://deepbat.github.io/punjabi-rewind/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="win11.css">
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"
-  }
-}
-</script>
 </head>
 <body class="win11">
 
@@ -54,7 +46,7 @@
     <header class="win-titlebar" id="winTitlebar">
       <div class="win-titlebar-id">
         <span class="win-titlebar-icon">ਪ</span>
-        <span class="win-titlebar-text">Punjabi Rewind — A Sonic Constellation</span>
+        <span class="win-titlebar-text">Punjabi Rewind — Media Player</span>
       </div>
       <div class="win-controls">
         <button class="win-btn win-min" id="winMinBtn" type="button" aria-label="Minimize">&#65372;</button>
@@ -66,115 +58,128 @@
     <div class="win-content" id="winContent">
 <a class="skip-link" href="#playBtn">Skip to playback controls</a>
 
-<!-- The 3D scene mounts here: <canvas> + a CSS2D label layer, both added by scene.js -->
-<div id="scene-mount"><div class="scene-fallback" id="sceneFallback" hidden>
-  <p>Your browser can't render the 3D scene — here's the audio player without the visuals.</p>
-</div></div>
-
 <div id="nightFilter" aria-hidden="true"></div>
 
-<div class="vignette" aria-hidden="true"></div>
+<!-- ===== Native-style Windows 11 Media Player ===== -->
+<div class="w11app">
+  <aside class="w11-sidebar" aria-label="Library navigation">
+    <button class="w11-id" id="homeLink" type="button" aria-label="Punjabi Rewind home">
+      <span class="w11-id-mark">ਪ</span>
+      <span class="w11-id-text">Punjabi Rewind<em>Media Player — 2026</em></span>
+    </button>
 
-<p class="onboard-hint" id="onboardHint">Drag to look around · scroll to dive in · click a light to play</p>
+    <label class="w11-search">
+      <span aria-hidden="true">🔍</span>
+      <input id="songSearch" type="search" placeholder="Search songs, artists" autocomplete="off" aria-label="Search songs">
+      <button id="clearSearch" type="button" aria-label="Clear search">×</button>
+    </label>
 
-<!-- HUD -->
-<header class="hud hud-top-left">
-  <button class="brand" id="homeLink" type="button" aria-label="Recenter view">
-    <span class="brand-mark">ਪ</span>
-    <span class="brand-text">Punjabi Rewind<em>A Sonic Constellation — 2026</em></span>
-  </button>
-</header>
+    <nav class="w11-nav" aria-label="Sections">
+      <button class="w11-nav-btn active" data-filter="all" type="button">🎵&nbsp; All songs</button>
+      <button class="w11-nav-btn" data-filter="punjabi" type="button">🌾&nbsp; Punjabi</button>
+      <button class="w11-nav-btn" data-filter="hindi" type="button">🎬&nbsp; Hindi</button>
+      <button class="w11-nav-btn" data-filter="favorites" type="button">★&nbsp; Saved</button>
+    </nav>
 
-<div class="hud hud-top-right">
-  <span class="glass-pill mono" id="clockDisplay">00:00:00</span>
-  <button class="glass-icon-btn" id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
-</div>
-
-<div class="hud hud-radio">
-  <button class="glass-icon-btn radio-power" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio">
-    <span id="dialGlyph">📡</span>
-  </button>
-  <div class="radio-readout">
-    <span class="mono small" id="radioStatus">Radio off</span>
-    <strong id="radioStationName">4 beacons on the rim</strong>
-  </div>
-  <div class="radio-presets" id="radioStationList"></div>
-</div>
-
-<button class="live-toggle" id="liveModeBtn" type="button" aria-pressed="false">
-  <span class="live-toggle-dot" aria-hidden="true"></span> Autopilot
-</button>
-
-<button class="glass-icon-btn hud-vault-btn" id="browseBtn" type="button" aria-label="Open the vault index" title="Browse all tracks">☰</button>
-
-<!-- Player dock: the transport bar and any embed panel above it are flex
-     siblings in one anchored column, so the browser stacks them by actual
-     rendered height — no fixed pixel offsets, so they cannot overlap. -->
-<div class="player-dock" id="playerDock">
-  <div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
-    <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="90" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
-    <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
-  </div>
-  <div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
-    <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-    <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
-  </div>
-
-  <div class="transport-glass" id="transportGlass">
-    <button id="prevBtn" aria-label="Previous track">⏮</button>
-    <button id="playBtn" class="transport-play" aria-label="Play">▶</button>
-    <button id="nextBtn" aria-label="Next track">⏭</button>
-    <div class="transport-meta" aria-live="polite" aria-atomic="true">
-      <strong id="billTitle">Punjabi Rewind</strong>
-      <span id="billArtist">Click a light in the sky to begin</span>
+    <!-- Hidden duplicates keep the old filter-button wiring working -->
+    <div class="filter-row" role="group" aria-label="Filter by" hidden>
+      <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+      <button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button>
+      <button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button>
+      <button class="filter-btn" data-filter="favorites" aria-pressed="false">★ Saved</button>
     </div>
-    <div class="transport-progress">
-      <span class="mono tiny" id="currentTime">0:00</span>
-      <div class="tape-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
-      <span class="mono tiny" id="duration">0:00</span>
+
+    <div class="w11-radio">
+      <div class="w11-radio-head">
+        <strong>📡 Live radio</strong>
+        <span class="mono small" id="radioStatus">Radio off</span>
+      </div>
+      <button class="w11-radio-main" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio">
+        <span id="dialGlyph" aria-hidden="true">▶</span>
+        <span class="w11-radio-text"><strong id="radioStationName">Punjabi Radio USA</strong><em>Tap to tune in</em></span>
+      </button>
+      <div class="radio-presets" id="radioStationList"></div>
     </div>
-    <div class="transport-links">
-      <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
-      <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
-      <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
+
+    <div class="w11-side-foot">
+      <span class="glass-pill mono" id="clockDisplay">00:00:00</span>
+      <span class="mono small w11-count" id="vaultCount">40 tracks</span>
     </div>
+  </aside>
+
+  <div class="w11-right">
+  <main class="w11-main" id="w11Main">
+    <header class="w11-hero">
+      <div class="w11-cover" aria-hidden="true">ਪ</div>
+      <div class="w11-hero-text">
+        <span class="w11-eyebrow mono">Playlist · 2026 · 40 tracks</span>
+        <h1>Punjabi Rewind</h1>
+        <p>The year's Hindi &amp; Punjabi hits, in a clean Windows 11 player.</p>
+        <div class="w11-hero-actions">
+          <button class="w11-playall" id="playAllBtn" type="button">▶&nbsp; Play</button>
+          <button class="w11-ghost" id="shuffleBtn" type="button">Shuffle ↻</button>
+          <button class="w11-ghost" id="browseBtn" type="button" title="Focus the track list">Tracks ☰</button>
+        </div>
+      </div>
+      <div class="w11-hero-clock mono" id="heroClock"></div>
+    </header>
+
+    <div class="w11-listbar">
+      <span class="mono small w11-listbar-count" id="vaultCountDup">40 tracks</span>
+      <span class="w11-listbar-hint">Click ▶ on any row to play</span>
+    </div>
+
+    <div class="song-grid w11-tracklist" id="songGrid" role="list"></div>
+    <p class="empty-state" id="emptyState" hidden>No tracks match that search.</p>
+
+    <div class="invidious-player" id="invidiousWrap" hidden aria-hidden="true">
+      <iframe id="invidiousPlayer" title="Proxy player" width="100%" height="90" frameborder="0" allow="autoplay; encrypted-media; fullscreen" loading="lazy"></iframe>
+      <button class="embed-close" id="invidiousClose" type="button" aria-label="Close proxy player">× Close</button>
+    </div>
+    <div class="spotify-player" id="spotifyPlayerWrap" hidden aria-hidden="true">
+      <iframe id="spotifyPlayer" title="Spotify player" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <button class="embed-close" id="spotifyClose" type="button" aria-label="Close Spotify and use YouTube">× Use YouTube</button>
+    </div>
+  </main>
+
+  <footer class="w11-playbar" aria-label="Now playing">
+    <div class="w11-now" aria-live="polite" aria-atomic="true">
+      <span class="w11-now-cover" id="nowCover" aria-hidden="true">♪</span>
+      <div class="w11-now-meta">
+        <strong id="billTitle">Punjabi Rewind</strong>
+        <span id="billArtist">Pick a track to begin</span>
+      </div>
+      <button id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
+    </div>
+    <div class="w11-transport">
+      <div class="w11-tbtns">
+        <button id="prevBtn" aria-label="Previous track">⏮</button>
+        <button id="playBtn" class="w11-play" aria-label="Play">▶</button>
+        <button id="nextBtn" aria-label="Next track">⏭</button>
+      </div>
+      <div class="w11-progress">
+        <span class="mono tiny" id="currentTime">0:00</span>
+        <div class="w11-track" id="progressTrack" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progressBar"></span></div>
+        <span class="mono tiny" id="duration">0:00</span>
+      </div>
+      <div class="w11-links">
+        <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
+        <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
+        <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
+      </div>
+    </div>
+  </footer>
   </div>
 </div>
 
 <div class="hidden-player"><div id="player"></div></div>
 
-<!-- VAULT / STARMAP INDEX — a frosted overlay, the scene keeps drifting behind it -->
-<div class="vault-scrim" id="vaultScrim"></div>
-<section class="vault-panel" id="vaultPanel" aria-label="Track index" aria-hidden="true">
-  <div class="vault-head">
-    <div>
-      <span class="vault-eyebrow mono">Starmap index — 2026 only</span>
-      <h2>Every light in the sky</h2>
-    </div>
-    <button class="panel-close" id="closeVault" type="button">Close</button>
-  </div>
-
-  <div class="vault-tools">
-    <label class="vault-search">
-      <input id="songSearch" type="search" placeholder="Search song, artist, or year" autocomplete="off">
-      <button id="clearSearch" type="button" aria-label="Clear search">×</button>
-    </label>
-    <button class="text-btn" id="shuffleBtn" type="button">Shuffle ↻</button>
-  </div>
-
-  <div class="filter-row" role="group" aria-label="Filter by">
-    <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
-    <button class="filter-btn" data-filter="punjabi" aria-pressed="false">Punjabi</button>
-    <button class="filter-btn" data-filter="hindi" aria-pressed="false">Hindi</button>
-    <button class="filter-btn" data-filter="favorites" aria-pressed="false">★ Saved</button>
-    <span class="vault-count mono" id="vaultCount">40 tracks</span>
-  </div>
-
-  <div class="vault-body">
-    <div class="song-grid" id="songGrid"></div>
-    <p class="empty-state" id="emptyState" hidden>No tracks match that search.</p>
-  </div>
+<!-- Compat shims: old overlay hooks kept as no-ops so existing shell code never breaks -->
+<div class="vault-scrim" id="vaultScrim" hidden></div>
+<section class="vault-panel" id="vaultPanel" aria-label="Track index" aria-hidden="true" hidden>
+  <button class="panel-close" id="closeVault" type="button">Close</button>
 </section>
+<button id="liveModeBtn" type="button" hidden aria-hidden="true">Autopilot</button>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
     </div>
@@ -323,7 +328,7 @@
   <section class="widgets-flyout" id="widgetsFlyout" aria-hidden="true" aria-label="Widgets">
     <div class="widget-card">
       <h4>&#127925; Now playing</h4>
-      <p id="widgetNowPlaying">Nothing yet — click a light in the sky to begin.</p>
+      <p id="widgetNowPlaying">Nothing yet — pick a track to begin.</p>
     </div>
     <div class="widget-card">
       <h4>&#127769; Weather · Amritsar</h4>
@@ -349,7 +354,6 @@
 <script src="radio.js"></script>
 <script src="player.js"></script>
 <script src="app.js"></script>
-<script type="module" src="scene.js"></script>
 <script src="win11.js"></script>
 </body>
 </html>

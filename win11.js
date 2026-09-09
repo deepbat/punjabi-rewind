@@ -359,14 +359,13 @@
   }
   function defaultNotepadText() {
     return [
-      'Punjabi Rewind — A Sonic Constellation',
+      'Punjabi Rewind — Media Player',
       '',
-      '40 Hindi & Punjabi tracks from 2026, arranged as a galaxy',
-      'you fly through.',
+      '40 Hindi & Punjabi tracks from 2026, in a native-style',
+      'Windows 11 player.',
       '',
-      'Drag to orbit. Scroll to dive in or click a light to play.',
-      'Autopilot lets the camera fly on its own, in time with the',
-      'music.',
+      'Pick a track to play. Use search or the Punjabi / Hindi',
+      'filters to narrow the list, and star tracks to save them.',
       '',
       'Everything on this desktop is one app — File Explorer and',
       'Photos both open onto the same 40-track library.',
@@ -382,7 +381,7 @@
       </div>
       <div class="edge-newtab">
         <h2>Punjabi Rewind</h2>
-        <p>40 Hindi &amp; Punjabi tracks of 2026, presented as a galaxy you fly through.</p>
+        <p>40 Hindi &amp; Punjabi tracks of 2026, in a native-style Windows 11 media player.</p>
         <div class="edge-shortcuts">
           <div class="edge-shortcut" data-shortcut="rewind"><span class="edge-shortcut-icon">ਪ</span><span>Punjabi Rewind</span></div>
           <div class="edge-shortcut" data-shortcut="explorer"><span class="edge-shortcut-icon">&#128196;</span><span>Track list</span></div>
@@ -638,7 +637,7 @@
       const np = window.__nowPlaying && window.__nowPlaying();
       if (np && np.playing) el.textContent = '▶ ' + np.title + ' — ' + (np.artist || 'Punjabi Rewind');
       else if (np && np.title && np.title !== 'Punjabi Rewind') el.textContent = '⏸ ' + np.title + ' — paused';
-      else el.textContent = 'Nothing yet — click a light in the sky to begin.';
+      else el.textContent = 'Nothing yet — pick a track to begin.';
     } catch (e) {}
   }, 2000);
   document.addEventListener('pointerdown', (e) => {
@@ -923,7 +922,7 @@
     taskviewGrid.innerHTML = '';
     const items = [...windows.entries()].filter(([, w]) => w.el.dataset.app !== undefined || true);
     items.forEach(([key, w]) => {
-      const cfg = w.appId ? GENERIC_APPS[w.appId] : { title: 'Punjabi Rewind — A Sonic Constellation', icon: 'ਪ' };
+      const cfg = w.appId ? GENERIC_APPS[w.appId] : { title: 'Punjabi Rewind — Media Player', icon: 'ਪ' };
       const card = document.createElement('div');
       card.className = 'tv-card';
       card.innerHTML = `

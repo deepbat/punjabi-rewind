@@ -1,22 +1,25 @@
 /* ============================================================
-   PUNJABI WAVE ΓÇö A SONIC CONSTELLATION
-   The page is a full-viewport 3D scene (scene.js). Everything
-   here is a thin, mostly-transparent HUD layered on top of it.
+   PUNJABI REWIND — native-style Windows 11 Media Player
+   No 3D scene. The app window is a two-pane media player:
+   sidebar (library / search / radio) + track list + bottom
+   now-playing bar. Runs inside the simulated Win11 desktop
+   (#winContent) from win11.css.
    ============================================================ */
 
 :root{
-  --ink:        #05070C;
-  --glass:      rgba(10,12,18,.55);
-  --glass-line: rgba(255,255,255,.12);
+  --ink:        #0B0B0D;
+  --panel:      #141416;
+  --panel-2:    #1B1B1E;
+  --glass-line: rgba(255,255,255,.09);
   --marigold:   #ECA31C;
   --crimson:    #D14A3F;
   --cobalt:     #5B9BD9;
   --emerald:    #4FBE8C;
-  --paper:      #F1E9D6;
-  --muted:      #9AA0AE;
+  --paper:      #F3F3F3;
+  --muted:      #A7A7AE;
 
   --font-display: 'Anton', sans-serif;
-  --font-body: 'Work Sans', sans-serif;
+  --font-body: 'Work Sans', 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
@@ -29,235 +32,276 @@ body{
 button{font-family:inherit;cursor:pointer;color:inherit;background:none;border:none}
 h1,h2,h3{margin:0}
 p{margin:0}
-::selection{background:var(--marigold);color:var(--ink)}
+::selection{background:var(--marigold);color:#111}
 
-.skip-link{position:absolute;left:-9999px;top:0;background:var(--marigold);color:var(--ink);padding:10px 16px;font-weight:700;z-index:500}
+.skip-link{position:absolute;left:-9999px;top:0;background:var(--marigold);color:#111;padding:10px 16px;font-weight:700;z-index:500}
 .skip-link:focus{left:12px;top:12px}
 :focus-visible{outline:2px solid var(--marigold);outline-offset:2px}
 
 .mono{font-family:var(--font-mono)}
 .small{font-size:12px}
 .tiny{font-size:10.5px}
+.hidden-player{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
 
-/* ============================== SCENE MOUNT ============================== */
-#scene-mount{position:fixed;inset:0;z-index:1}
-#scene-mount canvas{display:block;width:100%;height:100%;touch-action:none;position:relative;z-index:2}
-.scene-fallback{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  padding:40px;text-align:center;color:var(--muted);font-size:14px;background:var(--ink);
-  z-index:1;
-}
-/* The [hidden] attribute is what JS toggles to show this only when WebGL truly
-   isn't available. Without this rule, the class's own `display:flex` above
-   silently wins the cascade over the browser's default [hidden]{display:none},
-   so the fallback would render on top of a perfectly working scene. */
-.scene-fallback[hidden]{display:none}
-.vignette{
-  position:fixed;inset:0;z-index:2;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(0,0,0,.55) 100%);
+/* ============================== APP FRAME ============================== */
+.w11app{
+  position:absolute;inset:0;display:flex;align-items:stretch;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--font-body);overflow:hidden;
 }
 
-.onboard-hint{
-  position:fixed;left:50%;bottom:110px;transform:translateX(-50%);z-index:20;
-  font-size:12.5px;color:var(--muted);letter-spacing:.02em;
-  opacity:1;transition:opacity 1.2s ease;pointer-events:none;text-align:center;
+/* ---- sidebar ---- */
+.w11-sidebar{
+  width:288px;flex:0 0 auto;display:flex;flex-direction:column;gap:14px;
+  background:linear-gradient(180deg,#17171a,#121214);
+  border-right:1px solid var(--glass-line);
+  padding:18px 16px 14px;overflow-y:auto;
 }
-.onboard-hint.faded{opacity:0}
+.w11-id{display:flex;align-items:center;gap:11px;text-align:left;padding:4px;border-radius:8px}
+.w11-id-mark{
+  width:40px;height:40px;border-radius:10px;flex:none;
+  background:linear-gradient(160deg,var(--marigold),#b9760f);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:20px;color:#111;
+}
+.w11-id-text{font-family:var(--font-display);font-size:14px;letter-spacing:.02em;line-height:1.15}
+.w11-id-text em{display:block;font-style:normal;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.05em;color:var(--muted)}
 
-/* ============================== HUD SHELL ============================== */
-.hud{position:fixed;z-index:20;display:flex;align-items:center;gap:10px;
-  transition:opacity .5s ease, transform .5s ease;}
-.hud-top-left{top:20px;left:20px}
-.hud-top-right{top:20px;right:20px}
-.hud-radio{top:20px;left:50%;transform:translateX(-50%);flex-direction:row}
-.hud.idle-fade{opacity:.28}
-.hud.idle-fade:hover{opacity:1}
+.w11-search{
+  display:flex;align-items:center;gap:8px;
+  border:1px solid var(--glass-line);border-radius:8px;
+  background:rgba(255,255,255,.05);padding:8px 10px;
+}
+.w11-search input{
+  border:none;background:none;flex:1;min-width:0;
+  font-size:13px;color:var(--paper);font-family:inherit;outline:none;
+}
+.w11-search input::placeholder{color:var(--muted)}
+.w11-search button{color:var(--muted);font-size:15px;line-height:1;padding:0 2px}
+.w11-search button:hover{color:var(--paper)}
 
-.glass-pill{
-  background:var(--glass);border:1px solid var(--glass-line);border-radius:999px;
-  padding:8px 14px;font-size:12px;backdrop-filter:blur(10px);
+.w11-nav{display:flex;flex-direction:column;gap:2px}
+.w11-nav-btn{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 12px;border-radius:6px;font-size:13px;font-weight:500;
+  color:var(--paper);text-align:left;border-left:3px solid transparent;
 }
-.glass-icon-btn{
-  width:38px;height:38px;border-radius:50%;flex:none;
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);
-  font-size:15px;display:flex;align-items:center;justify-content:center;
-}
-.glass-icon-btn[aria-pressed="true"]{border-color:var(--marigold);color:var(--marigold)}
-.glass-icon-btn:hover{border-color:var(--marigold)}
+.w11-nav-btn:hover{background:rgba(255,255,255,.06)}
+.w11-nav-btn.active{background:rgba(255,255,255,.09);border-left-color:var(--marigold)}
+.filter-row[hidden]{display:none}
 
-.brand{display:flex;align-items:center;gap:10px}
-.brand-mark{
-  width:36px;height:36px;border-radius:50%;flex:none;
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);
-  display:flex;align-items:center;justify-content:center;font-family:var(--font-display);color:var(--marigold);font-size:17px;
+.w11-radio{
+  border:1px solid var(--glass-line);border-radius:10px;
+  background:rgba(255,255,255,.03);padding:12px;
+  display:flex;flex-direction:column;gap:10px;
 }
-.brand-text{font-family:var(--font-display);font-size:13px;letter-spacing:.02em;color:var(--paper);text-align:left;line-height:1.2}
-.brand-text em{display:block;font-style:normal;font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;color:var(--muted)}
-
-.hud-radio{
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);
-  border-radius:999px;padding:6px 16px 6px 6px;gap:12px;max-width:min(560px,88vw);
+.w11-radio-head{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+.w11-radio-head .mono{color:var(--muted);font-size:11px}
+.w11-radio-main{
+  display:flex;align-items:center;gap:10px;width:100%;
+  background:rgba(255,255,255,.05);border:1px solid var(--glass-line);
+  border-radius:8px;padding:10px 12px;text-align:left;
 }
-.radio-power{background:rgba(255,255,255,.06)}
-.radio-readout{display:flex;flex-direction:column;gap:1px;min-width:0}
-.radio-readout strong{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.radio-presets{display:flex;gap:6px}
+.w11-radio-main:hover{border-color:var(--marigold)}
+.w11-radio-main #dialGlyph{
+  width:32px;height:32px;flex:none;border-radius:50%;
+  background:var(--marigold);color:#111;font-size:14px;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+.w11-radio-main[aria-pressed="true"] #dialGlyph{background:var(--crimson);color:#fff}
+.w11-radio-text{display:flex;flex-direction:column;gap:1px;min-width:0}
+.w11-radio-text strong{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w11-radio-text em{font-style:normal;font-size:11px;color:var(--muted)}
+.radio-presets{display:flex;gap:8px;align-items:center}
 .radio-station-btn{
-  width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);border:none;padding:0;
+  width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);padding:0;
 }
 .radio-station-btn.active{background:var(--marigold);box-shadow:0 0 8px var(--marigold)}
 
-.live-toggle{
-  position:fixed;z-index:20;top:20px;right:86px;
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);
-  border-radius:999px;padding:9px 16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;
+.w11-side-foot{
+  margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding-top:10px;border-top:1px solid var(--glass-line);
 }
-.live-toggle-dot{width:7px;height:7px;border-radius:50%;background:var(--cobalt)}
-.live-toggle[aria-pressed="true"]{border-color:var(--crimson);color:var(--crimson)}
-.live-toggle[aria-pressed="true"] .live-toggle-dot{background:var(--crimson);box-shadow:0 0 8px var(--crimson)}
-
-.hud-vault-btn{position:fixed;z-index:20;bottom:24px;right:20px}
-
-/* ============================== PLAYER DOCK ============================== */
-/* One fixed, bottom-anchored flex column. The transport bar is always the
-   last child, so it's always the visually bottom-most element; any embed
-   panel is a flex sibling above it. Stacking is handled by flexbox using
-   each element's real rendered height — there is no fixed pixel offset
-   anywhere in this block, so an embed panel can never overlap the bar. */
-.player-dock{
-  position:fixed;z-index:20;left:50%;bottom:24px;transform:translateX(-50%);
-  width:min(680px,92vw);
-  display:flex;flex-direction:column;align-items:stretch;gap:10px;
-  max-height:calc(100vh - 48px);
+.glass-pill{
+  background:rgba(255,255,255,.06);border:1px solid var(--glass-line);
+  border-radius:999px;padding:6px 12px;font-size:11.5px;color:var(--paper);
 }
+.w11-count{color:var(--muted)}
 
-.transport-glass{
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(14px);
-  border-radius:20px;padding:12px 16px;flex:none;
-  display:grid;grid-template-columns:auto auto auto 1fr auto;align-items:center;gap:12px;
-  transition:opacity .5s ease, transform .5s ease;
-}
-.transport-glass.idle-fade{opacity:.22}
-.transport-glass.idle-fade:hover{opacity:1}
+/* ---- right column (track list + playbar) ---- */
+.w11-right{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 
-.transport-glass button{
-  background:rgba(255,255,255,.06);border:1px solid var(--glass-line);border-radius:50%;
-  width:34px;height:34px;font-size:13px;color:var(--paper);
+/* ---- main column ---- */
+.w11-main{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+  overflow-y:auto;background:
+    radial-gradient(700px 320px at 80% -60px, rgba(236,163,28,.10), transparent 60%),
+    var(--ink);
 }
-.transport-play{
-  width:42px !important;height:42px !important;
-  background:var(--marigold) !important;color:var(--ink) !important;border-color:var(--marigold) !important;font-size:15px !important;
+.w11-hero{
+  display:flex;gap:18px;align-items:center;
+  padding:28px 28px 18px;position:sticky;top:0;z-index:2;
+  background:linear-gradient(180deg,rgba(11,11,13,.96),rgba(11,11,13,.82));
+  backdrop-filter:blur(8px);
 }
-.transport-meta{min-width:0;display:flex;flex-direction:column;gap:1px}
-.transport-meta strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.transport-meta span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.transport-progress{display:none;align-items:center;gap:8px;grid-column:1/-1}
-.tape-track{position:relative;flex:1;height:5px;background:rgba(255,255,255,.12);border-radius:999px;cursor:pointer}
-.tape-track span{position:absolute;left:0;top:0;bottom:0;background:var(--marigold);border-radius:999px;width:0%}
-.transport-links{display:flex;gap:6px}
-.transport-links button{width:auto !important;border-radius:999px !important;padding:0 10px;font-size:10px;font-weight:700}
-.transport-links button:hover{border-color:var(--marigold);color:var(--marigold)}
+.w11-cover{
+  width:132px;height:132px;flex:none;border-radius:12px;
+  background:linear-gradient(150deg,var(--marigold),#8a5c0c 60%,#3a2703);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:64px;color:#111;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+}
+.w11-hero-text{min-width:0}
+.w11-eyebrow{font-size:11px;color:var(--marigold);letter-spacing:.05em}
+.w11-hero-text h1{font-family:var(--font-display);font-weight:400;font-size:34px;letter-spacing:.01em;margin:4px 0}
+.w11-hero-text p{font-size:13px;color:var(--muted)}
+.w11-hero-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.w11-playall{
+  background:var(--marigold);color:#111;font-weight:700;font-size:13px;
+  border-radius:8px;padding:9px 22px;
+}
+.w11-playall:hover{filter:brightness(1.08)}
+.w11-ghost{
+  border:1px solid var(--glass-line);border-radius:8px;
+  padding:9px 16px;font-size:13px;font-weight:600;color:var(--paper);
+  background:rgba(255,255,255,.04);
+}
+.w11-ghost:hover{border-color:var(--marigold);color:var(--marigold)}
+.w11-hero-clock{margin-left:auto;font-size:12px;color:var(--muted);align-self:flex-start}
 
-@media (min-width:560px){
-  .transport-glass{grid-template-columns:auto auto auto 1fr auto}
-  .transport-progress{display:flex}
+.w11-listbar{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 28px;font-size:12px;color:var(--muted);
 }
+.w11-listbar-count{color:var(--paper)}
+.w11-listbar-hint{margin-left:auto;font-size:11.5px}
 
-.hidden-player{position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden}
+/* ---- track list ---- */
+.w11-tracklist{padding:2px 18px 18px;display:flex;flex-direction:column;gap:2px}
+.song-grid{display:flex;flex-direction:column;gap:2px}
+.song-card{
+  display:flex;align-items:center;gap:12px;
+  padding:9px 12px;border-radius:8px;border-left:3px solid transparent;
+}
+.song-card:hover{background:rgba(255,255,255,.05)}
+.song-card.active{background:rgba(236,163,28,.10);border-left-color:var(--marigold)}
+.song-card .num{font-family:var(--font-mono);font-size:11px;color:var(--muted);width:24px;flex:none}
+.song-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.song-main strong{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-main small{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang-dot{width:7px;height:7px;border-radius:50%;display:inline-block;background:var(--marigold);flex:none}
+.lang-dot.hindi{background:var(--crimson)}
+.song-actions{display:flex;gap:6px;flex:none}
+.save-btn,.play-song{
+  border:1px solid var(--glass-line);border-radius:50%;
+  width:32px;height:32px;font-size:13px;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.03);
+}
+.save-btn.saved{color:var(--marigold);border-color:var(--marigold)}
+.play-song{background:var(--paper);color:#111;border-color:var(--paper)}
+.play-song:hover{background:var(--marigold);border-color:var(--marigold)}
+.empty-state{padding:40px 0;text-align:center;color:var(--muted);font-size:13.5px}
+
+/* ---- embeds ---- */
 .invidious-player,.spotify-player{
-  flex:none;width:100%;
-  background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(10px);border-radius:12px;
-  display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:10px;
-  overflow-y:auto;
+  margin:0 28px 16px;background:var(--panel-2);
+  border:1px solid var(--glass-line);border-radius:12px;
+  display:flex;flex-direction:column;gap:8px;padding:10px;
 }
 .invidious-player[hidden],.spotify-player[hidden]{display:none}
-.invidious-player iframe,.spotify-player iframe{border-radius:8px}
-.embed-close{background:rgba(0,0,0,.4);color:var(--paper);border:1px solid var(--glass-line);border-radius:999px;padding:6px 10px;font-size:10px;align-self:flex-end}
-
-/* ============================== CSS2D LABELS (song titles in the scene) ============================== */
-.star-label{
-  font-family:var(--font-mono);font-size:11px;color:var(--paper);
-  background:rgba(5,7,12,.6);border:1px solid var(--glass-line);border-radius:999px;
-  padding:3px 10px;white-space:nowrap;pointer-events:none;
-  opacity:0;transition:opacity .25s ease;transform:translateY(-14px);
+.invidious-player iframe,.spotify-player iframe{border-radius:8px;border:none}
+.embed-close{
+  background:rgba(255,255,255,.06);color:var(--paper);
+  border:1px solid var(--glass-line);border-radius:999px;
+  padding:6px 12px;font-size:11px;align-self:flex-end;
 }
-.star-label.visible{opacity:1}
-.star-label.playing{color:var(--marigold);border-color:var(--marigold)}
+.embed-close:hover{border-color:var(--marigold);color:var(--marigold)}
 
-/* ============================== VAULT / STARMAP PANEL ============================== */
-.vault-scrim{position:fixed;inset:0;background:rgba(2,3,6,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
-.vault-scrim.open{opacity:1;pointer-events:auto}
-
-.vault-panel{
-  position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);z-index:60;
-  background:rgba(9,11,16,.86);backdrop-filter:blur(18px);color:var(--paper);
-  border-left:1px solid var(--glass-line);
-  transform:translateX(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);
-  display:flex;flex-direction:column;
+/* ---- bottom now-playing bar ---- */
+.w11-playbar{
+  flex:none;display:flex;align-items:center;gap:18px;
+  padding:10px 18px;border-top:1px solid var(--glass-line);
+  background:rgba(22,22,25,.92);backdrop-filter:blur(16px);
 }
-.vault-panel.open{transform:translateX(0)}
+.w11-now{display:flex;align-items:center;gap:10px;min-width:0;width:280px;flex:none}
+.w11-now-cover{
+  width:44px;height:44px;flex:none;border-radius:8px;
+  background:linear-gradient(150deg,var(--marigold),#8a5c0c);
+  display:flex;align-items:center;justify-content:center;color:#111;font-size:18px;font-weight:700;
+}
+.w11-now-meta{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.w11-now-meta strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w11-now-meta span{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#muteBtn{
+  width:32px;height:32px;border-radius:50%;flex:none;font-size:14px;
+  border:1px solid var(--glass-line);background:rgba(255,255,255,.04);
+}
+#muteBtn:hover{border-color:var(--marigold)}
+.w11-transport{flex:1;display:flex;align-items:center;gap:14px;min-width:0}
+.w11-tbtns{display:flex;align-items:center;gap:8px;flex:none}
+.w11-tbtns button{
+  width:34px;height:34px;border-radius:50%;font-size:13px;color:var(--paper);
+  border:1px solid var(--glass-line);background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;
+}
+.w11-tbtns button:hover{border-color:var(--marigold)}
+.w11-play{
+  width:42px !important;height:42px !important;font-size:15px !important;
+  background:var(--marigold) !important;color:#111 !important;border-color:var(--marigold) !important;
+}
+.w11-progress{flex:1;display:flex;align-items:center;gap:10px;min-width:0;color:var(--muted)}
+.w11-track{
+  position:relative;flex:1;height:5px;min-width:60px;
+  background:rgba(255,255,255,.14);border-radius:999px;cursor:pointer;
+}
+.w11-track span{position:absolute;left:0;top:0;bottom:0;background:var(--marigold);border-radius:999px;width:0%}
+.w11-links{display:flex;gap:6px;flex:none}
+.w11-links button{
+  border:1px solid var(--glass-line);border-radius:999px;
+  padding:6px 12px;font-size:10.5px;font-weight:700;color:var(--muted);
+  background:rgba(255,255,255,.04);
+}
+.w11-links button:hover{border-color:var(--marigold);color:var(--marigold)}
 
-.vault-head{display:flex;justify-content:space-between;align-items:flex-start;padding:24px 22px 8px}
-.vault-eyebrow{display:block;font-size:10.5px;color:var(--marigold);margin-bottom:6px;letter-spacing:.04em}
-.vault-head h2{font-family:var(--font-display);font-weight:400;font-size:22px}
-.panel-close{border:1px solid var(--glass-line);border-radius:999px;padding:8px 15px;font-size:11.5px;font-weight:700}
-.panel-close:hover{border-color:var(--marigold);color:var(--marigold)}
+/* ---- compat shims (old overlay hooks, kept hidden) ---- */
+.vault-scrim[hidden],.vault-panel[hidden],#liveModeBtn[hidden]{display:none}
 
-.vault-tools{display:flex;gap:10px;padding:14px 22px 0}
-.vault-search{flex:1;display:flex;align-items:center;border:1px solid var(--glass-line);border-radius:999px;padding:9px 14px;background:rgba(255,255,255,.03)}
-.vault-search input{border:none;background:none;flex:1;font-size:13.5px;color:var(--paper);font-family:var(--font-body)}
-.vault-search input::placeholder{color:var(--muted)}
-.vault-search input:focus{outline:none}
-.vault-search button{font-size:15px;color:var(--muted)}
+/* ---- toast ---- */
+.toast{
+  position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);
+  background:var(--marigold);color:#111;font-weight:700;font-size:13px;
+  padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:80;
+  white-space:nowrap;max-width:calc(100% - 40px);overflow:hidden;text-overflow:ellipsis;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .text-btn{color:var(--cobalt);font-weight:600;font-size:12px}
 .text-btn:hover{color:var(--marigold)}
 
-.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:13px 22px}
-.filter-btn{border:1px solid var(--glass-line);border-radius:999px;padding:7px 13px;font-size:12px;font-weight:600;color:var(--muted)}
-.filter-btn.active{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.vault-count{margin-left:auto;font-size:10.5px;color:var(--muted)}
-
-.vault-body{flex:1;overflow-y:auto;padding:4px 22px 30px}
-.song-grid{display:flex;flex-direction:column;gap:2px}
-.empty-state{padding:40px 0;text-align:center;color:var(--muted);font-size:13.5px}
-
-.song-card{display:flex;align-items:center;gap:11px;padding:11px 6px;border-bottom:1px solid var(--glass-line);border-left:3px solid transparent}
-.song-card.active{border-left-color:var(--marigold);background:rgba(236,163,28,.08)}
-.song-card .num{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);width:20px;flex:none}
-.song-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.song-main strong{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.song-main small{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.lang-dot{width:6px;height:6px;border-radius:50%;display:inline-block;background:var(--cobalt)}
-.lang-dot.hindi{background:var(--crimson)}
-.song-actions{display:flex;gap:6px;flex:none}
-.save-btn,.play-song{border:1px solid var(--glass-line);border-radius:50%;width:32px;height:32px;font-size:14px;color:var(--muted)}
-.save-btn.saved{color:var(--marigold);border-color:var(--marigold)}
-.play-song:hover{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-
-/* ============================== TOAST ============================== */
-.toast{
-  position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(10px);
-  background:var(--marigold);color:var(--ink);font-weight:700;font-size:13px;
-  padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:80;
+/* ---- responsive ---- */
+@media (max-width: 860px){
+  .w11app{flex-direction:column}
+  .w11-right{flex:1;min-height:0}
+  .w11-sidebar{
+    width:auto;flex:none;flex-direction:column;gap:10px;
+    border-right:none;border-bottom:1px solid var(--glass-line);
+    padding:12px 14px;max-height:44%;overflow-y:auto;
+  }
+  .w11-nav{flex-direction:row;flex-wrap:wrap}
+  .w11-nav-btn{width:auto;border-left:none;border-bottom:2px solid transparent;border-radius:6px 6px 0 0}
+  .w11-nav-btn.active{border-bottom-color:var(--marigold)}
+  .w11-radio-main{padding:8px 10px}
+  .w11-hero{padding:18px 16px 12px}
+  .w11-cover{width:84px;height:84px;font-size:40px}
+  .w11-hero-text h1{font-size:24px}
+  .w11-hero-clock{display:none}
+  .w11-listbar{padding:6px 16px}
+  .w11-tracklist{padding:2px 10px 14px}
+  .w11-playbar{flex-wrap:wrap;gap:10px}
+  .w11-now{width:100%}
+  .w11-transport{width:100%;flex-wrap:wrap}
+  .w11-progress{flex:1 1 100%;order:3}
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 @media (prefers-reduced-motion: reduce){
-  .onboard-hint,.hud,.transport-glass{transition:none}
-}
-
-@media (max-width:900px){
-  .hud-radio{left:20px;right:20px;transform:none;top:68px;max-width:none;justify-content:space-between}
-  .radio-readout{flex:1}
-  .live-toggle{top:20px;right:72px}
-}
-@media (max-width:640px){
-  .hud-radio{max-width:none;left:12px;right:12px;top:68px;padding:6px 10px 6px 6px}
-  .radio-readout strong{max-width:38vw;font-size:11.5px}
-  .live-toggle{right:12px;top:68px;padding:8px 12px;font-size:11px}
-  .hud-top-left{top:16px;left:12px}
-  .hud-top-right{top:16px;right:12px}
-  .hud-vault-btn{bottom:100px}
-  .player-dock{width:calc(100vw - 24px)}
-  .transport-glass{padding:10px 12px;gap:8px}
+  .toast{transition:none}
 }

@@ -27,45 +27,52 @@ function getFilteredSongs(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   renderSongGrid();
-  $('playBtn').onclick=togglePlay;
-  $('prevBtn').onclick=previous;
-  $('nextBtn').onclick=next;
-  $('browseBtn').onclick=openPanel;
-  $('closeVault').onclick=closePanel;
+  syncNavButtons();
+  if($('playBtn'))$('playBtn').onclick=togglePlay;
+  if($('prevBtn'))$('prevBtn').onclick=previous;
+  if($('nextBtn'))$('nextBtn').onclick=next;
+  if($('browseBtn'))$('browseBtn').onclick=()=>{$('songGrid')?.scrollIntoView({behavior:'smooth',block:'start'});$('songSearch')?.focus({preventScroll:true});};
+  if($('closeVault'))$('closeVault').onclick=closePanel;
   $('vaultScrim')?.addEventListener('click',closePanel);
-  $('youtubeBtn').onclick=openYoutube;
-  $('spotifyBtn').onclick=()=>openSpotify(false);
+  if($('youtubeBtn'))$('youtubeBtn').onclick=openYoutube;
+  if($('spotifyBtn'))$('spotifyBtn').onclick=()=>openSpotify(false);
   $('shareBtn')?.addEventListener('click',shareCurrent);
   $('spotifyClose')?.addEventListener('click',()=>switchToYouTube(false));
   $('invidiousClose')?.addEventListener('click',()=>{hideInvidious(); switchToYouTube(false); showToast('Proxy closed — back to YouTube');});
-  $('muteBtn').onclick=toggleMute;
-  $('homeLink').onclick=()=>{closePanel();if(window.__recenterView)window.__recenterView();};
-  $('liveModeBtn').onclick=toggleAutopilot;
+  if($('muteBtn'))$('muteBtn').onclick=toggleMute;
+  if($('homeLink'))$('homeLink').onclick=()=>{closePanel();$('w11Main')?.scrollTo({top:0,behavior:'smooth'});};
+  if($('playAllBtn'))$('playAllBtn').onclick=()=>{const pool=getFilteredSongs();if(pool.length)selectSong(pool[0].index,true);else if(SONG_LIST.length)selectSong(0,true);};
+  if($('liveModeBtn'))$('liveModeBtn').onclick=toggleAutopilot;
   $('songSearch')?.addEventListener('input',e=>{searchTerm=e.target.value;renderSongGrid()});
-  $('clearSearch')?.addEventListener('click',()=>{$('songSearch').value='';searchTerm='';renderSongGrid();$('songSearch').focus()});
+  $('clearSearch')?.addEventListener('click',()=>{if($('songSearch'))$('songSearch').value='';searchTerm='';renderSongGrid();$('songSearch')?.focus()});
   $('shuffleBtn')?.addEventListener('click',shuffleFiltered);
-  document.querySelectorAll('.filter-btn').forEach(button=>button.addEventListener('click',()=>{
-    activeFilter=button.dataset.filter||'all';
-    document.querySelectorAll('.filter-btn').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
-    renderSongGrid();
-  }));
+  document.querySelectorAll('.filter-btn').forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter||'all')));
+  document.querySelectorAll('.w11-nav-btn').forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter||'all')));
   initProgressSeek();
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){if($('vaultPanel')?.classList.contains('open'))closePanel();return}
-    if(e.target.matches('input,button'))return;
+    if(e.key==='Escape'){closePanel();return}
+    if(e.target.matches('input,textarea,select,button'))return;
     if(e.code==='Space'){e.preventDefault();togglePlay()}
     if(e.code==='ArrowRight')next();
     if(e.code==='ArrowLeft')previous();
   });
 });
 
+function setFilter(f){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>{const active=b.dataset.filter===f;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+  syncNavButtons();
+  renderSongGrid();
+}
+function syncNavButtons(){
+  document.querySelectorAll('.w11-nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.filter===activeFilter));
+}
+
 function beatMsFor(i){const bpm=84+((i*7)%22);return Math.round(60000/bpm)}
 
 function toggleAutopilot(){
-  const btn=$('liveModeBtn');
-  const on=btn.getAttribute('aria-pressed')==='true';
-  if(on){window.__exitAutopilot&&window.__exitAutopilot();btn.setAttribute('aria-pressed','false')}
-  else{window.__enterAutopilot&&window.__enterAutopilot();btn.setAttribute('aria-pressed','true');if(!(window.__nowPlaying&&window.__nowPlaying().playing))playCurrent(true)}
+  // 3D Autopilot was removed with the galaxy view — no-op kept for compat.
+  showToast('Autopilot retired with the 3D view ✦');
 }
 
 function selectSong(i,autoplay=false){
@@ -212,7 +219,7 @@ function togglePlay(){
 }
 function previous(){selectSongAndFocus((currentIndex-1+SONG_LIST.length)%SONG_LIST.length)}
 function next(){selectSongAndFocus((currentIndex+1)%SONG_LIST.length)}
-function selectSongAndFocus(i){selectSong(i,true);window.__focusMarker&&window.__focusMarker(i)}
+function selectSongAndFocus(i){selectSong(i,true);}
 function shuffleFiltered(){
   const pool=getFilteredSongs();if(!pool.length){showToast('No tracks to shuffle in this view');return}
   const pick=pool[Math.floor(Math.random()*pool.length)];selectSongAndFocus(pick.index);closePanel();
@@ -297,19 +304,22 @@ function renderSongGrid(){
     return `<article class="song-card${index===currentIndex?' active':''}" data-index="${index}"><span class="num">${String(index+1).padStart(2,'0')}</span><div class="song-main"><strong>${esc(song.title)}${hasSpotify?' <span style="color:var(--emerald);font-size:9px">● SPOTIFY</span>':''}</strong><small>${song.lang==='hindi'?'<span class="lang-dot hindi" title="Hindi"></span>':'<span class="lang-dot" title="Punjabi"></span>'} ${esc(song.artist)} · ${song.year}</small></div><div class="song-actions"><button class="save-btn${saved?' saved':''}" data-save="${index}" type="button" aria-label="${saved?'Remove':'Save'} ${esc(song.title)}" aria-pressed="${saved}">${saved?'★':'☆'}</button><button class="play-song" data-i="${index}" type="button" aria-label="Play ${esc(song.title)}">▶</button></div></article>`
   }).join('');
   if(empty)empty.hidden=matches.length>0;
-  if($('vaultCount'))$('vaultCount').textContent=`${matches.length} ${matches.length===1?'track':'tracks'}`;
+  const countText=`${matches.length} ${matches.length===1?'track':'tracks'}`;
+  if($('vaultCount'))$('vaultCount').textContent=countText;
+  if($('vaultCountDup'))$('vaultCountDup').textContent=countText;
   grid.querySelectorAll('.play-song').forEach(button=>button.addEventListener('click',()=>{selectSongAndFocus(Number(button.dataset.i));closePanel()}));
   grid.querySelectorAll('.save-btn').forEach(button=>button.addEventListener('click',()=>toggleFavorite(Number(button.dataset.save))));
 }
 function openPanel(){
+  // No overlay anymore — the library is inline. Focus search instead.
   if(window.__closeStart)window.__closeStart();
-  $('vaultPanel').classList.add('open');$('vaultPanel').setAttribute('aria-hidden','false');$('vaultScrim')?.classList.add('open');
-  setTimeout(()=>$('songSearch')?.focus(),180);
+  setTimeout(()=>$('songSearch')?.focus({preventScroll:true}),60);
+  $('songGrid')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 window.__openVault=openPanel;
 window.__closeVault=closePanel;
 function closePanel(){
-  $('vaultPanel')?.classList.remove('open');$('vaultPanel')?.setAttribute('aria-hidden','true');$('vaultScrim')?.classList.remove('open');
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
 }
 function openYoutube(){const id=SONG_LIST[currentIndex]?.youtubeIds?.[idAttempt];if(id)window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(id)}`,'_blank','noopener')}
 function openSpotify(externalOnly){

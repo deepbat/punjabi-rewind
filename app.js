@@ -1,23 +1,19 @@
-/* LIVE CLOCK — compact IST readout in the top-right HUD pill */
+/* LIVE CLOCK — compact IST readout in the sidebar + hero */
 (function(){
   const clockEl=document.getElementById('clockDisplay');
-  if(!clockEl) return;
+  const heroEl=document.getElementById('heroClock');
+  if(!clockEl && !heroEl) return;
   function tick(){
     const now=new Date();
     const opts={timeZone:'Asia/Kolkata',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'};
+    let text='';
     try{
-      clockEl.textContent = new Intl.DateTimeFormat('en-GB',opts).format(now);
+      text = new Intl.DateTimeFormat('en-GB',opts).format(now);
     }catch(e){
-      clockEl.textContent = now.toLocaleTimeString();
+      text = now.toLocaleTimeString();
     }
+    if(clockEl) clockEl.textContent = text + ' IST';
+    if(heroEl) heroEl.textContent = text + ' IST';
   }
   tick(); setInterval(tick,1000);
-})();
-
-/* First-interaction hint fade: hide the onboarding line after a few seconds
-   even if the person hasn't touched anything yet (they may just be watching). */
-(function(){
-  setTimeout(()=>{
-    document.getElementById('onboardHint')?.classList.add('faded');
-  }, 6000);
 })();
