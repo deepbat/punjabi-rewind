@@ -46,7 +46,7 @@
   /* ============================== SETTINGS STORE ============================== */
   const SETTINGS_KEY = 'pr_win11_settings';
   const settings = Object.assign({
-    wallpaper: 'aurora', accent: '#60CDFF', brightness: 100, nightLight: false,
+    wallpaper: 'bloom', accent: '#60CDFF', brightness: 100, nightLight: false,
     wifi: true, bluetooth: false, airplane: false, focus: false, volume: 100, muted: false,
   }, (() => { try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); } catch (e) { return {}; } })());
 
@@ -145,11 +145,13 @@
     if (!w) return;
     const { el, titlebar: tbar } = w;
     let dragging = false, sx = 0, sy = 0, wx = 0, wy = 0;
+    let shakeDir = 0, shakeCount = 0, lastShakeX = 0, lastShakeT = 0;
 
     tbar.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.win-controls') || e.target.closest('.rs')) return;
       if (!el.classList.contains('windowed')) return;
       dragging = true;
+      shakeDir = 0; shakeCount = 0; lastShakeX = e.clientX; lastShakeT = performance.now();
       tbar.setPointerCapture(e.pointerId);
       const rect = el.getBoundingClientRect();
       sx = e.clientX; sy = e.clientY; wx = rect.left; wy = rect.top;
@@ -163,6 +165,20 @@
       el.style.left = clamp(wx + dx, -el.offsetWidth + 120, window.innerWidth - 80) + 'px';
       el.style.top = clamp(wy + dy, 0, window.innerHeight - 48 - 24) + 'px';
       checkSnap(e.clientX, e.clientY);
+      // Aero Shake: rapid horizontal reversals minimize every other window
+      const nowT = performance.now();
+      const dir = e.clientX > lastShakeX ? 1 : (e.clientX < lastShakeX ? -1 : 0);
+      if (dir && dir !== shakeDir && nowT - lastShakeT < 350) {
+        shakeCount++;
+        if (shakeCount >= 4) {
+          shakeCount = 0;
+          windows.forEach((o, k) => { if (k !== key && !o.minimized && !isHidden(o.el)) minimizeWindow(k); });
+          desktopToast('Aero Shake — everything else minimized');
+        }
+      } else if (!dir || nowT - lastShakeT >= 350) {
+        if (nowT - lastShakeT >= 350) shakeCount = 0;
+      }
+      if (dir) { shakeDir = dir; lastShakeX = e.clientX; lastShakeT = nowT; }
     });
     function endDrag(e) {
       if (!dragging) return;
@@ -212,9 +228,54 @@
     tr:     () => ({ left: window.innerWidth / 2, top: 0, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
     br:     () => ({ left: window.innerWidth / 2, top: (window.innerHeight - 48) / 2, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
     bl:     () => ({ left: 0, top: (window.innerHeight - 48) / 2, width: window.innerWidth / 2, height: (window.innerHeight - 48) / 2 }),
-    max:    () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight - 48 }),
-  };
+     third1: () => ({ left: 0, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
+     third2: () => ({ left: window.innerWidth / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
+     third3: () => ({ left: (window.innerWidth * 2) / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
+     wideL:  () => ({ left: 0, top: 0, width: (window.innerWidth * 2) / 3, height: window.innerHeight - 48 }),
+     wideR:  () => ({ left: (window.innerWidth * 2) / 3, top: 0, width: window.innerWidth / 3, height: window.innerHeight - 48 }),
+     max:    () => ({ left: 0, top: 0, width: window.innerWidth, height: window.innerHeight - 48 }),
+   };
   let pendingSnap = null;
+
+  /* -------- snap layouts flyout (hover the maximize button, like real Win11) -------- */
+  let snapKey = null, snapTimer = null;
+  function wireSnapButton(btn, key) {
+    if (!btn) return;
+    btn.addEventListener('pointerenter', () => {
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => showSnapFlyout(btn, key), 380);
+    });
+    btn.addEventListener('pointerleave', () => {
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => { if (!$('snapFlyout').matches(':hover')) $('snapFlyout').hidden = true; }, 180);
+    });
+  }
+  function showSnapFlyout(btn, key) {
+    snapKey = key;
+    const fly = $('snapFlyout');
+    const r = btn.getBoundingClientRect();
+    fly.hidden = false;
+    const fw = 300;
+    fly.style.left = clamp(r.right - fw, 4, window.innerWidth - fw - 4) + 'px';
+    fly.style.top = (r.bottom + 6) + 'px';
+  }
+  $('snapFlyout').addEventListener('pointerleave', () => { $('snapFlyout').hidden = true; });
+  $('snapFlyout').querySelectorAll('[data-zone]').forEach((z) => {
+    z.addEventListener('click', () => {
+      $('snapFlyout').hidden = true;
+      if (!snapKey) return;
+      const w = windows.get(snapKey);
+      if (!w) return;
+      focusWindow(snapKey);
+      if (w.el.classList.contains('maximized')) { w.el.classList.remove('maximized'); w.el.classList.add('windowed'); }
+      const geo = SNAP_ZONES[z.dataset.zone]();
+      if (!geo) return;
+      Object.assign(w.el.style, { left: geo.left + 'px', top: geo.top + 'px', width: geo.width + 'px', height: geo.height + 'px', marginLeft: '0' });
+      w.el.classList.add('windowed');
+      updateMaxIcon(snapKey);
+      if (snapKey === 'main') lastLayout = 'windowed';
+    });
+  });
 
   function checkSnap(x, y) {
     const H = window.innerHeight - 48;
@@ -258,6 +319,7 @@
 
   minBtn.addEventListener('click', () => minimizeWindow('main'));
   maxBtn.addEventListener('click', () => toggleMaximize('main'));
+  wireSnapButton(maxBtn, 'main');
   closeBtn.addEventListener('click', () => minimizeWindow('main'));
   titlebar.addEventListener('dblclick', (e) => {
     if (e.target.closest('.win-controls') || e.target.closest('.rs')) return;
@@ -292,28 +354,111 @@
     showMainWindow();
   }
 
+  const SVG_FOLDER = '<svg viewBox="0 0 24 24" class="tic"><rect x="2" y="5" width="20" height="13" rx="2" fill="#1976D2"/><path d="M2 9a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="#FFC83D"/></svg>';
+  const SVG_EDGE_SM = '<svg viewBox="0 0 24 24" class="tic"><circle cx="12" cy="12" r="9" fill="#0C88C7"/><path d="M12 3.2A8.8 8.8 0 0 1 19.7 16c-1.4-4.3-4.9-7-9.2-7-2.3 0-4.4 1-5.8 2.5C6.2 8.7 8.9 3.6 12 3.2z" fill="#3BC2D8"/></svg>';
+  const SVG_NOTEPAD_SM = '<svg viewBox="0 0 24 24" class="tic"><rect x="5" y="3" width="14" height="18" rx="1.5" fill="#F3F3F3"/><rect x="5" y="3" width="14" height="5" fill="#4CC2FF"/><line x1="8" y1="12" x2="16" y2="12" stroke="#8a8a8a" stroke-width="1.6"/><line x1="8" y1="15.5" x2="16" y2="15.5" stroke="#8a8a8a" stroke-width="1.6"/><line x1="8" y1="19" x2="14" y2="19" stroke="#8a8a8a" stroke-width="1.6"/></svg>';
+  const SVG_GEAR_SM = '<svg viewBox="0 0 24 24" class="tic"><circle cx="12" cy="12" r="6" fill="none" stroke="#B5B5B5" stroke-width="4.4" stroke-dasharray="2.9 1.81"/><circle cx="12" cy="12" r="2.6" fill="#B5B5B5"/></svg>';
+  const SVG_PHOTOS_SM = '<svg viewBox="0 0 24 24" class="tic"><rect x="3" y="4" width="18" height="16" rx="2" fill="#2B88D8"/><circle cx="9" cy="10" r="2.2" fill="#fff"/><path d="M4 19l5-6 3.5 4 2.5-3 5 5z" fill="#fff" opacity=".92"/></svg>';
+  const SVG_BIN_SM = '<svg viewBox="0 0 24 24" class="tic"><path d="M5 7h14l-1.3 12a2 2 0 0 1-2 1.8H8.3a2 2 0 0 1-2-1.8z" fill="#CFCFCF"/><rect x="4" y="4.5" width="16" height="2.4" rx="1" fill="#EFEFEF"/><rect x="10" y="2.4" width="4" height="2.4" rx="1" fill="#EFEFEF"/></svg>';
+  const SVG_SONG = '<svg viewBox="0 0 24 24" class="tic"><path d="M9 18.5a3 3 0 1 1-2-2.83V5.2L17 2.7v12.5a3 3 0 1 1-2-2.83V6.4l-6 1.5z" fill="#4CC2FF"/></svg>';
+  const SVG_DRIVE = '<svg viewBox="0 0 24 24" class="tic"><rect x="3" y="4" width="18" height="12" rx="1.5" fill="#8a8a8a"/><rect x="5" y="6" width="14" height="8" fill="#1b3a5c"/><rect x="10.5" y="16" width="3" height="3" fill="#8a8a8a"/><rect x="7" y="19" width="10" height="1.8" rx=".9" fill="#8a8a8a"/></svg>';
+
   function buildExplorerContent() {
     const wrap = document.createElement('div');
+    wrap.className = 'rx';
     const songs = songList();
+    let view = 'list', asc = true, query = '', section = 'home';
+    let extra = 0;
     wrap.innerHTML = `
-      <div class="explorer-toolbar">
-        <span>This PC &gt; Music &gt; Punjabi Rewind</span>
-        <span class="explorer-count">${songs.length} items</span>
+      <div class="rx-tabbar">
+        <div class="rx-tab">${SVG_FOLDER}<span>Punjabi Rewind</span><button type="button" aria-label="Close tab">×</button></div>
+        <button class="rx-newtab" type="button" aria-label="New tab" title="New tab">+</button>
       </div>
-      <div class="explorer-list">
-        ${songs.map((s, i) => `
-          <div class="explorer-row" data-index="${i}">
-            <span class="explorer-row-icon">&#127925;</span>
-            <span class="explorer-row-name"><strong>${esc(s.title)}</strong><span>${esc(s.artist)}</span></span>
-            <span class="explorer-row-tag ${s.lang === 'hindi' ? 'hindi' : 'punjabi'}">${s.lang === 'hindi' ? 'Hindi' : 'Punjabi'}</span>
-            <span class="explorer-row-year">${s.year}</span>
-          </div>
-        `).join('')}
+      <div class="rx-toolbar">
+        <button class="rx-cmd primary" data-cmd="new" type="button">＋ New</button>
+        <button class="rx-cmd" data-cmd="sort" type="button">⇅ Sort</button>
+        <button class="rx-cmd" data-cmd="view" type="button">▦ View</button>
       </div>
-    `;
-    wrap.querySelectorAll('.explorer-row').forEach((row) => {
-      row.addEventListener('click', () => playSongFromApp(Number(row.dataset.index)));
-    });
+      <div class="rx-addr">
+        <span class="rx-navbtns"><button data-nav="back" type="button" disabled aria-label="Back">←</button><button data-nav="up" type="button" aria-label="Up">↑</button></span>
+        <div class="rx-crumbs"><button data-crumb="home" type="button">🏠 Home</button><span class="sep">›</span><button data-crumb="music" type="button">Music</button><span class="sep">›</span><button data-crumb="rewind" type="button"><b>Punjabi Rewind</b></button></div>
+        <label class="rx-search"><span aria-hidden="true">🔍</span><input type="search" placeholder="Search Punjabi Rewind" aria-label="Search files"></label>
+      </div>
+      <div class="rx-body">
+        <nav class="rx-nav" aria-label="Navigation">
+          <button data-sec="home" type="button" class="active">🏠<span>Home</span></button>
+          <button data-sec="gallery" type="button">🖼️<span>Gallery</span></button>
+          <button data-sec="thispc" type="button">${SVG_FOLDER}<span>This PC</span></button>
+          <div class="rx-drivebar" title="Local Disk (C:) — 62% used"><i style="width:62%"></i></div>
+        </nav>
+        <div class="rx-listwrap">
+          <div class="rx-cols"><span></span><span><button data-sort="name" type="button">Name</button></span><span>Artist</span><span>Year</span><span>Type</span></div>
+          <div class="rx-rows"></div>
+        </div>
+      </div>
+      <div class="rx-status"><span class="rx-count"></span><span class="rx-view-label" style="margin-left:auto"></span></div>`;
+    const rowsEl = wrap.querySelector('.rx-rows');
+    function currentRows() {
+      if (section === 'thispc') {
+        return [
+          { kind: 'drive', name: 'Local Disk (C:)', sub: '98 GB free of 256 GB' },
+          { kind: 'drive', name: 'Data (D:)', sub: '412 GB free of 512 GB' },
+          { kind: 'folder', name: 'Music' },
+        ];
+      }
+      let pool = songs.map((s, i) => ({ kind: 'song', song: s, index: i }));
+      for (let k = 0; k < extra; k++) pool.push({ kind: 'folder', name: 'New folder' + (k ? ' (' + (k + 1) + ')' : '') });
+      const q = query.trim().toLowerCase();
+      if (q) pool = pool.filter((r) => ((r.song ? r.song.title + ' ' + r.song.artist + ' ' + r.song.year : r.name)).toLowerCase().includes(q));
+      pool.sort((a, b) => {
+        const an = a.song ? a.song.title : a.name, bn = b.song ? b.song.title : b.name;
+        return asc ? an.localeCompare(bn) : bn.localeCompare(an);
+      });
+      return pool;
+    }
+    function render() {
+      const rows = currentRows();
+      rowsEl.innerHTML = '';
+      rowsEl.classList.toggle('rx-tiles', view === 'tiles' || section === 'gallery');
+      rows.forEach((r) => {
+        const div = document.createElement('div');
+        div.className = 'rx-row';
+        if (r.kind === 'song') {
+          div.innerHTML = `${SVG_SONG}<span class="nm">${esc(r.song.title)}</span><span class="dim">${esc(r.song.artist)}</span><span class="dim">${r.song.year}</span><span class="dim">${r.song.lang === 'hindi' ? 'Hindi' : 'Punjabi'} audio</span>`;
+          div.addEventListener('dblclick', () => playSongFromApp(r.index));
+        } else if (r.kind === 'drive') {
+          div.innerHTML = `${SVG_DRIVE}<span class="nm">${esc(r.name)}</span><span class="dim">${esc(r.sub)}</span><span class="dim"></span><span class="dim">Local Disk</span>`;
+          div.addEventListener('dblclick', () => desktopToast(r.name + ' — open the Music folder for tracks'));
+        } else {
+          div.innerHTML = `${SVG_FOLDER}<span class="nm">${esc(r.name)}</span><span class="dim"></span><span class="dim"></span><span class="dim">File folder</span>`;
+          div.addEventListener('dblclick', () => { if (section === 'thispc') { section = 'home'; syncNav(); render(); } else desktopToast('"' + r.name + '" is empty'); });
+        }
+        div.addEventListener('click', () => { rowsEl.querySelectorAll('.rx-row').forEach((x) => x.classList.remove('sel')); div.classList.add('sel'); });
+        rowsEl.appendChild(div);
+      });
+      wrap.querySelector('.rx-count').textContent = rows.length + ' item' + (rows.length === 1 ? '' : 's');
+      wrap.querySelector('.rx-view-label').textContent = (view === 'tiles' || section === 'gallery') ? 'Tiles' : 'Details';
+    }
+    function syncNav() {
+      wrap.querySelectorAll('.rx-nav button').forEach((b) => b.classList.toggle('active', b.dataset.sec === section));
+    }
+    wrap.querySelectorAll('.rx-nav button').forEach((b) => b.addEventListener('click', () => { section = b.dataset.sec; syncNav(); render(); }));
+    wrap.querySelector('.rx-search input').addEventListener('input', (e) => { query = e.target.value; render(); });
+    wrap.querySelectorAll('[data-crumb]').forEach((b) => b.addEventListener('click', () => {
+      if (b.dataset.crumb === 'home') { section = 'thispc'; } else { section = 'home'; }
+      syncNav(); render();
+    }));
+    wrap.querySelector('[data-nav="up"]').addEventListener('click', () => { section = 'home'; syncNav(); render(); });
+    wrap.querySelector('[data-sort]').addEventListener('click', () => { asc = !asc; render(); desktopToast('Sorted ' + (asc ? 'A–Z' : 'Z–A')); });
+    wrap.querySelectorAll('.rx-toolbar [data-cmd]').forEach((b) => b.addEventListener('click', () => {
+      const c = b.dataset.cmd;
+      if (c === 'new') { extra++; section = 'home'; syncNav(); render(); desktopToast('New folder created'); }
+      if (c === 'sort') { asc = !asc; render(); }
+      if (c === 'view') { view = view === 'list' ? 'tiles' : 'list'; render(); }
+    }));
+    wrap.querySelector('.rx-newtab').addEventListener('click', () => desktopToast('One tab is plenty in this demo'));
+    wrap.querySelector('.rx-tab button').addEventListener('click', () => desktopToast('Can\'t close the last tab'));
+    render();
     return wrap;
   }
 
@@ -372,66 +517,163 @@
     ].join('\n');
   }
 
+  const SVG_EDGE = '<svg viewBox="0 0 24 24" class="tic"><circle cx="12" cy="12" r="9" fill="#0C88C7"/><path d="M12 3.2A8.8 8.8 0 0 1 19.7 16c-1.4-4.3-4.9-7-9.2-7-2.3 0-4.4 1-5.8 2.5C6.2 8.7 8.9 3.6 12 3.2z" fill="#3BC2D8"/></svg>';
   function buildEdgeContent() {
     const wrap = document.createElement('div');
+    wrap.className = 'edge2';
     wrap.innerHTML = `
-      <div class="edge-toolbar">
-        <span class="edge-nav">&#8592; &#8594; &#8635;</span>
-        <span class="edge-address">&#128274; punjabi-rewind</span>
+      <div class="edge2-tabs">
+        <div class="edge2-tab">${SVG_EDGE}<span>New tab</span><button type="button" aria-label="Close tab">×</button></div>
+        <button class="edge2-newtab" type="button" aria-label="New tab">+</button>
       </div>
-      <div class="edge-newtab">
-        <h2>Punjabi Rewind</h2>
-        <p>40 Hindi &amp; Punjabi tracks of 2026, in a native-style Windows 11 media player.</p>
-        <div class="edge-shortcuts">
-          <div class="edge-shortcut" data-shortcut="rewind"><span class="edge-shortcut-icon">ਪ</span><span>Punjabi Rewind</span></div>
-          <div class="edge-shortcut" data-shortcut="explorer"><span class="edge-shortcut-icon">&#128196;</span><span>Track list</span></div>
-          <div class="edge-shortcut" data-shortcut="settings"><span class="edge-shortcut-icon">&#9881;&#65039;</span><span>Settings</span></div>
+      <div class="edge2-bar">
+        <button class="edge2-nav" type="button" disabled aria-label="Back">←</button>
+        <button class="edge2-nav" type="button" disabled aria-label="Forward">→</button>
+        <button class="edge2-nav" type="button" aria-label="Reload">⟳</button>
+        <div class="edge2-addr"><svg viewBox="0 0 24 24" class="tic"><rect x="6" y="10" width="12" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10V7.5a3.5 3.5 0 0 1 7 0V10" fill="none" stroke="currentColor" stroke-width="1.8"/></svg><input type="text" value="edge://newtab" aria-label="Address bar" spellcheck="false"></div>
+      </div>
+      <div class="edge2-page">
+        ${SVG_EDGE.replace('class="tic"', 'class="tic edge2-logo"')}
+        <h2>New tab</h2>
+        <label class="edge2-search"><span aria-hidden="true">🔍</span><input type="search" placeholder="Search songs, artists, stations…" aria-label="Search"></label>
+        <div class="edge2-results"></div>
+        <div class="edge2-links">
+          <div class="edge2-link" data-shortcut="rewind"><span class="edge2-ic" style="font-size:22px">ਪ</span><span>Punjabi Rewind</span></div>
+          <div class="edge2-link" data-shortcut="explorer"><span style="font-size:22px">📁</span><span>Track list</span></div>
+          <div class="edge2-link" data-shortcut="settings"><span style="font-size:22px">⚙️</span><span>Settings</span></div>
         </div>
-      </div>
-    `;
+      </div>`;
+    const addr = wrap.querySelector('.edge2-addr input');
+    const search = wrap.querySelector('.edge2-search input');
+    const results = wrap.querySelector('.edge2-results');
+    function doSearch(q) {
+      q = q.trim().toLowerCase();
+      results.innerHTML = '';
+      if (!q) return;
+      const hits = songList().map((s, i) => ({ s, i })).filter(({ s }) => (s.title + ' ' + s.artist).toLowerCase().includes(q)).slice(0, 5);
+      const stHits = (window.RADIO_STATIONS || []).filter((s) => s.name.toLowerCase().includes(q));
+      if (!hits.length && !stHits.length) { results.innerHTML = `<div class="edge2-hit"><span>🔍</span><div><b>No results for “${esc(q)}”</b><span>Try a song, artist, or station name</span></div></div>`; return; }
+      hits.forEach(({ s, i }) => {
+        const d = document.createElement('div');
+        d.className = 'edge2-hit';
+        d.innerHTML = `<span style="font-size:20px">🎵</span><div><b>${esc(s.title)}</b><span>${esc(s.artist)} · ${s.year}</span></div>`;
+        d.addEventListener('click', () => playSongFromApp(i));
+        results.appendChild(d);
+      });
+      stHits.forEach((s) => {
+        const d = document.createElement('div');
+        d.className = 'edge2-hit';
+        d.innerHTML = `<span style="font-size:20px">📡</span><div><b>${esc(s.name)}</b><span>Live radio station</span></div>`;
+        results.appendChild(d);
+      });
+    }
+    search.addEventListener('input', (e) => doSearch(e.target.value));
+    addr.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const v = addr.value.trim().toLowerCase();
+      if (v.includes('rewind')) { showMainWindow(); }
+      else if (!v || v.startsWith('edge://')) { addr.value = 'edge://newtab'; }
+      else { desktopToast('No internet in this demo — try the search box instead'); addr.value = 'edge://newtab'; }
+    });
+    wrap.querySelector('.edge2-page .edge2-nav, .edge2-bar [aria-label="Reload"]')?.addEventListener('click', () => { results.innerHTML = ''; search.value = ''; });
     wrap.querySelectorAll('[data-shortcut]').forEach((el) => {
       el.addEventListener('click', () => openOrFocusApp(el.dataset.shortcut));
     });
+    wrap.querySelector('.edge2-newtab').addEventListener('click', () => desktopToast('One tab is plenty in this demo'));
+    wrap.querySelector('.edge2-tab button').addEventListener('click', () => desktopToast('Can\'t close the last tab'));
     return wrap;
   }
 
   /* -------- Settings app -------- */
-  const WALLPAPERS = ['aurora', 'bloom', 'mesh', 'dark'];
+  const WALLPAPERS = ['bloom', 'aurora', 'mesh', 'dark'];
   const ACCENTS = ['#60CDFF', '#0078D4', '#ECA31C', '#D14A3F', '#4FBE8C', '#9b6bd6', '#e0729a'];
   function buildSettingsContent() {
     const wrap = document.createElement('div');
-    wrap.className = 'settings-app';
+    wrap.className = 'st2';
+    const PAGES = [
+      ['system', '🖥️', 'System'], ['bluetooth', '📶', 'Bluetooth & devices'],
+      ['network', '🌐', 'Network & internet'], ['personalization', '🖼️', 'Personalization'],
+      ['apps', '▦', 'Apps'], ['accounts', '👤', 'Accounts'], ['update', '⟳', 'Windows Update'],
+    ];
     wrap.innerHTML = `
-      <div class="settings-nav"><b>&#9881;&#65039; Settings</b><span class="mono small" style="margin-left:auto;color:var(--win-text-dim)">Personalization &amp; system</span></div>
-      <div class="settings-page">
-        <div class="settings-row"><div class="grow"><b>Wallpaper</b><em>Pick the desktop background</em></div>
-          <select id="setWallpaper">${WALLPAPERS.map((w) => `<option value="${w}" ${settings.wallpaper === w ? 'selected' : ''}>${w[0].toUpperCase() + w.slice(1)}</option>`).join('')}</select></div>
-        <div class="settings-row"><div class="grow"><b>Accent color</b><em>Tints the taskbar highlights and controls</em></div>
-          <div class="swatches">${ACCENTS.map((c) => `<button class="swatch ${settings.accent === c ? 'active' : ''}" data-accent="${c}" style="background:${c}" type="button" aria-label="Accent ${c}"></button>`).join('')}</div></div>
-        <div class="settings-row"><div class="grow"><b>Brightness</b><em>Screen brightness</em></div>
-          <input type="range" id="setBrightness" min="30" max="100" value="${settings.brightness}"></div>
-        <div class="settings-row"><div class="grow"><b>Night light</b><em>Warmer colors, easier on the eyes</em></div>
-          <input type="checkbox" id="setNight" ${settings.nightLight ? 'checked' : ''}></div>
-        <div class="settings-row"><div class="grow"><b>Volume</b><em>System output level</em></div>
-          <input type="range" id="setVolume" min="0" max="100" value="${settings.volume}"></div>
-        <div class="settings-row"><div class="grow"><b>Mute</b><em>Silence the whole system</em></div>
-          <input type="checkbox" id="setMute" ${settings.muted ? 'checked' : ''}></div>
-        <div class="settings-row"><div class="grow"><b>About this PC</b><em>Punjabi Rewind Desktop · simulated Windows 11 · rendered in your browser</em></div><span class="mono small" style="color:var(--win-text-dim)">v2.0</span></div>
-      </div>
-    `;
-    wrap.querySelector('#setWallpaper').addEventListener('change', (e) => { settings.wallpaper = e.target.value; saveSettings(); applySettings(); });
-    wrap.querySelectorAll('.swatch').forEach((s) => s.addEventListener('click', () => {
-      settings.accent = s.dataset.accent; saveSettings(); applySettings();
-      wrap.querySelectorAll('.swatch').forEach((x) => x.classList.toggle('active', x === s));
-    }));
-    wrap.querySelector('#setBrightness').addEventListener('input', (e) => {
-      settings.brightness = Number(e.target.value); saveSettings(); applySettings();
-    });
-    wrap.querySelector('#setNight').addEventListener('change', (e) => { settings.nightLight = e.target.checked; saveSettings(); applySettings(); });
-    wrap.querySelector('#setVolume').addEventListener('input', (e) => {
-      settings.volume = Number(e.target.value); settings.muted = settings.volume === 0; saveSettings(); applySettings();
-    });
-    wrap.querySelector('#setMute').addEventListener('change', (e) => { settings.muted = e.target.checked; saveSettings(); applySettings(); });
+      <nav class="st2-nav" aria-label="Settings sections">
+        <div class="st2-user"><span class="start-account-avatar">DB</span><div><b>Deepak</b><span>deepak@rewind-pc</span></div></div>
+        ${PAGES.map(([id, ic, label], i) => `<button data-page="${id}" type="button" class="${i === 0 ? 'active' : ''}"><span style="font-size:15px">${ic}</span>${label}</button>`).join('')}
+      </nav>
+      <div class="st2-page"></div>`;
+    const page = wrap.querySelector('.st2-page');
+    const tg = (label, sub, key) => `<div class="st2-card"><div class="grow"><b>${label}</b><em>${sub}</em></div><button class="st2-toggle" data-tg="${key}" aria-pressed="${settings[key] ? 'true' : 'false'}" type="button" aria-label="${label}"><i></i></button></div>`;
+    const rg = (label, sub, id, min, max, val) => `<div class="st2-card"><div class="grow"><b>${label}</b><em>${sub}</em></div><input type="range" id="${id}" min="${min}" max="${max}" value="${val}" aria-label="${label}"></div>`;
+    function render(id) {
+      wrap.querySelectorAll('.st2-nav button').forEach((b) => b.classList.toggle('active', b.dataset.page === id));
+      if (id === 'system') {
+        page.innerHTML = `<h2>System</h2><p class="sub">Display, sound, and about</p>
+          ${rg('Brightness', 'Screen brightness', 'sBri', 30, 100, settings.brightness)}
+          ${tg('Night light', 'Warmer colors, easier on the eyes', 'nightLight')}
+          ${rg('Volume', 'System output level', 'sVol', 0, 100, settings.volume)}
+          ${tg('Mute', 'Silence the whole system', 'muted')}
+          <div class="st2-card"><div class="grow"><b>About this PC</b><em>REWIND-PC · Punjabi Rewind Desktop · simulated Windows 11</em></div><span class="mono small" style="color:var(--win-text-dim)">v2.0</span></div>`;
+        page.querySelector('#sBri').addEventListener('input', (e) => { settings.brightness = Number(e.target.value); saveSettings(); applySettings(); });
+        page.querySelector('#sVol').addEventListener('input', (e) => { settings.volume = Number(e.target.value); settings.muted = settings.volume === 0; saveSettings(); applySettings(); });
+      } else if (id === 'bluetooth') {
+        page.innerHTML = `<h2>Bluetooth & devices</h2><p class="sub">Manage wireless devices</p>
+          ${tg('Bluetooth', settings.bluetooth ? 'On — visible as REWIND-PC' : 'Off', 'bluetooth')}
+          <div class="st2-card"><div class="grow"><b>No devices found</b><em>Make sure your device is discoverable</em></div><button class="st2-btn" id="sAddBt" type="button">Add device</button></div>`;
+        page.querySelector('#sAddBt').addEventListener('click', () => { if (!settings.bluetooth) { desktopToast('Turn Bluetooth on first'); return; } desktopToast('Scanning… no devices found'); });
+      } else if (id === 'network') {
+        page.innerHTML = `<h2>Network & internet</h2><p class="sub">Wi-Fi, airplane mode, and data</p>
+          ${tg('Wi-Fi', settings.wifi ? 'Connected — Home-Network' : 'Off', 'wifi')}
+          ${tg('Airplane mode', 'Stop all wireless communication', 'airplane')}`;
+      } else if (id === 'personalization') {
+        page.innerHTML = `<h2>Personalization</h2><p class="sub">Background, colors, and lock screen</p>
+          <div class="st2-card"><div class="grow"><b>Background</b><em>Pick the desktop wallpaper</em></div>
+            <select id="sWall">${WALLPAPERS.map((w) => `<option value="${w}" ${settings.wallpaper === w ? 'selected' : ''}>${w[0].toUpperCase() + w.slice(1)}</option>`).join('')}</select></div>
+          <div class="st2-card"><div class="grow"><b>Accent color</b><em>Tints highlights and controls</em></div>
+            <div class="swatches">${ACCENTS.map((c) => `<button class="swatch ${settings.accent === c ? 'active' : ''}" data-accent="${c}" style="background:${c}" type="button" aria-label="Accent ${c}"></button>`).join('')}</div></div>
+          ${tg('Night light', 'Warmer colors, easier on the eyes', 'nightLight')}
+          <div class="st2-card"><div class="grow"><b>Lock screen</b><em>Bloom backdrop with clock — press any key to sign in</em></div><button class="st2-btn" id="sLockNow" type="button">Lock now</button></div>`;
+        page.querySelector('#sWall').addEventListener('change', (e) => { settings.wallpaper = e.target.value; saveSettings(); applySettings(); });
+        page.querySelectorAll('.swatch').forEach((s) => s.addEventListener('click', () => {
+          settings.accent = s.dataset.accent; saveSettings(); applySettings();
+          page.querySelectorAll('.swatch').forEach((x) => x.classList.toggle('active', x === s));
+        }));
+        page.querySelector('#sLockNow').addEventListener('click', () => lockPC());
+      } else if (id === 'apps') {
+        const list = [['പ', 'Punjabi Rewind — Media Player', '84 MB']].concat(
+          Object.entries(GENERIC_APPS).map(([aid, cfg]) => [cfg.icon, cfg.title, (8 + (aid.length * 7) % 40) + ' MB'])
+        );
+        page.innerHTML = `<h2>Apps</h2><p class="sub">Installed apps — everything runs from this desktop</p>` +
+          list.map(([ic, t, sz]) => `<div class="st2-card"><span class="st2-app-ico">${ic}</span><div class="grow"><b>${esc(t)}</b><em>${sz}</em></div></div>`).join('');
+      } else if (id === 'accounts') {
+        page.innerHTML = `<h2>Accounts</h2><p class="sub">Your info and sign-in options</p>
+          <div class="st2-card"><span class="start-account-avatar" style="width:44px;height:44px;font-size:15px">DB</span><div class="grow"><b>Deepak</b><em>deepak@rewind-pc · Administrator</em></div></div>
+          <div class="st2-card"><div class="grow"><b>Sign in with PIN</b><em>Any PIN works in this demo</em></div><button class="st2-btn" id="sLockNow2" type="button">Lock now</button></div>`;
+        page.querySelector('#sLockNow2').addEventListener('click', () => lockPC());
+      } else if (id === 'update') {
+        page.innerHTML = `<h2>Windows Update</h2><p class="sub">You're up to date</p>
+          <div class="st2-card"><div class="grow"><b>✓ Last checked: today</b><em>Rewind Desktop 11, version 2026 · no updates needed</em><div class="st2-update-bar" id="sUpdBar" hidden><i></i></div></div><button class="st2-btn accent" id="sCheckUpd" type="button">Check for updates</button></div>`;
+        page.querySelector('#sCheckUpd').addEventListener('click', () => {
+          const bar = page.querySelector('#sUpdBar');
+          bar.hidden = false;
+          const fill = bar.querySelector('i');
+          let p = 0;
+          const iv = setInterval(() => {
+            p += 12 + Math.random() * 18;
+            if (p >= 100) { clearInterval(iv); fill.style.width = '100%'; notify('Windows Update', 'You\'re up to date.', '🛡️'); }
+            else fill.style.width = p + '%';
+          }, 280);
+        });
+      }
+      page.querySelectorAll('[data-tg]').forEach((t) => t.addEventListener('click', () => {
+        const k = t.dataset.tg;
+        settings[k] = !settings[k];
+        if (k === 'volume') settings.muted = false;
+        saveSettings(); applySettings();
+        render(id); // refresh labels
+      }));
+    }
+    wrap.querySelectorAll('.st2-nav button').forEach((b) => b.addEventListener('click', () => render(b.dataset.page)));
+    render('system');
     return wrap;
   }
 
@@ -839,12 +1081,12 @@
   }
 
   const GENERIC_APPS = {
-    explorer: { title: 'File Explorer', icon: '&#128196;', w: 620, h: 520, build: buildExplorerContent },
-    photos: { title: 'Photos', icon: '&#128247;', w: 640, h: 520, build: buildPhotosContent },
-    notepad: { title: 'Notepad', icon: '&#128220;', w: 480, h: 420, build: buildNotepadContent },
-    edge: { title: 'Microsoft Edge', icon: '&#127760;', w: 760, h: 560, build: buildEdgeContent },
-    settings: { title: 'Settings', icon: '&#9881;&#65039;', w: 560, h: 540, build: buildSettingsContent },
-    recyclebin: { title: 'Recycle Bin', icon: '&#128465;&#65039;', w: 460, h: 340, build: buildRecycleBinContent },
+    explorer: { title: 'File Explorer', icon: SVG_FOLDER, w: 680, h: 540, build: buildExplorerContent },
+    photos: { title: 'Photos', icon: SVG_PHOTOS_SM, w: 640, h: 520, build: buildPhotosContent },
+    notepad: { title: 'Notepad', icon: SVG_NOTEPAD_SM, w: 480, h: 420, build: buildNotepadContent },
+    edge: { title: 'Microsoft Edge', icon: SVG_EDGE_SM, w: 780, h: 580, build: buildEdgeContent },
+    settings: { title: 'Settings', icon: SVG_GEAR_SM, w: 660, h: 560, build: buildSettingsContent },
+    recyclebin: { title: 'Recycle Bin', icon: SVG_BIN_SM, w: 460, h: 340, build: buildRecycleBinContent },
     mail: { title: 'Mail', icon: '&#9993;&#65039;', w: 460, h: 320, build: () => buildPlaceholder('Mail', '&#9993;&#65039;', 'No new mail. This app is just for show in the simulation.') },
     calendar: { title: 'Calendar', icon: '&#128197;', w: 460, h: 320, build: () => buildPlaceholder('Calendar', '&#128197;', 'Nothing scheduled today.') },
     store: { title: 'Microsoft Store', icon: '&#128193;', w: 460, h: 320, build: () => buildPlaceholder('Microsoft Store', '&#128193;', 'Nothing to install — the whole desktop is one app.') },
@@ -897,6 +1139,7 @@
     w.el.querySelector('.win-min').addEventListener('click', () => minimizeWindow(key));
     w.el.querySelector('.win-max').addEventListener('click', () => toggleMaximize(key));
     w.el.querySelector('.win-close').addEventListener('click', () => closeWindow(key));
+    wireSnapButton(w.maxBtn, key);
     w.titlebar.addEventListener('dblclick', (e) => {
       if (e.target.closest('.win-controls') || e.target.closest('.rs')) return;
       toggleMaximize(key);
@@ -960,6 +1203,8 @@
     if (except !== 'cal') { notifCenter.setAttribute('aria-hidden', 'true'); }
     if (except !== 'start') { startMenu.setAttribute('aria-hidden', 'true'); startScrim.classList.remove('open'); }
     if (except !== 'widgets') { $('widgetsFlyout').setAttribute('aria-hidden', 'true'); }
+    if (except !== 'snap') { const sf = $('snapFlyout'); if (sf) sf.hidden = true; }
+    if (except !== 'overflow') { const to = $('trayOverflow'); if (to) to.hidden = true; }
     closeCtxMenu();
   }
 
@@ -976,9 +1221,31 @@
   document.addEventListener('pointerdown', (e) => {
     if (!quickSettings.contains(e.target) && !notifCenter.contains(e.target) &&
         !e.target.closest('#trayQuickBtn') && !e.target.closest('#trayClockBtn') &&
+        !e.target.closest('#trayChevronBtn') && !e.target.closest('#trayOverflow') &&
+        !e.target.closest('#trayBellBtn') && !e.target.closest('#snapFlyout') &&
         !e.target.closest('.start-menu') && !e.target.closest('#taskbarStartBtn')) {
       closeAllFlyouts();
     }
+  });
+  $('trayChevronBtn').addEventListener('click', () => {
+    const ov = $('trayOverflow');
+    const open = ov.hidden;
+    closeAllFlyouts('overflow');
+    ov.hidden = !open;
+  });
+  $('trayOverflow').querySelectorAll('[data-ov]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.ov;
+    $('trayOverflow').hidden = true;
+    if (k === 'security') notify('Windows Security', 'No threats found. Definitions are up to date.', '🛡️');
+    if (k === 'onedrive') desktopToast('OneDrive — everything is synced');
+    if (k === 'audio') desktopToast('Audio output: System Default');
+  }));
+  $('trayBellBtn').addEventListener('click', () => {
+    const open = notifCenter.getAttribute('aria-hidden') === 'false';
+    closeAllFlyouts('cal');
+    if (!open) { notifCenter.setAttribute('aria-hidden', 'false'); renderCalendar(); }
+    const dot = $('trayBellDot');
+    if (dot) dot.style.display = 'none';
   });
 
   /* Quick settings tiles */
@@ -1140,32 +1407,24 @@
   powerOverlay.querySelectorAll('[data-power]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.power;
-      if (action === 'sleep') {
-        powerOverlay.setAttribute('aria-hidden', 'true');
-        const wake = () => { shutdownScreen.setAttribute('aria-hidden', 'true'); document.removeEventListener('pointerdown', wake); document.removeEventListener('keydown', wake); };
-        shutdownScreen.querySelector('.shutdown-message').textContent = 'Sleeping…';
-        shutdownScreen.setAttribute('aria-hidden', 'false');
-        setTimeout(() => { document.addEventListener('pointerdown', wake); document.addEventListener('keydown', wake); }, 400);
-      } else if (action === 'lock') {
-        powerOverlay.setAttribute('aria-hidden', 'true');
-        const wake = () => { shutdownScreen.setAttribute('aria-hidden', 'true'); document.removeEventListener('pointerdown', wake); document.removeEventListener('keydown', wake); };
-        shutdownScreen.querySelector('.shutdown-message').textContent = 'Locked — click anywhere to unlock';
-        shutdownScreen.setAttribute('aria-hidden', 'false');
-        setTimeout(() => { document.addEventListener('pointerdown', wake); document.addEventListener('keydown', wake); }, 400);
-      } else {
-        const msg = action === 'restart' ? 'Restarting' : 'Shutting down';
-        powerOverlay.setAttribute('aria-hidden', 'true');
-        shutdownScreen.querySelector('.shutdown-message').firstChild.textContent = msg;
-        shutdownScreen.setAttribute('aria-hidden', 'false');
+      powerOverlay.setAttribute('aria-hidden', 'true');
+      if (action === 'sleep' || action === 'lock') { lockPC(); return; }
+      if (action === 'restart') {
         if (window.__pauseSongPlayback) window.__pauseSongPlayback();
         if (window.__pauseRadio) window.__pauseRadio();
-        shutdownScreen.querySelector('.power-btn-back').textContent = 'Power on';
+        runBoot();
+        return;
       }
+      shutdownScreen.querySelector('.shutdown-message').firstChild.textContent = 'Shutting down';
+      shutdownScreen.setAttribute('aria-hidden', 'false');
+      if (window.__pauseSongPlayback) window.__pauseSongPlayback();
+      if (window.__pauseRadio) window.__pauseRadio();
+      shutdownScreen.querySelector('.power-btn-back').textContent = 'Power on';
     });
   });
   $('powerBack').addEventListener('click', () => {
     shutdownScreen.setAttribute('aria-hidden', 'true');
-    desktopToast('Welcome back');
+    runBoot();
   });
 
   /* ============================== CONTEXT MENUS ============================== */
@@ -1199,30 +1458,110 @@
     e.preventDefault();
   });
 
-  /* Desktop context menu */
+  /* Desktop context menu — Win11 style: icon row + commands */
+  let clipOp = null, clipName = null, clipType = null, sortAsc = true;
+  function selectedUserItem() {
+    const el = document.querySelector('.desktop-icon.user-item.selected');
+    if (!el) return null;
+    return desktopItems.find((it) => it.id === el.dataset.itemId) || null;
+  }
+  function showDesktopMenu(x, y, classic) {
+    closeCtxMenu();
+    const menu = document.createElement('div');
+    menu.className = 'ctx-menu';
+    const sel = selectedUserItem();
+    if (!classic) {
+      const row = document.createElement('div');
+      row.className = 'ctx-iconrow';
+      const iconBtns = [
+        { t: 'Cut', g: '✂️', dis: !sel, fn: () => { clipOp = 'cut'; clipName = sel.name; clipType = sel.type; sel.el.style.opacity = '.45'; desktopToast('Cut "' + sel.name + '"'); } },
+        { t: 'Copy', g: '❐', dis: !sel, fn: () => { clipOp = 'copy'; clipName = sel.name; clipType = sel.type; desktopToast('Copied "' + sel.name + '"'); } },
+        { t: 'Paste', g: '📋', dis: !clipOp, fn: () => {
+          if (clipOp === 'copy') createDesktopItem({ type: clipType, name: clipName + ' - Copy', quiet: true });
+          else if (clipOp === 'cut') { const it = desktopItems.find((i) => i.name === clipName); if (it && it.el) it.el.style.opacity = ''; }
+          clipOp = null; desktopToast('Pasted');
+        } },
+        { t: 'Rename', g: '✎', dis: !sel, fn: () => startRename(sel, false) },
+        { t: 'Delete', g: '🗑', dis: !sel, fn: () => deleteDesktopItem(sel) },
+      ];
+      iconBtns.forEach((b) => {
+        const btn = document.createElement('button');
+        btn.className = 'ctx-iconbtn'; btn.type = 'button'; btn.title = b.t;
+        btn.innerHTML = `<span style="font-size:15px">${b.g}</span><span>${b.t}</span>`;
+        if (b.dis) btn.disabled = true;
+        else btn.addEventListener('click', () => { closeCtxMenu(); b.fn(); });
+        row.appendChild(btn);
+      });
+      menu.appendChild(row);
+      var items = [
+        { label: 'Sort by name ' + (sortAsc ? '(A–Z)' : '(Z–A)'), action: () => {
+          sortAsc = !sortAsc;
+          desktopItems.sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+          desktopItems.forEach((it) => it.el && desktopIconsEl.appendChild(it.el));
+          desktopToast('Sorted ' + (sortAsc ? 'A–Z' : 'Z–A'));
+        } },
+        { label: 'Refresh', action: () => desktopToast('Desktop refreshed') },
+        '-',
+        { label: 'Next desktop background', action: () => cycleWallpaper() },
+        '-',
+        { label: 'Display settings', action: () => openOrFocusApp('settings') },
+        { label: 'Personalize', action: () => openOrFocusApp('settings') },
+        '-',
+        { label: 'Show more options', cls: 'ctx-more', action: () => showDesktopMenu(x, y, true) },
+      ];
+    } else {
+      var items = [
+        { label: 'New folder', action: () => createDesktopItem({ type: 'folder' }) },
+        { label: 'New text document', action: () => createDesktopItem({ type: 'text' }) },
+        '-',
+        { label: 'Change wallpaper', action: () => cycleWallpaper() },
+        { label: 'Display settings', action: () => openOrFocusApp('settings') },
+        '-',
+        { label: 'About this PC', action: () => notify('About this PC', 'Punjabi Rewind Desktop · simulated Windows 11 · v2.0', '💻') },
+      ];
+    }
+    items.forEach((item) => {
+      if (item === '-') { const sep = document.createElement('div'); sep.className = 'ctx-sep'; menu.appendChild(sep); return; }
+      const b = document.createElement('button');
+      b.className = 'ctx-item' + (item.cls ? ' ' + item.cls : '');
+      b.type = 'button';
+      b.innerHTML = `<span class="ctx-icon"></span><span class="ctx-label">${esc(item.label)}</span>`;
+      b.addEventListener('click', () => { closeCtxMenu(); item.action && item.action(); });
+      menu.appendChild(b);
+    });
+    document.body.appendChild(menu);
+    const r = menu.getBoundingClientRect();
+    menu.style.left = clamp(x, 4, window.innerWidth - r.width - 4) + 'px';
+    menu.style.top = clamp(y, 4, window.innerHeight - r.height - 52) + 'px';
+    ctxMenuEl = menu;
+  }
+  const WALLPAPER_ORDER = ['bloom', 'aurora', 'mesh', 'dark'];
+  function cycleWallpaper() {
+    const i = WALLPAPER_ORDER.indexOf(settings.wallpaper);
+    settings.wallpaper = WALLPAPER_ORDER[(i + 1) % WALLPAPER_ORDER.length];
+    saveSettings(); applySettings();
+    desktopToast('Wallpaper: ' + settings.wallpaper[0].toUpperCase() + settings.wallpaper.slice(1));
+  }
   $('win11Desktop').addEventListener('contextmenu', (e) => {
     if (e.target.closest('.win-window') || e.target.closest('.taskbar') || e.target.closest('.start-menu')) return;
     e.preventDefault();
-    showCtxMenu(e.clientX, e.clientY, [
-      { icon: '&#128193;', label: 'View', action: () => {} },
-      { icon: '&#128465;', label: 'Refresh', action: () => desktopToast('Desktop refreshed') },
-      '-',
-      { icon: '&#10133;', label: 'New folder', action: () => createDesktopItem({ type: 'folder' }) },
-      { icon: '&#128196;', label: 'New text document', action: () => createDesktopItem({ type: 'text' }) },
-      '-',
-      { icon: '&#128247;', label: 'Change wallpaper', action: () => openOrFocusApp('settings') },
-      { icon: '&#9881;&#65039;', label: 'Display settings', action: () => openOrFocusApp('settings') },
-    ]);
+    const userIcon = e.target.closest('.desktop-icon.user-item');
+    if (userIcon) {
+      clearIconSelection();
+      userIcon.classList.add('selected');
+    }
+    showDesktopMenu(e.clientX, e.clientY, false);
   });
 
   /* ============================== DESKTOP ICONS ============================== */
   const desktopIconsEl = document.querySelector('.desktop-icons');
   const desktopItems = [];
   function createDesktopItem(opts) {
-    const item = { id: 'item-' + Date.now() + Math.random().toString(36).slice(2, 6), type: opts.type, name: opts.type === 'folder' ? 'New folder' : 'New Text Document.txt', x: 90 + Math.floor(Math.random() * 60), y: 18 + desktopIconsEl.children.length * 92 };
+    const item = { id: 'item-' + Date.now() + Math.random().toString(36).slice(2, 6), type: opts.type, name: opts.name || (opts.type === 'folder' ? 'New folder' : 'New Text Document.txt'), x: 90 + Math.floor(Math.random() * 60), y: 18 + desktopIconsEl.children.length * 92 };
     desktopItems.push(item);
     renderDesktopItem(item);
-    startRename(item, true);
+    if (!opts.quiet) startRename(item, true);
+    else desktopToast('Created "' + item.name + '"');
     return item;
   }
   function renderDesktopItem(item) {
@@ -1303,6 +1642,37 @@
     return wrap;
   }
 
+  /* ============================== RUBBER-BAND SELECTION ============================== */
+  const rubber = $('rubber');
+  let rubberStart = null;
+  function clearIconSelection() {
+    document.querySelectorAll('.desktop-icon.selected').forEach((el) => el.classList.remove('selected'));
+  }
+  desktop.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest('.win-window, .taskbar, .start-menu, .flyout, .desktop-icon, .ctx-menu, .os-toast, .os-lock, .os-login, .os-boot')) return;
+    rubberStart = { x: e.clientX, y: e.clientY };
+    Object.assign(rubber.style, { left: e.clientX + 'px', top: e.clientY + 'px', width: '0px', height: '0px' });
+    rubber.hidden = false;
+    clearIconSelection();
+  });
+  document.addEventListener('pointermove', (e) => {
+    if (!rubberStart) return;
+    const x = Math.min(e.clientX, rubberStart.x), y = Math.min(e.clientY, rubberStart.y);
+    Object.assign(rubber.style, { left: x + 'px', top: y + 'px', width: Math.abs(e.clientX - rubberStart.x) + 'px', height: Math.abs(e.clientY - rubberStart.y) + 'px' });
+  });
+  document.addEventListener('pointerup', () => {
+    if (!rubberStart) return;
+    rubberStart = null;
+    const r = rubber.getBoundingClientRect();
+    rubber.hidden = true;
+    if (r.width < 4 && r.height < 4) return;
+    document.querySelectorAll('.desktop-icon').forEach((icon) => {
+      const b = icon.getBoundingClientRect();
+      icon.classList.toggle('selected', b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top);
+    });
+  });
+
   /* Wire existing desktop icons */
   document.querySelectorAll('[data-app]:not(.taskbar-btn)').forEach((el) => {
     el.addEventListener('click', () => { closeStart(); openOrFocusApp(el.dataset.app); });
@@ -1363,14 +1733,137 @@
     if (e.metaKey && e.key.toLowerCase() === 'i') { e.preventDefault(); openOrFocusApp('settings'); }
   });
 
-  /* ============================== BOOT + APPLY ============================== */
-  const boot = document.createElement('div');
-  boot.className = 'boot-screen';
-  boot.innerHTML = '<div class="boot-logo">&#8862;</div>';
-  document.body.appendChild(boot);
-  setTimeout(() => boot.classList.add('done'), 900);
-  setTimeout(() => boot.remove(), 1600);
+  /* ============================== BOOT → LOCK → LOGIN ============================== */
+  const osBoot = $('osBoot'), osLock = $('osLock'), osLogin = $('osLogin');
+  const lockTime = $('lockTime'), lockDate = $('lockDate');
+  const pinInput = $('osPinInput'), pinDots = $('osPinDots'), loginMsg = $('osLoginMsg');
+  const pinWrap = $('osPinWrap'), welcomeBox = $('osWelcome');
 
+  function tickLockClock() {
+    const now = new Date();
+    let h = now.getHours(); const m = String(now.getMinutes()).padStart(2, '0');
+    const h12 = h % 12 || 12;
+    if (lockTime) lockTime.textContent = h12 + ':' + m;
+    if (lockDate) lockDate.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+  tickLockClock();
+  setInterval(tickLockClock, 5000);
+
+  function tryFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        const p = document.documentElement.requestFullscreen();
+        if (p && p.catch) p.catch(() => {});
+      }
+    } catch (e) {}
+  }
+
+  function runBoot() {
+    closeAllFlyouts();
+    osLogin.hidden = true;
+    osLock.hidden = true;
+    osBoot.hidden = false;
+    osBoot.setAttribute('aria-hidden', 'false');
+    setTimeout(() => {
+      osBoot.hidden = true;
+      osLock.hidden = false;
+      osLock.setAttribute('aria-hidden', 'false');
+      tickLockClock();
+    }, 2100);
+  }
+  window.__osBoot = runBoot;
+
+  function dismissLock() {
+    if (osLock.hidden) return;
+    osLock.hidden = true;
+    osLock.setAttribute('aria-hidden', 'true');
+    osLogin.hidden = false;
+    osLogin.setAttribute('aria-hidden', 'false');
+    pinWrap.hidden = false;
+    welcomeBox.hidden = true;
+    pinInput.value = '';
+    syncPinDots();
+    if (loginMsg) { loginMsg.textContent = 'Hint: any PIN works here — just press Enter'; loginMsg.style.color = ''; }
+    setTimeout(() => pinInput.focus(), 120);
+  }
+  osLock.addEventListener('click', dismissLock);
+
+  function syncPinDots() {
+    const n = Math.min(pinInput.value.length, 6);
+    pinDots.querySelectorAll('i').forEach((d, i) => d.classList.toggle('on', i < n));
+  }
+  pinInput.addEventListener('input', syncPinDots);
+  pinInput.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') submitPin();
+  });
+  $('osSignIn').addEventListener('click', submitPin);
+  function submitPin() {
+    if (!pinInput.value) {
+      pinInput.classList.remove('shake');
+      void pinInput.offsetWidth;
+      pinInput.classList.add('shake');
+      if (loginMsg) { loginMsg.textContent = 'Enter any PIN to sign in'; loginMsg.style.color = '#ff9d9d'; }
+      pinInput.focus();
+      return;
+    }
+    pinWrap.hidden = true;
+    welcomeBox.hidden = false;
+    tryFullscreen(); // user gesture: browser chrome vanishes, illusion complete
+    setTimeout(() => {
+      osLogin.hidden = true;
+      osLogin.setAttribute('aria-hidden', 'true');
+      pinInput.value = '';
+      bootToasts();
+    }, 1100);
+  }
+  function lockPC() {
+    closeAllFlyouts();
+    if (window.__pauseSongPlayback) window.__pauseSongPlayback();
+    osLock.hidden = true;
+    osLogin.hidden = false;
+    osLogin.setAttribute('aria-hidden', 'false');
+    pinWrap.hidden = false;
+    welcomeBox.hidden = true;
+    pinInput.value = '';
+    syncPinDots();
+    setTimeout(() => pinInput.focus(), 120);
+  }
+  window.__lockPC = lockPC;
+
+  document.addEventListener('keydown', (e) => {
+    if (!osLock.hidden && !e.metaKey && !e.ctrlKey && !e.altKey) { dismissLock(); }
+    else if (!osLogin.hidden && document.activeElement !== pinInput && e.key.length === 1 && !e.metaKey && !e.ctrlKey && !e.altKey) { pinInput.focus(); }
+  });
+
+  /* Desktop toast notifications (Win11 notification-center style) */
+  function notify(title, msg, icon) {
+    const box = $('osToasts');
+    if (!box) return;
+    const t = document.createElement('div');
+    t.className = 'os-toast';
+    t.innerHTML = `<span class="os-toast-ico">${icon || '🔔'}</span><div class="os-toast-body"><b>${esc(title)}</b><p>${esc(msg)}</p></div><button class="os-toast-x" type="button" aria-label="Dismiss">✕</button>`;
+    const kill = () => { t.classList.add('out'); setTimeout(() => t.remove(), 260); };
+    t.querySelector('.os-toast-x').addEventListener('click', kill);
+    box.appendChild(t);
+    while (box.children.length > 3) box.firstChild.remove();
+    setTimeout(kill, 6000);
+    const dot = $('trayBellDot');
+    if (dot) dot.style.display = 'block';
+  }
+  window.__notify = notify;
+  let bootedOnce = false;
+  function bootToasts() {
+    if (bootedOnce) return;
+    bootedOnce = true;
+    minimizeWindow('main'); // boot to a clean desktop, like a real PC
+    setTimeout(() => notify('Punjabi Rewind', 'Pinned to your taskbar — click the app to open 40 tracks from 2026.', '🎵'), 900);
+    setTimeout(() => notify('Windows Update', 'You\'re up to date. Last checked: today.', '🛡️'), 2600);
+    setTimeout(() => notify('Live radio', '4 Punjabi stations on the dial in the sidebar.', '📡'), 4300);
+  }
+
+  /* ============================== APPLY + BOOT ============================== */
   applySettings();
   updateMaxIcon('main');
+  runBoot();
 })();
