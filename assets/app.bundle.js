@@ -1,57 +1,62 @@
 
 /* ===== songs.js ===== */
-/* Punjabi Rewind — 2026 Hits Only
-   HYBRID v405: youtubeIds + optional spotifyId. If YouTube blocked (101/150), player auto-switches to Spotify.
-   If spotifyId missing, a Spotify search-embed fallback is used automatically — no API key needed.
-   To add a direct Spotify track: open track -> Share -> Copy link -> /track/<ID> -> paste as spotifyId
-   Every YouTube ID below checked against the oEmbed endpoint (200 = resolves and embeds).
-   September 2026 refresh: 40 tracks. New picks cross-checked against Apple Music India weekly
-   charts (recotop), Mirchi Top 20 and Ormax reporting; every video ID title-matched via oEmbed. */
+/* Punjabi Rewind — All-Time Hits (50 tracks: 25 Punjabi + 25 Hindi)
+   Every YouTube ID below oEmbed-verified (200 = resolves, title-matched) on 2026-09-10.
+   Single primary ID per track: all are official-channel uploads that allow embedding,
+   so no Invidious/Spotify fallback should normally trigger. */
 window.SONGS = [
-/* ── Punjabi 2026 ── */
-{title:'Low Fade',artist:'Karan Aujla ft. Virat Kohli',year:2026,youtubeIds:['zwm_sRRVf6U','3j7bhOvW6jw'],lang:'punjabi'},
-{title:'5-7',artist:'Karan Aujla',year:2026,youtubeIds:['x9RC77Oc-0Q','omWV2zs1B2I'],lang:'punjabi'},
-{title:'Top Fella',artist:'Karan Aujla & MXRCI',year:2026,youtubeIds:['V1aGtu68hC4'],lang:'punjabi'},
-{title:'Sohniye',artist:'Shubh',year:2026,youtubeIds:['YY583HmKBzA'],lang:'punjabi'},
-{title:'Moves',artist:'Shubh',year:2026,youtubeIds:['raaqmralEZw','w-tlQtHWJt4'],lang:'punjabi'},
-{title:'Dealer',artist:'Diljit Dosanjh',year:2026,youtubeIds:['YwtvQ23_-34'],lang:'punjabi'},
-{title:'Ranjha',artist:'Diljit Dosanjh ft. Sia & David Guetta',year:2026,youtubeIds:['fTpKWImEx84'],lang:'punjabi'},
-{title:'Eyes On Me',artist:'Sidhu Moose Wala',year:2026,youtubeIds:['BxrUdlc4f7E','8DOcxb9kKy8'],lang:'punjabi'},
-{title:'Jackpot',artist:'Cheema Y ft. Gur Sidhu',year:2026,youtubeIds:['yM5APO87aNU','MUIEmo9VQ4I'],lang:'punjabi'},
-{title:'CEO',artist:'Cheema Y ft. Gur Sidhu',year:2026,youtubeIds:['W0MVY0hEWh0'],lang:'punjabi'},
-{title:'Kath Lagda',artist:'Navaan Sandhu ft. Dhanda Nyoliwala',year:2026,youtubeIds:['nMozMETeCyw'],lang:'punjabi'},
-{title:'Headliner',artist:'Navaan Sandhu',year:2026,youtubeIds:['3chYKmkd8c0'],lang:'punjabi'},
-{title:'Hood Ambience',artist:'Navaan Sandhu & JayB Singh',year:2026,youtubeIds:['qs61wmCGBhs','n00AIBEXP3s'],lang:'punjabi'},
-{title:'Bairan',artist:'Banjaare',year:2026,youtubeIds:['oafxkMv4xnc'],lang:'punjabi'},
-{title:'Barsaat',artist:'Banjaare & Roni',year:2026,youtubeIds:['ebZj_nrmH-c'],lang:'punjabi'},
-/* Dior: backup ID is the Kahlon Records upload (oEmbed-verified). */
-{title:'Dior',artist:'Harf Cheema ft. Gurlez Akhtar',year:2026,youtubeIds:['gTpH5AOslOE','ERdKnGW70aQ'],lang:'punjabi'},
-{title:'Gidha',artist:'R Nait ft. Himanshi Khurana',year:2026,youtubeIds:['UTYnBUaGTcU','zIl9eLe0P9I'],lang:'punjabi'},
-/* 5-7 Kille: official Jass Records video is primary — the old primary is embed-restricted (oEmbed 403). */
-{title:'5-7 Kille',artist:'Amar Sehmbi',year:2026,youtubeIds:['VfwOhLVsrgY'],lang:'punjabi'},
-{title:'Rang',artist:'Joban Sandhu & Jassi X',year:2026,youtubeIds:['vuy4pXAMyms'],lang:'punjabi'},
-{title:'Kawan Di Daar',artist:'A Kay',year:2026,youtubeIds:['2kR6odmFxKU'],lang:'punjabi'},
-{title:'Sawaal Puchdi',artist:'Yo Yo Honey Singh ft. Bohemia',year:2026,youtubeIds:['472GGh5D_h8'],lang:'punjabi'},
-/* ── Hindi 2026 ── */
-{title:'Jaiye Sajana',artist:'Shashwat Sachdev, Jasmine Sandlas & Satinder Sartaaj (Dhurandhar The Revenge)',year:2026,youtubeIds:['F2m4HPLvj-4','WK_PlcL8Tzo'],lang:'hindi'},
-{title:'Jaan Se Guzarte Hain',artist:'Shashwat Sachdev & Khan Saab (Dhurandhar The Revenge)',year:2026,youtubeIds:['TkLkStcQ0o4'],lang:'hindi'},
-{title:'Aari Aari',artist:'Shashwat Sachdev, Bombay Rockers (Dhurandhar: The Revenge)',year:2026,youtubeIds:['dESIGVxSSCE','f-9IaGAlgEA'],lang:'hindi'},
-{title:'Main Aur Tu',artist:'Jasmine Sandlas, Reble (Dhurandhar: The Revenge)',year:2026,youtubeIds:['-dt1VE_9EJI'],lang:'hindi'},
-{title:'Tera Mera Rishta Continues',artist:'Mithoon, Saaj Bhatt, Mustafa Zahid (Awarapan 2)',year:2026,youtubeIds:['qi9_5Wu1odU'],lang:'hindi'},
-{title:'Toh Phir Aao (Dobara)',artist:'Mithoon, Pritam, Mustafa Zahid (Awarapan 2)',year:2026,youtubeIds:['rkV7--wYUJ8'],lang:'hindi'},
-{title:'Darmiyaan',artist:'Rekha Bhardwaj, Raghav Kaushik, Amrita Saluja (Musafir Cafe)',year:2026,youtubeIds:['y9mJNwPly44','eMXZiJ_bX-k'],lang:'hindi'},
-{title:'Kaafi Hai Na',artist:'Garvit-Priyansh ft. Jonita Gandhi (Musafir Cafe)',year:2026,youtubeIds:['Gigpglm3XNw','n90OVV69e9A'],lang:'hindi'},
-{title:'Mashooqa',artist:'Pritam, Mahmood, Raghav Chaitanya, Ruaa Kayy (Cocktail 2)',year:2026,youtubeIds:['7jMzMXpSOjs'],lang:'hindi'},
-{title:'KALYANI (Remix)',artist:'ARJN, KDS, FIFTY4 ft. Shreya Ghoshal',year:2026,youtubeIds:['xvT1jH8B9AM'],lang:'hindi'},
-{title:'Boom Shaka',artist:'KR$NA & Dhanda Nyoliwala',year:2026,youtubeIds:['cL0KKSPjZf8'],lang:'hindi'},
-{title:'Taare',artist:'Farak ft. 10A & Saswat Balan',year:2026,youtubeIds:['085XkY0OKTU'],lang:'hindi'},
-{title:'Not Guilty',artist:'Dhanda Nyoliwala',year:2026,youtubeIds:['E7ergOnpO1Q'],lang:'hindi'},
-{title:'Ghar Kab Aaoge',artist:'Sonu Nigam, Arijit Singh, Diljit Dosanjh (Border 2)',year:2026,youtubeIds:['oodOj8jx8ds'],lang:'hindi'},
-{title:'Ishq Da Chehra',artist:'Diljit Dosanjh, Sachet-Parampara (Border 2)',year:2026,youtubeIds:['vdOosB8iLiM'],lang:'hindi'},
-{title:'Tu Hi Disda',artist:'Arijit Singh, Nikhita Gandhi (Bhooth Bangla)',year:2026,youtubeIds:['4jO8EWJutfE'],lang:'hindi'},
-{title:'Tabaahi',artist:'Vishal Mishra',year:2026,youtubeIds:['h1kihH0l8iQ'],lang:'hindi'},
-{title:'Yeh Awarapan',artist:'Arijit Singh',year:2026,youtubeIds:['I9tX-lFUTrw'],lang:'hindi'},
-{title:'Khwaab Dekhoon',artist:'Arijit Singh, Tarannum Malik',year:2026,youtubeIds:['ujaFXF381Og'],lang:'hindi'},
+/* ── Punjabi all-time hits (25) ── */
+{title:'Mundian To Bach Ke',artist:'Panjabi MC',year:2002,youtubeIds:['x9WO2ieJMYk'],lang:'punjabi'},
+{title:'Tunak Tunak Tun',artist:'Daler Mehndi',year:1998,youtubeIds:['IFP3Jc5ztgg'],lang:'punjabi'},
+{title:'High Rated Gabru',artist:'Guru Randhawa',year:2017,youtubeIds:['hjWf8A0YNSE'],lang:'punjabi'},
+{title:'Suit Suit',artist:'Guru Randhawa',year:2017,youtubeIds:['uQ763VvqiEM'],lang:'punjabi'},
+{title:'Lahore',artist:'Guru Randhawa',year:2017,youtubeIds:['dZ0fwJojhrs'],lang:'punjabi'},
+{title:'Patola',artist:'Guru Randhawa ft. Bohemia',year:2015,youtubeIds:['E11ToHoFIeA'],lang:'punjabi'},
+{title:'Ban Ja Rani',artist:'Guru Randhawa',year:2017,youtubeIds:['hlvbDjksdCg'],lang:'punjabi'},
+{title:'3 Peg',artist:'Sharry Mann',year:2016,youtubeIds:['hzTg4zPBtDU'],lang:'punjabi'},
+{title:'Proper Patola',artist:'Diljit Dosanjh',year:2013,youtubeIds:['GVhmynWOPoM'],lang:'punjabi'},
+{title:'Do You Know',artist:'Diljit Dosanjh',year:2016,youtubeIds:['P-DhwN87JDY'],lang:'punjabi'},
+{title:'5 Taara',artist:'Diljit Dosanjh',year:2015,youtubeIds:['MsTW5cyWKj4'],lang:'punjabi'},
+{title:'Born To Shine',artist:'Diljit Dosanjh',year:2020,youtubeIds:['dCmp56tSSmA'],lang:'punjabi'},
+{title:'G.O.A.T.',artist:'Diljit Dosanjh',year:2020,youtubeIds:['cl0a3i2wFcc'],lang:'punjabi'},
+{title:'Brown Munde',artist:'AP Dhillon',year:2020,youtubeIds:['VNs_cCtdbPc'],lang:'punjabi'},
+{title:'Excuses',artist:'AP Dhillon',year:2020,youtubeIds:['vX2cDW8LUWk'],lang:'punjabi'},
+{title:'Summer High',artist:'AP Dhillon',year:2021,youtubeIds:['nqUN530Rgtw'],lang:'punjabi'},
+{title:'So High',artist:'Sidhu Moose Wala',year:2017,youtubeIds:['GgmFC8y8q3k'],lang:'punjabi'},
+{title:'295',artist:'Sidhu Moose Wala',year:2021,youtubeIds:['n_FCrCQ6-bA'],lang:'punjabi'},
+{title:'The Last Ride',artist:'Sidhu Moose Wala',year:2022,youtubeIds:['6xoB4ZiKKn0'],lang:'punjabi'},
+{title:'Levels',artist:'Sidhu Moose Wala',year:2022,youtubeIds:['tpFljbJxZiw'],lang:'punjabi'},
+{title:'Angreji Beat',artist:'Yo Yo Honey Singh',year:2011,youtubeIds:['qWcmGS0ZaLc'],lang:'punjabi'},
+{title:'Blue Eyes',artist:'Yo Yo Honey Singh',year:2013,youtubeIds:['NbyHNASFi6U'],lang:'punjabi'},
+{title:'Desi Kalakaar',artist:'Yo Yo Honey Singh',year:2014,youtubeIds:['KhnVcAC5bIM'],lang:'punjabi'},
+{title:'We Rollin',artist:'Shubh',year:2023,youtubeIds:['hV8EGTjzD2s'],lang:'punjabi'},
+{title:'Softly',artist:'Karan Aujla',year:2023,youtubeIds:['cWMxCE2HTag'],lang:'punjabi'},
+/* ── Hindi all-time hits (25) ── */
+{title:'Tum Hi Ho',artist:'Arijit Singh (Aashiqui 2)',year:2013,youtubeIds:['IJq0yyWug1k'],lang:'hindi'},
+{title:'Gerua',artist:'Arijit Singh (Dilwale)',year:2015,youtubeIds:['AEIVhBS6baE'],lang:'hindi'},
+{title:'Chaiyya Chaiyya',artist:'Sukhwinder Singh (Dil Se)',year:1998,youtubeIds:['9yT4F8hzykY'],lang:'hindi'},
+{title:'Kal Ho Naa Ho',artist:'Sonu Nigam (Kal Ho Naa Ho)',year:2003,youtubeIds:['g0eO74UmRBs'],lang:'hindi'},
+{title:'Tujh Mein Rab Dikhta Hai',artist:'Roop Kumar Rathod (Rab Ne Bana Di Jodi)',year:2008,youtubeIds:['qoq8B8ThgEM'],lang:'hindi'},
+{title:'Jai Ho',artist:'A.R. Rahman (Slumdog Millionaire)',year:2008,youtubeIds:['xwwAVRyNmgQ'],lang:'hindi'},
+{title:'Kesariya',artist:'Arijit Singh (Brahmastra)',year:2022,youtubeIds:['BddP6PYo2gs'],lang:'hindi'},
+{title:'Teri Mitti',artist:'B Praak (Kesari)',year:2019,youtubeIds:['wF_B_aagLfI'],lang:'hindi'},
+{title:'Apna Time Aayega',artist:'Ranveer Singh (Gully Boy)',year:2019,youtubeIds:['jFGKJBPFdUA'],lang:'hindi'},
+{title:'Ae Dil Hai Mushkil',artist:'Arijit Singh (Ae Dil Hai Mushkil)',year:2016,youtubeIds:['6FURuLYrR_Q'],lang:'hindi'},
+{title:'Channa Mereya',artist:'Arijit Singh (Ae Dil Hai Mushkil)',year:2016,youtubeIds:['284Ov7ysmfA'],lang:'hindi'},
+{title:'Agar Tum Saath Ho',artist:'Alka Yagnik & Arijit Singh (Tamasha)',year:2015,youtubeIds:['xRb8hxwN5zc'],lang:'hindi'},
+{title:'Kun Faya Kun',artist:'A.R. Rahman (Rockstar)',year:2011,youtubeIds:['T94PHkuydcw'],lang:'hindi'},
+{title:'Sadda Haq',artist:'Mohit Chauhan (Rockstar)',year:2011,youtubeIds:['p9DQINKZxWE'],lang:'hindi'},
+{title:'Bekhayali',artist:'Sachet Tandon (Kabir Singh)',year:2019,youtubeIds:['VOLKJJvfAbg'],lang:'hindi'},
+{title:'Tujhe Kitna Chahne Lage',artist:'Arijit Singh (Kabir Singh)',year:2019,youtubeIds:['AgX2II9si7w'],lang:'hindi'},
+{title:'Samjhawan',artist:'Arijit Singh (Humpty Sharma Ki Dulhania)',year:2014,youtubeIds:['H2f7MZaw3Yo'],lang:'hindi'},
+{title:'Janam Janam',artist:'Arijit Singh (Dilwale)',year:2015,youtubeIds:['pIBoAh4OXhQ'],lang:'hindi'},
+{title:'Raabta',artist:'Arijit Singh (Raabta)',year:2017,youtubeIds:['pezrS5OBBs4'],lang:'hindi'},
+{title:'Shayad',artist:'Arijit Singh (Love Aaj Kal)',year:2020,youtubeIds:['MJyKN-8UncM'],lang:'hindi'},
+{title:'Hasi Ban Gaye',artist:'Ami Mishra (Hamari Adhuri Kahani)',year:2015,youtubeIds:['oyaudgo5_8Y'],lang:'hindi'},
+{title:'Kar Har Maidaan Fateh',artist:'Sukhwinder Singh (Sanju)',year:2018,youtubeIds:['9iIX4PBplAY'],lang:'hindi'},
+{title:'Zinda',artist:'Siddharth Mahadevan (Bhaag Milkha Bhaag)',year:2013,youtubeIds:['fP6MNznzVcQ'],lang:'hindi'},
+{title:'Lag Ja Gale',artist:'Lata Mangeshkar (Woh Kaun Thi)',year:1964,youtubeIds:['br6C4U3Dyfo'],lang:'hindi'},
+{title:'Mere Sapno Ki Rani',artist:'Kishore Kumar (Aradhana)',year:1969,youtubeIds:['JtH1n6zUFuk'],lang:'hindi'},
 ];
 ;
 
@@ -3063,7 +3068,7 @@ window.LAST_PLAYLIST = localStorage.getItem('pr_last_playlist') || null;
     if (bootedOnce) return;
     bootedOnce = true;
     minimizeWindow('main'); // boot to a clean desktop, like a real PC
-    setTimeout(() => notify('Punjabi Rewind', 'Pinned to your taskbar — click the app to open 40 tracks from 2026.', '🎵'), 900);
+    setTimeout(() => notify('Punjabi Rewind', 'Pinned to your taskbar — click the app to open 50 all-time tracks.', '🎵'), 900);
     setTimeout(() => notify('Windows Update', 'You\'re up to date. Last checked: today.', '🛡️'), 2600);
     setTimeout(() => notify('Live radio', '4 Punjabi stations on the dial in the sidebar.', '📡'), 4300);
   }
