@@ -84,6 +84,7 @@ function selectSong(i,autoplay=false){
   updateProgressAccessibility(0,0);updateBill(s,false);highlightActiveCard(i);
   hideSpotify(false); hideInvidious();
   currentSource='youtube';
+  try{ if(window.__historyAdd) window.__historyAdd(i); }catch(e){}
   if(playerReady)loadExactSource(autoplay);
 }
 window.selectSong=selectSong;

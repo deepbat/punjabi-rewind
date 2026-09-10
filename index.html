@@ -71,6 +71,30 @@
       <span class="desktop-icon-img plain"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1.3 12a2 2 0 0 1-2 1.8H8.3a2 2 0 0 1-2-1.8z" fill="#CFCFCF"/><rect x="4" y="4.5" width="16" height="2.4" rx="1" fill="#EFEFEF"/><rect x="10" y="2.4" width="4" height="2.4" rx="1" fill="#EFEFEF"/><line x1="9.6" y1="10" x2="10.1" y2="18" stroke="#8a8a8a" stroke-width="1.2"/><line x1="14.4" y1="10" x2="13.9" y2="18" stroke="#8a8a8a" stroke-width="1.2"/></svg></span>
       <span class="desktop-icon-label">Recycle Bin</span>
     </button>
+    <button class="desktop-icon" id="desktopIconLyrics" type="button" data-app="lyrics">
+      <span class="desktop-icon-img">🎤</span>
+      <span class="desktop-icon-label">Lyrics</span>
+    </button>
+    <button class="desktop-icon" id="desktopIconArtists" type="button" data-app="artists">
+      <span class="desktop-icon-img">🎙️</span>
+      <span class="desktop-icon-label">Artists</span>
+    </button>
+    <button class="desktop-icon" id="desktopIconPlaylists" type="button" data-app="playlists">
+      <span class="desktop-icon-img">🎧</span>
+      <span class="desktop-icon-label">Playlists</span>
+    </button>
+    <button class="desktop-icon" id="desktopIconStickyNotes" type="button" data-app="stickynotes">
+      <span class="desktop-icon-img">📝</span>
+      <span class="desktop-icon-label">Sticky Notes</span>
+    </button>
+    <button class="desktop-icon" id="desktopIconHistory" type="button" data-app="history">
+      <span class="desktop-icon-img">🕒</span>
+      <span class="desktop-icon-label">History</span>
+    </button>
+    <button class="desktop-icon" id="desktopIconStats" type="button" data-app="stats">
+      <span class="desktop-icon-img">📊</span>
+      <span class="desktop-icon-label">Stats</span>
+    </button>
   </div>
 
   <!-- ===== App window ===== -->
@@ -111,6 +135,11 @@
       <button class="w11-nav-btn" data-filter="punjabi" type="button">🌾&nbsp; Punjabi</button>
       <button class="w11-nav-btn" data-filter="hindi" type="button">🎬&nbsp; Hindi</button>
       <button class="w11-nav-btn" data-filter="favorites" type="button">★&nbsp; Saved</button>
+      <button class="w11-nav-btn" id="navQueue" type="button">🎶&nbsp; Queue</button>
+      <button class="w11-nav-btn" id="navLyrics" type="button">📝&nbsp; Lyrics</button>
+      <button class="w11-nav-btn" id="navPlaylists" type="button">🎧&nbsp; Playlists</button>
+      <button class="w11-nav-btn" id="navHistory" type="button">🕒&nbsp; History</button>
+      <button class="w11-nav-btn" id="navStats" type="button">📊&nbsp; Stats</button>
     </nav>
 
     <!-- Hidden duplicates keep the old filter-button wiring working -->
@@ -176,9 +205,9 @@
 
   <footer class="w11-playbar" aria-label="Now playing">
     <div class="w11-now" aria-live="polite" aria-atomic="true">
-      <span class="w11-now-cover" id="nowCover" aria-hidden="true">♪</span>
+      <span class="w11-now-cover" id="nowCover" aria-label="Now playing" title="Track details" tabindex="0">♪</span>
       <div class="w11-now-meta">
-        <strong id="billTitle">Punjabi Rewind</strong>
+        <strong id="billTitle" title="Track details" tabindex="0">Punjabi Rewind</strong>
         <span id="billArtist">Pick a track to begin</span>
       </div>
       <button id="muteBtn" type="button" aria-pressed="false" title="Mute">🔊</button>
@@ -198,6 +227,10 @@
         <button id="youtubeBtn" type="button" title="Open on YouTube" aria-label="Open on YouTube">YT</button>
         <button id="spotifyBtn" type="button" title="Open on Spotify" aria-label="Open on Spotify">SP</button>
         <button id="shareBtn" type="button" title="Share" aria-label="Share current track">✦</button>
+        <button id="queueBtn" type="button" title="Queue" aria-label="Queue">🎶</button>
+        <button id="historyBtn" type="button" title="History" aria-label="History">🕒</button>
+        <button id="sleepBtn" type="button" title="Sleep timer" aria-label="Sleep timer">Sleep</button>
+        <button id="eqBtn" type="button" title="Equalizer" aria-label="Equalizer">EQ</button>
       </div>
     </div>
   </footer>
@@ -217,6 +250,11 @@
     </div>
   </section>
 
+  <!-- ===== Offline fallback ===== -->
+  <noscript><meta http-equiv="refresh" content="0;url=offline-fallback.html"></noscript>
+  <script>try{if(!window.WebGLRenderingContext)throw new Error('no-webgl');}catch(e){location.replace('offline-fallback.html')}
+  window.__appErrorFallback=function(){location.replace('offline-fallback.html')};\n  window.addEventListener('error',function(e){try{throw e.error||e;}catch(err){if(/WebGL/.test(err.message)||/YT is not defined/.test(err.message))window.__appErrorFallback&&window.__appErrorFallback();}});\n  </script>
+
   <!-- ===== Start menu ===== -->
   <div class="start-scrim" id="startScrim"></div>
   <section class="start-menu" id="startMenu" aria-hidden="true" aria-label="Start menu">
@@ -233,6 +271,27 @@
       <div class="start-app-grid">
         <button class="start-app" id="startAppPunjabiRewind" type="button">
           <span class="start-app-icon">ਪ</span><span>Punjabi Rewind</span>
+        </button>
+        <button class="start-app" id="startAppWhatsNew" type="button">
+          <span class="start-app-icon" style="position:relative">🆕<i class="start-badge" aria-label="3 new tracks">3</i></span><span>What's New</span>
+        </button>
+        <button class="start-app" id="startAppLyrics" type="button">
+          <span class="start-app-icon">🎤</span><span>Lyrics</span>
+        </button>
+        <button class="start-app" id="startAppArtists" type="button">
+          <span class="start-app-icon">🎙️</span><span>Artists</span>
+        </button>
+        <button class="start-app" id="startAppPlaylists" type="button">
+          <span class="start-app-icon">🎧</span><span>Playlists</span>
+        </button>
+        <button class="start-app" id="startAppStickyNotes" type="button">
+          <span class="start-app-icon">📝</span><span>Sticky Notes</span>
+        </button>
+        <button class="start-app" id="startAppHistory" type="button">
+          <span class="start-app-icon">🕒</span><span>History</span>
+        </button>
+        <button class="start-app" id="startAppStats" type="button">
+          <span class="start-app-icon">📊</span><span>Stats</span>
         </button>
         <button class="start-app" type="button" data-app="explorer"><span class="start-app-icon svg"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="13" rx="2" fill="#1976D2"/><path d="M2 9a2 2 0 0 1 2-2h5l2 2h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" fill="#FFC83D"/></svg></span><span>File Explorer</span></button>
         <button class="start-app" type="button" data-app="edge"><span class="start-app-icon svg"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#0C88C7"/><path d="M12 3.2A8.8 8.8 0 0 1 19.7 16c-1.4-4.3-4.9-7-9.2-7-2.3 0-4.4 1-5.8 2.5C6.2 8.7 8.9 3.6 12 3.2z" fill="#3BC2D8"/></svg></span><span>Edge</span></button>
@@ -440,6 +499,19 @@
 <script src="songs.js"></script>
 <script src="radio.js"></script>
 <script src="player.js"></script>
+<script src="lyrics.js"></script>
+<script src="artists.js"></script>
+<script src="playlists.js"></script>
+<script src="queue.js"></script>
+<script src="sleeptimer.js"></script>
+<script src="history.js"></script>
+<script src="equalizer.js"></script>
+<script src="reactions.js"></script>
+<script src="sticky-notes.js"></script>
+<script src="stats.js"></script>
+<script src="track-info.js"></script>
+<script src="shortcuts.js"></script>
+<script src="apps.js"></script>
 <script src="app.js"></script>
 <script src="win11.js"></script>
 </body>

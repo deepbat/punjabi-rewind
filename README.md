@@ -32,6 +32,23 @@ Favorites persist in `localStorage`. The scene respects
 `prefers-reduced-motion` (no auto-rotation or ambient drift) and pauses its
 render loop while the tab is hidden.
 
+## New features
+
+- **Lyrics** — open the Lyrics app to view transliterated/English/Hindi lyrics for the current track.
+- **Artists** — browse artist bios and top tracks, then hit Play all.
+- **Playlists** — curated playlists: Chill, Workout, Retro Mix, Late Night, Party.
+- **Queue** — playbar Queue button shows upcoming tracks from the current view; drag to reorder, remove, or clear.
+- **Sleep timer** — cycles 15/30/45/60/Off from the playbar.
+- **History** — last 50 played tracks with timestamps; replay from the History app.
+- **Equalizer** — EQ popover with presets: Flat, Bass Boost, Vocal, Night Mode.
+- **Reactions** — emoji votes per track with counts stored locally.
+- **Shareable favorites** — copy a code from the Saved view and import it elsewhere.
+- **Sticky Notes** — create color-coded notes, optionally linked to a track.
+- **Stats** — top artists, genre split pie, estimated listening time.
+- **Keyboard shortcuts** — `Ctrl+/` for shortcuts; Space, arrows, M, Q, S, F, L, Esc.
+- **Track info** — click the now-playing cover/title for details and links.
+- **Offline fallback** — graceful page with saved favorites if WebGL/JS fails.
+
 ## Local preview
 
 This needs a real server (ES modules and CSS2DRenderer won't load over
@@ -40,7 +57,8 @@ This needs a real server (ES modules and CSS2DRenderer won't load over
 ```bash
 python3 -m http.server 8080
 ```
-Then open <http://localhost:8080>. A WebGL-capable browser is required —
+
+Then open <http://localhost:8080>. A WebGL-capable browser is required — 
 there's a plain-text fallback message if WebGL isn't available, but no
 visual experience without it.
 
@@ -56,5 +74,18 @@ visual experience without it.
 | `songs.js` | Curated track data (YouTube IDs oEmbed-verified) |
 | `radio.js` | Live-radio stations, failover, and scene "mood" color hooks |
 | `player.js` | Playback, search, filtering, favorites, hybrid source fallback |
+| `lyrics.js` | Lyrics data + key helper |
+| `artists.js` | Artist bios and top track indices |
+| `playlists.js` | Curated playlists |
+| `queue.js` | Queue panel with drag reorder and session persistence |
+| `sleeptimer.js` | Sleep timer logic |
+| `history.js` | Listening history persistence and replay |
+| `equalizer.js` | EQ presets and popover |
+| `reactions.js` | Emoji reactions per track |
+| `sticky-notes.js` | Sticky Notes desktop app |
+| `stats.js` | Listening stats dashboard |
+| `track-info.js` | Now-playing details panel |
+| `shortcuts.js` | Keyboard shortcuts overlay |
+| `apps.js` | App registry/wiring for new desktop apps |
 | `app.js` | Live clock and the onboarding hint fade |
 | `favicon.svg` / `og-image.png` | Tab icon and the social share preview card |
