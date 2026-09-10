@@ -1800,14 +1800,24 @@
     osLock.hidden = true;
     osBoot.hidden = false;
     osBoot.setAttribute('aria-hidden', 'false');
+    // Straight to the logged-in desktop — no PIN gate on entry.
     setTimeout(() => {
       osBoot.hidden = true;
-      osLock.hidden = false;
-      osLock.setAttribute('aria-hidden', 'false');
-      tickLockClock();
-    }, 2100);
+      osBoot.setAttribute('aria-hidden', 'true');
+      bootToasts();
+    }, 1400);
   }
   window.__osBoot = runBoot;
+
+  // Fullscreen needs a user gesture, so take it on the visitor's very first
+  // click/keypress anywhere — no visible gate, then fullscreen from then on.
+  function fullscreenOnce() {
+    tryFullscreen();
+    document.removeEventListener('pointerdown', fullscreenOnce);
+    document.removeEventListener('keydown', fullscreenOnce);
+  }
+  document.addEventListener('pointerdown', fullscreenOnce);
+  document.addEventListener('keydown', fullscreenOnce);
 
   function dismissLock() {
     if (osLock.hidden) return;
