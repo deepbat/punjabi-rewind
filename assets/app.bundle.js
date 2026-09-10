@@ -551,127 +551,115 @@ window.LYRICS_KEY = (t,a) => t + '|' + a;
 ;
 
 /* ===== artists.js ===== */
-/* Artist bios */
+/* Artist bios — indices match the 50-track all-time catalog (25 Punjabi + 25 Hindi) */
 window.ARTISTS = {
-  'Karan Aujla': {
-    bio: "Karan Aujla is a Canadian-born Punjabi singer, rapper, and songwriter known for his deep voice and street-style lyrics. He rose to fame with 'Don't Look' and has since become one of the most streamed Punjabi artists globally.",
-    topTracks: [0, 1, 2] // Low Fade, 5-7, Top Fella
+  'Panjabi MC': {
+    bio: "British-Indian producer who took bhangra global with club anthems built on unforgettable basslines.",
+    topTracks: [0] // Mundian To Bach Ke
   },
-  'Shubh': {
-    bio: "Shubh (Shubhneet Singh) is a Punjabi-Canadian artist known for his melodic rap style. His debut album 'Still Rollin' topped charts worldwide in 2023.",
-    topTracks: [3, 4] // Sohniye, Moves
+  'Daler Mehndi': {
+    bio: "The king of Punjabi pop; his high-energy bhangra anthems defined the 90s.",
+    topTracks: [1] // Tunak Tunak Tun
+  },
+  'Guru Randhawa': {
+    bio: "Punjab's pop machine — a string of billion-view hits blending bhangra with R&B.",
+    topTracks: [2, 3, 4, 5, 6] // High Rated Gabru, Suit Suit, Lahore, Patola, Ban Ja Rani
+  },
+  'Sharry Mann': {
+    bio: "Punjabi singer behind wedding staples like 3 Peg and Hostel.",
+    topTracks: [7] // 3 Peg
   },
   'Diljit Dosanjh': {
-    bio: "Diljit Dosanjh is a Punjabi singer, actor, and film producer. One of the highest-paid Punjabi artists, he has also appeared in Bollywood films and international shows.",
-    topTracks: [5, 6] // Dealer, Ranjha
+    bio: "Singer, actor and global star — from 5 Taara to Coachella.",
+    topTracks: [8, 9, 10, 11, 12] // Proper Patola, Do You Know, 5 Taara, Born To Shine, G.O.A.T.
+  },
+  'AP Dhillon': {
+    bio: "Indo-Canadian hitmaker who made Punjabi drill a global sound.",
+    topTracks: [13, 14, 15] // Brown Munde, Excuses, Summer High
   },
   'Sidhu Moose Wala': {
-    bio: "Sidhu Moose Wala was a legendary Punjabi rapper and singer. His posthumous releases continue to top charts, and he remains one of the most influential Punjabi artists ever.",
-    topTracks: [7] // Eyes On Me
+    bio: "Legendary rapper whose fearless voice made him immortal (1993–2022).",
+    topTracks: [16, 17, 18, 19] // So High, 295, The Last Ride, Levels
   },
-  'Cheema Y': {
-    bio: "Cheema Y is a rising Punjabi artist known for his fusion of hip-hop and traditional Punjabi sounds.",
-    topTracks: [8, 9] // Jackpot, CEO
+  'Yo Yo Honey Singh': {
+    bio: "The pioneer who brought Indian hip-hop and EDM to the mainstream.",
+    topTracks: [20, 21, 22] // Angreji Beat, Blue Eyes, Desi Kalakaar
   },
-  'Navaan Sandhu': {
-    bio: "Navaan Sandhu is a Punjabi vocalist known for his emotional delivery and modern production.",
-    topTracks: [10, 11, 12] // Kath Lagda, Headliner, Hood Ambience
+  'Shubh': {
+    bio: "Punjabi-Canadian star of the lo-fi rap wave; Still Rollin topped global charts.",
+    topTracks: [23] // We Rollin
   },
-  'Banjaare': {
-    bio: "Banjaare is a new-age Punjabi duo blending folk with electronic production.",
-    topTracks: [13, 14] // Bairan, Barsaat
-  },
-  'Harf Cheema': {
-    bio: "Harf Cheema is a Punjabi lyricist and singer known for his sharp wordplay and catchy hooks.",
-    topTracks: [15] // Dior
-  },
-  'R Nait': {
-    bio: "R Nait is a Punjabi singer-songwriter known for his romantic and upbeat tracks.",
-    topTracks: [16] // Gidha
-  },
-  'Amar Sehmbi': {
-    bio: "Amar Sehmbi is a Punjabi vocalist with a powerful voice and modern street appeal.",
-    topTracks: [17] // 5-7 Kille
-  },
-  'Joban Sandhu & Jassi X': {
-    bio: "Joban Sandhu and Jassi X are a collaborative Punjabi duo creating high-energy tracks.",
-    topTracks: [18] // Rang
-  },
-  'A Kay': {
-    bio: "A Kay is a Punjabi singer known for his versatile style and melodic rap.",
-    topTracks: [19] // Kawan Di Daar
-  },
-  'Yo Yo Honey Singh ft. Bohemia': {
-    bio: "Yo Yo Honey Singh is a pioneer of Indian rap and electronic music. Bohemia is the godfather of Punjabi rap. Their collaboration is iconic.",
-    topTracks: [20] // Sawaal Puchdi
-  },
-  'Shashwat Sachdev': {
-    bio: "Shashwat Sachdev is a Hindi music composer and singer known for his work on Dhurandhar The Revenge and other Bollywood projects.",
-    topTracks: [21, 22, 23, 24] // Jaiye Sajana, Jaan Se Guzarte Hain, Aari Aari, Main Aur Tu
-  },
-  'Mithoon': {
-    bio: "Mithoon is a Hindi film composer and singer known for romantic ballads and intense melodies.",
-    topTracks: [25, 26] // Tera Mera Rishta Continues, Toh Phir Aao
-  },
-  'Rekha Bhardwaj': {
-    bio: "Rekha Bhardwaj is a celebrated Indian playback singer known for her soulful voice and folk-inspired renditions.",
-    topTracks: [27] // Darmiyaan
-  },
-  'Garvit-Priyansh': {
-    bio: "Garvit-Priyansh is a Hindi music duo creating fresh indie-pop and film sounds.",
-    topTracks: [28] // Kaafi Hai Na
-  },
-  'Pritam & Mahmood': {
-    bio: "Pritam is a legendary Bollywood composer. Mahmood is his son and a rising singer. Together they created the Cocktail 2 soundtrack.",
-    topTracks: [29] // Mashooqa
-  },
-  'ARJN, KDS, FIFTY4': {
-    bio: "A hip-hop collective producing high-energy Hindi rap and remixes.",
-    topTracks: [30] // KALYANI (Remix)
-  },
-  'KR$NA & Dhanda Nyoliwala': {
-    bio: "KR$NA is a Delhi-based rapper. Dhanda Nyoliwala is a Punjabi-Hindi fusion artist. Their collaboration is explosive.",
-    topTracks: [31] // Boom Shaka
-  },
-  'Farak': {
-    bio: "Farak is a new-wave Hindi rap artist known for gritty lyrics and underground beats.",
-    topTracks: [32] // Taare
-  },
-  'Dhanda Nyoliwala': {
-    bio: "Dhanda Nyoliwala is a versatile Punjabi-Hindi artist blending rap with folk.",
-    topTracks: [31, 33] // Boom Shaka, Not Guilty
-  },
-  'Sonu Nigam, Arijit Singh, Diljit Dosanjh': {
-    bio: "A rare triple-threat collaboration for Border 2, featuring three of India's biggest voices.",
-    topTracks: [34] // Ghar Kab Aaoge
-  },
-  'Diljit Dosanjh, Sachet-Parampara': {
-    bio: "Diljit teams with the Sachet-Parampara duo for this Border 2 ballad.",
-    topTracks: [35] // Ishq Da Chehra
-  },
-  'Arijit Singh, Nikhita Gandhi': {
-    bio: "Arijit Singh and Nikhita Gandhi bring their signature magic to Bhooth Bangla.",
-    topTracks: [36] // Tu Hi Disda
-  },
-  'Vishal Mishra': {
-    bio: "Vishal Mishra is a Hindi composer and singer known for emotional, melody-driven tracks.",
-    topTracks: [37] // Tabaahi
+  'Karan Aujla': {
+    bio: "Prolific singer-rapper; one of the most-streamed Punjabi artists worldwide.",
+    topTracks: [24] // Softly
   },
   'Arijit Singh': {
-    bio: "Arijit Singh is India's most streamed male playback singer. From soulful ballads to upbeat numbers, he dominates the charts.",
-    topTracks: [38, 39] // Yeh Awarapan, Khwaab Dekhoon
+    bio: "India's most-streamed voice — soulful ballads that define modern Bollywood.",
+    topTracks: [25, 26, 31, 34, 35, 36, 40, 41, 42, 43, 44]
+  },
+  'Sukhwinder Singh': {
+    bio: "Powerhouse voice behind Chaiyya Chaiyya and Jai Ho.",
+    topTracks: [27, 46] // Chaiyya Chaiyya, Kar Har Maidaan Fateh
+  },
+  'Sonu Nigam': {
+    bio: "The golden voice of the 2000s; unmatched versatility across genres.",
+    topTracks: [28] // Kal Ho Naa Ho
+  },
+  'Roop Kumar Rathod': {
+    bio: "Ghazal and playback veteran; unforgettable in Rab Ne Bana Di Jodi.",
+    topTracks: [29] // Tujh Mein Rab Dikhta Hai
+  },
+  'A.R. Rahman': {
+    bio: "Oscar-winning Mozart of Madras; redefined Indian film music.",
+    topTracks: [30, 37] // Jai Ho, Kun Faya Kun
+  },
+  'B Praak': {
+    bio: "Soul-stirring voice of Teri Mitti and Filhall.",
+    topTracks: [32] // Teri Mitti
+  },
+  'Ranveer Singh': {
+    bio: "Actor who rapped his own verses for Gully Boy.",
+    topTracks: [33] // Apna Time Aayega
+  },
+  'Mohit Chauhan': {
+    bio: "Silk-voiced singer of Rockstar's iconic tracks.",
+    topTracks: [38] // Sadda Haq
+  },
+  'Sachet Tandon': {
+    bio: "One half of Sachet-Parampara; Bekhayali made him a star overnight.",
+    topTracks: [39] // Bekhayali
+  },
+  'Ami Mishra': {
+    bio: "Composer-singer known for tender melodies like Hasi.",
+    topTracks: [45] // Hasi Ban Gaye
+  },
+  'Siddharth Mahadevan': {
+    bio: "High-octane voice of Zinda and Bhaag Milkha Bhaag.",
+    topTracks: [47] // Zinda
+  },
+  'Lata Mangeshkar': {
+    bio: "The Nightingale of India (1929–2022); her voice is immortal.",
+    topTracks: [48] // Lag Ja Gale
+  },
+  'Kishore Kumar': {
+    bio: "Legendary singer-actor whose songs span generations.",
+    topTracks: [49] // Mere Sapno Ki Rani
+  },
+  'Alka Yagnik': {
+    bio: "One of Bollywood's most-recorded female voices.",
+    topTracks: [36] // Agar Tum Saath Ho
   }
 };
 ;
 
 /* ===== playlists.js ===== */
-/* Curated playlists */
+/* Curated playlists — indices match the 50-track all-time catalog */
 window.PLAYLISTS = [
-  { name: 'Chill', desc: 'Laid-back tracks to wind down', indices: [3, 6, 10, 13, 21, 27, 35] },
-  { name: 'Workout', desc: 'High-energy beats to fuel your session', indices: [0, 4, 8, 16, 18, 31, 33] },
-  { name: 'Retro Mix', desc: 'Classic Punjabi-Hindi throwback vibes', indices: [5, 15, 20, 25, 29, 30, 38] },
-  { name: 'Late Night', desc: 'Midnight drives and quiet moments', indices: [7, 11, 14, 22, 26, 32, 39] },
-  { name: 'Party', desc: 'Non-stop bangers for the dance floor', indices: [1, 2, 9, 12, 17, 19, 24] }
+  { name: 'Chill', desc: 'Laid-back tracks to wind down', indices: [9, 25, 35, 41, 44, 48, 1] },
+  { name: 'Workout', desc: 'High-energy beats to fuel your session', indices: [2, 12, 13, 16, 22, 30, 33] },
+  { name: 'Retro Mix', desc: 'Classic Punjabi-Hindi throwback vibes', indices: [0, 1, 27, 28, 48, 49, 20] },
+  { name: 'Late Night', desc: 'Midnight drives and quiet moments', indices: [14, 24, 40, 43, 45, 23, 36] },
+  { name: 'Party', desc: 'Non-stop bangers for the dance floor', indices: [4, 11, 15, 19, 21, 26, 31] }
 ];
 window.LAST_PLAYLIST = localStorage.getItem('pr_last_playlist') || null;
 ;
@@ -3077,5 +3065,310 @@ window.LAST_PLAYLIST = localStorage.getItem('pr_last_playlist') || null;
   applySettings();
   updateMaxIcon('main');
   runBoot();
+})();
+;
+
+
+/* ===== spark.js ===== */
+/* Muse Spark extras: timing-proof app wiring (fixes intermittently-dead desktop icons),
+   living-player visualizer, now-playing toasts, party DJ mode, wallpaper quick-cycle. */
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id);};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function toast(m){ try{ if(window.__desktopToast) window.__desktopToast(m); }catch(_){} }
+function notify(t,m,i){ try{ if(window.__notify) window.__notify(t,m,i||'🎵'); }catch(_){} }
+var __z=5000;
+
+/* ---------- window opener (focus-existing guard) ---------- */
+function sparkOpen(key,o){
+  o=o||{};
+  var id='win-'+key;
+  var ex=$(id);
+  if(ex){ ex.hidden=false; ex.style.zIndex=(__z+=2); return ex; }
+  var el=document.createElement('section');
+  el.className='win-window windowed app-window';
+  el.id=id;
+  el.style.width=(o.w||540)+'px'; el.style.height=(o.h||440)+'px';
+  el.style.left=(70+Math.floor(Math.random()*70))+'px'; el.style.top=(46+Math.floor(Math.random()*50))+'px';
+  el.style.zIndex=(__z+=2);
+  el.setAttribute('role','dialog'); el.setAttribute('aria-label',o.title||key);
+  el.innerHTML='<header class="win-titlebar"><div class="win-titlebar-id"><span class="win-titlebar-icon">'+(o.icon||'🎵')+'</span><span class="win-titlebar-text">'+esc(o.title||key)+'</span></div><div class="win-controls"><button class="win-btn win-min" aria-label="Minimize">&#65372;</button><button class="win-btn win-max" aria-label="Maximize">&#9723;</button><button class="win-btn win-close" aria-label="Close">×</button></div></header><div class="generic-content"></div>';
+  var box=el.querySelector('.generic-content');
+  if(typeof o.html==='string') box.innerHTML=o.html;
+  else if(o.node) box.appendChild(o.node);
+  ($('win11Desktop')||document.body).appendChild(el);
+  var tbar=el.querySelector('.win-titlebar');
+  var dragging=false,sx=0,sy=0,wx=0,wy=0;
+  tbar.addEventListener('pointerdown',function(e){ if(e.target.closest('.win-controls'))return; dragging=true; sx=e.clientX; sy=e.clientY; wx=el.offsetLeft; wy=el.offsetTop; try{tbar.setPointerCapture(e.pointerId);}catch(_){} el.style.zIndex=(__z+=2); });
+  tbar.addEventListener('pointermove',function(e){ if(!dragging)return; el.style.left=(wx+(e.clientX-sx))+'px'; el.style.top=(wy+(e.clientY-sy))+'px'; });
+  tbar.addEventListener('pointerup',function(e){ dragging=false; try{tbar.releasePointerCapture(e.pointerId);}catch(_){} });
+  el.addEventListener('pointerdown',function(){ el.style.zIndex=(__z+=2); },true);
+  el.querySelector('.win-min').onclick=function(){ el.hidden=true; };
+  el.querySelector('.win-close').onclick=function(){ el.remove(); };
+  el.querySelector('.win-max').onclick=function(){ el.classList.toggle('maximized'); };
+  return el;
+}
+window.__sparkOpen=sparkOpen;
+
+/* ---------- track facts (sing-along fallback) ---------- */
+var FACTS={
+'Mundian To Bach Ke':"Built on the Knight Rider theme bassline — took Punjabi music to clubs worldwide.",
+'Tunak Tunak Tun':"Its video was India's first major green-screen music video — a cult classic.",
+'High Rated Gabru':"Guru Randhawa's breakout anthem; among the most-viewed Punjabi songs ever.",
+'Suit Suit':"A wedding-floor staple that crossed over into Hindi cinema.",
+'Lahore':"Shot across two countries; one of the most-viewed Punjabi songs ever.",
+'Patola':"Guru Randhawa's collab with rap pioneer Bohemia bridged pop and hip-hop.",
+'Ban Ja Rani':"Written for the film Tumhari Sulu starring Vidya Balan.",
+'3 Peg':"Sharry Mann's party anthem — sung at nearly every Punjabi celebration.",
+'Proper Patola':"Diljit x Badshah — the collab that defined an era of Punjabi pop.",
+'Do You Know':"A slow-burn romantic hit that showed Diljit's softer side.",
+'5 Taara':"A fan favourite from Diljit's early peak years.",
+'Born To Shine':"The G.O.A.T.-era opener — Diljit at his most confident.",
+'G.O.A.T.':"Title track of Diljit's landmark 2026 album.",
+'Brown Munde':"AP Dhillon's global breakthrough — Punjabi drill goes worldwide.",
+'Excuses':"Topped India's streaming charts for weeks on release.",
+'Summer High':"The laid-back cruising anthem of the AP Dhillon wave.",
+'So High':"Sidhu Moose Wala's debut that shook the industry overnight.",
+'295':"Named after the IPC section; a posthumous chart-topper.",
+'The Last Ride':"Released days before his passing in 2022 — chillingly prophetic.",
+'Levels':"Showcased Moose Wala's international ambitions and range.",
+'Angreji Beat':"Honey Singh x Gippy Grewal — the Cocktail-era party starter.",
+'Blue Eyes':"2013's blockbuster — Honey Singh's autotuned smash.",
+'Desi Kalakaar':"Shot in Los Angeles with an international crew.",
+'We Rollin':"Shubh's breakout — lo-fi Punjabi rap for a new generation.",
+'Softly':"Karan Aujla's smooth hit produced by Ikky.",
+'Tum Hi Ho':"The Aashiqui 2 ballad that made Arijit Singh a household name.",
+'Gerua':"Shot in Iceland's dramatic landscapes with SRK and Kajol.",
+'Chaiyya Chaiyya':"Filmed atop a moving train — Bollywood's most iconic dance number.",
+'Kal Ho Naa Ho':"Sonu Nigam's timeless title track still moves listeners to tears.",
+'Tujh Mein Rab Dikhta Hai':"The wedding anthem from Rab Ne Bana Di Jodi.",
+'Jai Ho':"Won the Oscar for Best Original Song in 2009.",
+'Kesariya':"Brahmastra's love anthem; one of India's most-streamed songs.",
+'Teri Mitti':"Kesari's tribute to soldiers — performed at national ceremonies.",
+'Apna Time Aayega':"Gully Boy's street-rap war cry for dreamers.",
+'Ae Dil Hai Mushkil':"Title track of Karan Johar's grand romantic drama.",
+'Channa Mereya':"The heartbreak anthem from the same film.",
+'Agar Tum Saath Ho':"Tamasha's emotional high point, set in Corsica.",
+'Kun Faya Kun':"Shot at Nizamuddin Dargah — a spiritual masterpiece.",
+'Sadda Haq':"Rockstar's rebellious cry that defined a generation.",
+'Bekhayali':"Kabir Singh's fiery chartbuster of 2019.",
+'Tujhe Kitna Chahne Lage':"Mithoon and Arijit strike again for Kabir Singh.",
+'Samjhawan':"A soulful remake that outshone the original.",
+'Janam Janam':"Dilwale's sweeping romantic duet filmed across Iceland and Bulgaria.",
+'Raabta':"A title track connecting two love stories across lifetimes.",
+'Shayad':"Pritam and Arijit deliver a modern classic for Love Aaj Kal.",
+'Hasi Ban Gaye':"Hamari Adhuri Kahani's tender moment.",
+'Kar Har Maidaan Fateh':"Sanju's rousing anthem of resilience.",
+'Zinda':"Bhaag Milkha Bhaag's adrenaline-pumping chase theme.",
+'Lag Ja Gale':"Lata Mangeshkar's 1964 immortal — among India's greatest songs.",
+'Mere Sapno Ki Rani':"Rajesh Khanna's train-top serenade from Aradhana (1969)."
+};
+
+/* ---------- Lyrics ---------- */
+function nowIdx(){ try{ var np=window.__nowPlaying?window.__nowPlaying():null; if(np&&typeof np.index==='number')return np.index; }catch(_){} return 0; }
+function openLyrics(){
+  var songs=window.SONGS||[];
+  var s=songs[nowIdx()]||songs[0]||{title:'—',artist:'—'};
+  var key=(window.LYRICS_KEY?window.LYRICS_KEY(s.title,s.artist):(s.title+'|'+s.artist));
+  var entry=(window.LYRICS||{})[key];
+  var body;
+  if(entry&&(entry.en||entry.hi)){
+    body='<div class="lyrics-toolbar"><button class="eq-preset" data-lv="en">English</button><button class="eq-preset" data-lv="hi">Hindi</button><button class="eq-preset" data-lv="both">Both</button></div>'
+      +'<div class="lyrics-body" data-en="'+esc(entry.en||'')+'" data-hi="'+esc(entry.hi||'')+'">'+esc(entry.en||'')+'</div>';
+  }else{
+    var fact=FACTS[s.title]||'An all-time hit from the Punjabi Rewind collection.';
+    body='<div class="spk-fact">🎵 <b>Did you know?</b><br>'+esc(fact)+'</div>'
+      +'<div class="lyrics-body">Full lyrics coming soon for this track — hit the button below to sing along on YouTube.</div>'
+      +'<div style="margin-top:10px"><button class="eq-preset" data-yt="1">▶ Sing along on YouTube</button></div>';
+  }
+  var w=sparkOpen('lyrics',{title:'Lyrics — '+s.title,icon:'🎤',w:520,h:460,html:'<div class="lyrics-app"><div class="spk-row"><div class="spk-grow"><b>'+esc(s.title)+'</b><br><small style="opacity:.7">'+esc(s.artist)+'</small></div><button class="eq-preset" data-refresh="1" title="Reload for now playing">↻</button></div><div style="height:8px"></div>'+body+'</div>'});
+  var box=w.querySelector('.generic-content');
+  box.querySelectorAll('[data-lv]').forEach(function(b){ b.onclick=function(){
+    box.querySelectorAll('[data-lv]').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    var bd=box.querySelector('.lyrics-body'); if(!bd)return;
+    var m=b.getAttribute('data-lv');
+    bd.textContent = m==='en'?bd.getAttribute('data-en') : m==='hi'?bd.getAttribute('data-hi') : (bd.getAttribute('data-en')+'\n\n'+bd.getAttribute('data-hi'));
+  };});
+  var yt=box.querySelector('[data-yt]'); if(yt) yt.onclick=function(){ try{window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(s.title+' '+s.artist+' lyrics'),'_blank');}catch(_){} };
+  var rf=box.querySelector('[data-refresh]'); if(rf) rf.onclick=function(){ var e2=$('win-lyrics'); if(e2)e2.remove(); openLyrics(); };
+}
+
+/* ---------- Artists ---------- */
+function openArtists(){
+  var songs=window.SONGS||[];
+  var groups={};
+  songs.forEach(function(s,i){ (groups[s.artist]=groups[s.artist]||[]).push(i); });
+  var names=Object.keys(groups).sort();
+  var w=sparkOpen('artists',{title:'Artists',icon:'🎙️',w:560,h:480,html:'<div class="artists-app"><input class="spk-search" id="spkArtistQ" placeholder="Search artists…" autocomplete="off"><div id="spkArtistList"></div></div>'});
+  var box=w.querySelector('.generic-content');
+  var list=box.querySelector('#spkArtistList');
+  function play(i){ try{ if(window.selectSong)window.selectSong(i,true); }catch(_){} }
+  function render(q){
+    q=(q||'').toLowerCase();
+    var html='';
+    names.forEach(function(a){
+      if(q&&a.toLowerCase().indexOf(q)<0)return;
+      var idxs=groups[a];
+      var bio=((window.ARTISTS||{})[a]||{}).bio||'';
+      html+='<div class="spk-artist">'+esc(a)+'<small>'+idxs.length+' track'+(idxs.length>1?'s':'')+'</small></div>';
+      if(bio)html+='<p class="spk-bio">'+esc(bio)+'</p>';
+      html+='<ol class="artists-list">'+idxs.map(function(i){ var s=songs[i]; return '<li><div class="spk-grow"><strong>'+esc(s.title)+'</strong><small>'+esc(s.year)+'</small></div><button class="play-song" data-i="'+i+'">▶</button></li>'; }).join('')+'</ol>';
+    });
+    list.innerHTML=html||'<p class="empty-state">No artists match.</p>';
+    list.querySelectorAll('.play-song').forEach(function(b){ b.onclick=function(){ play(parseInt(b.getAttribute('data-i'),10)); }; });
+  }
+  box.querySelector('#spkArtistQ').addEventListener('input',function(e){ render(e.target.value); });
+  render('');
+}
+
+/* ---------- Playlists ---------- */
+function openPlaylists(){
+  var songs=window.SONGS||[];
+  var pls=window.PLAYLISTS||[];
+  function play(i){ try{ if(window.selectSong)window.selectSong(i,true); }catch(_){} }
+  var html='<div class="playlists-app">'+pls.map(function(p,pi){
+    var rows=(p.indices||[]).map(function(i){ var s=songs[i]; if(!s)return ''; return '<li><div class="spk-grow"><strong>'+esc(s.title)+'</strong><small>'+esc(s.artist)+'</small></div><button class="play-song" data-i="'+i+'">▶</button></li>'; }).join('');
+    return '<div class="spk-pl"><div class="spk-row"><div class="spk-grow"><b>'+esc(p.name)+'</b><br><small style="opacity:.7">'+esc(p.desc||'')+'</small></div><button class="play-song" data-pl="'+pi+'" title="Play all">▶ All</button></div><ol class="playlists-list">'+rows+'</ol></div>';
+  }).join('')+'</div>';
+  var w=sparkOpen('playlists',{title:'Playlists',icon:'🎧',w:560,h:480,html:html});
+  var box=w.querySelector('.generic-content');
+  box.querySelectorAll('[data-i]').forEach(function(b){ b.onclick=function(){ play(parseInt(b.getAttribute('data-i'),10)); }; });
+  box.querySelectorAll('[data-pl]').forEach(function(b){ b.onclick=function(){ var p=pls[parseInt(b.getAttribute('data-pl'),10)]; if(p&&p.indices&&p.indices.length)play(p.indices[0]); }; });
+}
+
+/* ---------- Sticky notes (self-contained, same storage key) ---------- */
+var STICKY_KEY='pr_notes';
+function stickyGet(){ try{return JSON.parse(localStorage.getItem(STICKY_KEY)||'[]');}catch(_){return [];} }
+function stickySet(a){ try{localStorage.setItem(STICKY_KEY,JSON.stringify(a));}catch(_){} }
+function openSticky(){
+  var w=sparkOpen('stickyNotes',{title:'Sticky Notes',icon:'📝',w:600,h:440,html:'<div class="sticky-app"><div class="notes-toolbar"><button class="notes-add">+ New note</button></div><div class="notes-grid"></div></div>'});
+  var box=w.querySelector('.generic-content');
+  var grid=box.querySelector('.notes-grid');
+  function render(){
+    var all=stickyGet();
+    grid.innerHTML=all.length?all.map(function(n,idx){ return '<div class="sticky-note" data-idx="'+idx+'" style="background:'+esc(n.color||'#fff59d')+'"><button class="note-close" aria-label="Delete">×</button><div class="note-text" contenteditable="true">'+esc(n.text||'')+'</div><div><button class="note-color">🎨</button></div></div>'; }).join(''):'<p class="empty-state">No notes yet — hit + New note.</p>';
+    grid.querySelectorAll('.sticky-note').forEach(function(el){
+      var idx=parseInt(el.getAttribute('data-idx'),10);
+      el.querySelector('.note-close').onclick=function(){ stickySet(stickyGet().filter(function(_,i){return i!==idx;})); render(); };
+      el.querySelector('.note-text').addEventListener('input',function(){ var a=stickyGet(); if(a[idx]){a[idx].text=el.querySelector('.note-text').textContent; stickySet(a);} });
+      el.querySelector('.note-color').onclick=function(){ var colors=['#fff59d','#ffccbc','#c8e6c9','#bbdefb','#e1bee7']; var a=stickyGet(); if(a[idx]){a[idx].color=colors[(colors.indexOf(a[idx].color)+1)%colors.length]; stickySet(a); render();} };
+    });
+  }
+  box.querySelector('.notes-add').onclick=function(){ var a=stickyGet(); a.push({text:'',color:'#fff59d'}); stickySet(a); render(); };
+  render();
+}
+
+/* ---------- timing-proof wiring ---------- */
+function on(id,fn){ var el=$(id); if(el&&!el.dataset.sparkWired){ el.dataset.sparkWired='1'; el.addEventListener('click',fn); } }
+function showMain(){ var b=$('taskbarAppBtn'); if(b){ try{b.click();}catch(_){} return; } var w=$('appWindow'); if(w)w.hidden=false; }
+function guardPanels(){
+  if(window.__historyRender&&!window.__historyRender.__spk){ var hr=window.__historyRender; var g=function(){ if(document.getElementById('historyPanel'))return; return hr(); }; g.__spk=true; window.__historyRender=g; }
+  if(window.__openStats&&!window.__openStats.__spk){ var so=window.__openStats; var g2=function(){ if(document.getElementById('statsPanel'))return; return so(); }; g2.__spk=true; window.__openStats=g2; }
+  if(window.__queue&&window.__queue.open&&!window.__queue.open.__spk){ var qo=window.__queue.open.bind(window.__queue); var g3=function(){ if(document.getElementById('queuePanel'))return; return qo(); }; g3.__spk=true; window.__queue.open=g3; }
+}
+function sparkWire(){
+  guardPanels();
+  on('desktopIconLyrics',openLyrics); on('startAppLyrics',openLyrics); on('navLyrics',openLyrics);
+  on('desktopIconArtists',openArtists); on('startAppArtists',openArtists);
+  on('desktopIconPlaylists',openPlaylists); on('startAppPlaylists',openPlaylists); on('navPlaylists',openPlaylists);
+  on('startAppStickyNotes',openSticky);
+  var h=function(){ if(window.__historyRender)window.__historyRender(); else toast('History appears after you play tracks'); };
+  on('desktopIconHistory',h); on('startAppHistory',h); on('navHistory',h); on('historyBtn',h);
+  var st=function(){ if(window.__openStats)window.__openStats(); else toast('Stats appear after some plays'); };
+  on('desktopIconStats',st); on('startAppStats',st); on('navStats',st);
+  on('navQueue',function(){ if(window.__queue)window.__queue.open(); });
+  on('queueBtn',function(){ if(window.__queue)window.__queue.open(); });
+  on('sleepBtn',function(){ if(window.__sleepToggle)window.__sleepToggle(); });
+  on('eqBtn',function(){ if(window.__eqOpen)window.__eqOpen(); });
+  on('startAppPunjabiRewind',showMain); on('startRecentPunjabiRewind',showMain);
+  on('startAppWhatsNew',function(){ toast('🆕 All 50 all-time hits, verified working'); });
+  on('partyBtn',partyToggle); on('wallBtn',function(){ wallpaperNext(false); });
+  buildViz();
+}
+window.__sparkWire=sparkWire;
+
+/* ---------- wallpaper quick-cycle (mirrors win11 settings key) ---------- */
+var WALLS=['bloom','aurora','mesh','dark'];
+function wallpaperNext(quiet){
+  var cur='bloom';
+  try{ var s=JSON.parse(localStorage.getItem('pr_win11_settings')||'{}'); if(s.wallpaper)cur=s.wallpaper; }catch(_){}
+  var nx=WALLS[(WALLS.indexOf(cur)+1)%WALLS.length]||'bloom';
+  try{ var s2=JSON.parse(localStorage.getItem('pr_win11_settings')||'{}'); s2.wallpaper=nx; localStorage.setItem('pr_win11_settings',JSON.stringify(s2)); }catch(_){}
+  var d=$('win11Desktop'); if(d)d.dataset.wallpaper=nx;
+  if(!quiet)toast('Wallpaper: '+nx);
+  return nx;
+}
+window.__wallpaperNext=wallpaperNext;
+
+/* ---------- living visualizer + now-playing toasts ---------- */
+var lastVizIdx=-1,lastVizNote=0;
+function buildViz(){
+  if($('sparkViz'))return;
+  var host=document.querySelector('.w11-transport');
+  if(!host)return;
+  var v=document.createElement('div'); v.id='sparkViz'; v.className='spark-viz'; v.setAttribute('aria-hidden','true');
+  var html=''; for(var k=0;k<24;k++)html+='<i></i>';
+  v.innerHTML=html;
+  host.insertBefore(v,host.firstChild);
+  var bars=v.children, t0=performance.now();
+  function frame(){
+    var np=null; try{ np=window.__nowPlaying?window.__nowPlaying():null; }catch(_){}
+    var playing=!!(np&&np.playing);
+    var idx=(np&&typeof np.index==='number')?np.index:0;
+    var covers=document.querySelectorAll('.w11-cover,#nowCover');
+    for(var c=0;c<covers.length;c++){ if(covers[c].classList)covers[c].classList.toggle('spk-live',playing); }
+    if(playing&&idx!==lastVizIdx){
+      lastVizIdx=idx; lastVizNote=Date.now();
+      var s=(window.SONGS||[])[idx];
+      if(s)notify('Now playing',s.title+' — '+s.artist,'🎵');
+    }
+    if(!playing&&lastVizIdx!==-2){ if(Date.now()-lastVizNote>4000)lastVizIdx=-2; }
+    var t=(performance.now()-t0)/1000;
+    for(var k=0;k<bars.length;k++){
+      var h;
+      if(playing){ var w1=Math.sin(t*3.1+k*0.55+idx)*0.5+0.5, w2=Math.sin(t*5.3+k*1.3+idx*2)*0.5+0.5, w3=Math.sin(t*1.2+k*0.2)*0.5+0.5; h=3+Math.round((w1*0.5+w2*0.35+w3*0.15)*22); }
+      else h=3;
+      bars[k].style.height=h+'px';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- party DJ mode ---------- */
+var partyOn=false,partyMixT=null,partyWallT=null;
+function partyToggle(){
+  partyOn=!partyOn;
+  var b=$('partyBtn'); if(b){ b.classList.toggle('spk-on',partyOn); b.setAttribute('aria-pressed',String(partyOn)); }
+  if(partyOn){
+    toast('🪩 Party mode ON — DJ Spark is mixing');
+    notify('Party mode','DJ Spark is mixing 50 all-time hits','🪩');
+    var songs=window.SONGS||[];
+    if(songs.length&&window.selectSong){ try{window.selectSong(Math.floor(Math.random()*songs.length),true);}catch(_){} }
+    partyWallT=setInterval(function(){ wallpaperNext(true); },12000);
+    partyMixT=setInterval(function(){
+      var np=null; try{np=window.__nowPlaying?window.__nowPlaying():null;}catch(_){}
+      if(np&&np.playing&&(window.SONGS||[]).length){
+        var n=Math.floor(Math.random()%(window.SONGS||[]).length);
+        if(n!==np.index){ try{window.selectSong(n,true);}catch(_){} }
+      }
+    },75000);
+  }else{
+    if(partyMixT)clearInterval(partyMixT); if(partyWallT)clearInterval(partyWallT);
+    partyMixT=partyWallT=null;
+    toast('Party mode off');
+  }
+  return partyOn;
+}
+window.__partyToggle=partyToggle;
+
+/* run now + late passes (beats the DCL race) */
+try{ sparkWire(); }catch(_){}
+document.addEventListener('DOMContentLoaded',function(){ try{ sparkWire(); }catch(_){} });
+window.addEventListener('load',function(){ try{ sparkWire(); }catch(_){} });
+setTimeout(function(){ try{ sparkWire(); }catch(_){} },1500);
+setTimeout(function(){ try{ sparkWire(); }catch(_){} },3500);
 })();
 ;

@@ -1440,3 +1440,20 @@ p{margin:0}
   .win-window.windowed{top:0; left:0; right:0; bottom:48px; width:auto; height:auto; margin-left:0; border-radius:0}
 }
 
+
+
+/* ===== spark extras: visualizer, live pulse, party, artist browser ===== */
+.spark-viz{display:flex;align-items:flex-end;gap:2px;height:34px;padding:0 6px;flex:none}
+.spark-viz i{width:3px;min-height:3px;border-radius:2px;background:linear-gradient(180deg,#7dd3fc,#818cf8);opacity:.9}
+.w11-cover.spk-live{animation:spkPulse 1.6s ease-in-out infinite}
+#nowCover.spk-live{animation:spkPulse 1.6s ease-in-out infinite}
+@keyframes spkPulse{0%,100%{box-shadow:0 0 0 0 rgba(236,163,28,0);transform:scale(1)}50%{box-shadow:0 0 18px 2px rgba(236,163,28,.55);transform:scale(1.05)}}
+#partyBtn.spk-on{background:#ECA31C!important;color:#111!important;border-color:#ECA31C!important}
+.spk-search{width:100%;margin:0 0 8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font:inherit}
+.spk-artist{margin:12px 0 2px;font-weight:700;font-size:14px}
+.spk-artist small{opacity:.6;font-weight:400;margin-left:6px;font-size:11.5px}
+.spk-bio{opacity:.75;font-size:12.5px;margin:0 0 6px;line-height:1.5}
+.spk-fact{background:rgba(236,163,28,.1);border:1px solid rgba(236,163,28,.35);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:13px;line-height:1.55}
+.spk-row{display:flex;align-items:center;gap:8px}
+.spk-grow{flex:1;min-width:0}
+.spk-pl{border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;margin:0 0 10px;background:rgba(255,255,255,.03)}

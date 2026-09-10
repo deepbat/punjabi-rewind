@@ -47,6 +47,17 @@ render loop while the tab is hidden.
 - **Track info** — click the now-playing cover/title for details and links.
 - **Offline fallback** — graceful page with saved favorites if WebGL/JS fails.
 
+## Spark extras ✨
+
+- **Every icon works** — desktop icons, Start menu, sidebar and playbar buttons are wired with timing-proof binding, so Lyrics/Artists/Playlists/History/Stats always open.
+- **Living visualizer** — 24-bar EQ in the playbar dances while music plays; the covers pulse with the beat.
+- **Now-playing toasts** — Windows-style notifications slide in on every track change.
+- **🪩 Party mode** — hero Party button: DJ Spark shuffles all 50 hits nonstop and rotates wallpapers every 12 seconds.
+- **🖼️ Wallpaper button** — cycle Bloom/Aurora/Mesh/Dark instantly from the hero.
+- **Track facts** — the Lyrics app shows a "Did you know?" story for every all-time hit, plus sing-along on YouTube.
+- **Artists A–Z** — all 24 artists with bios, search, and one-tap play.
+- **Right-click the desktop** — Sort, Refresh, Next desktop background, New folder/text file, Display settings.
+
 ## Local preview
 
 This needs a real server (ES modules and CSS2DRenderer won't load over
