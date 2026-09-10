@@ -35,5 +35,5 @@
     let start= -Math.PI/2; data.forEach(d=>{ const angle=d.v/100*Math.PI*2; ctx.beginPath(); ctx.moveTo(w/2,h/2); ctx.arc(w/2,h/2,r,start,start+angle); ctx.closePath(); ctx.fillStyle=d.c; ctx.fill(); start+=angle; });
     ctx.fillStyle='#F3F3F3'; ctx.font='600 12px Segoe UI Variable Text,Segoe UI,sans-serif'; ctx.textAlign='center'; ctx.fillText(`Punjabi ${pPct}%`,w/2,h/2-6); ctx.fillText(`Hindi ${hPct}%`,w/2,h/2+12);
   }
-  document.addEventListener('DOMContentLoaded',()=>{ const btn=$('statsBtn'); if(btn) btn.onclick=open; window.__openStats=open; });
+  document.addEventListener('DOMContentLoaded',()=>{ const btn=$('navStats'); if(btn) btn.onclick=open; window.__openStats=open; });
 })();

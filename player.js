@@ -1,5 +1,5 @@
 const SONG_LIST=window.SONGS||[];
-let currentIndex=0, player=null, playerReady=false, isMuted=false, timer=null, idAttempt=0;
+let currentIndex=0, player=null, playerReady=false, isMuted=false, timer=null, idAttempt=0, noStreamSkipTimer=null, ytErrorSkipTimer=null;
 let activeFilter='all', searchTerm='';
 let currentSource='youtube'; // youtube | spotify
 const FAVORITES_KEY='pr_favorites';

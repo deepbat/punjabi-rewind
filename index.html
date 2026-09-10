@@ -251,9 +251,15 @@
   </section>
 
   <!-- ===== Offline fallback ===== -->
-  <noscript><meta http-equiv="refresh" content="0;url=offline-fallback.html"></noscript>
+  <noscript>
+    <div style="position:fixed; inset:0; background:#0b0b0d; color:#f3f3f3; padding:3rem; text-align:center; z-index:9999;">
+      <h1>Punjabi Rewind</h1>
+      <p>JavaScript is disabled or WebGL is not available. <a href="offline-fallback.html" style="color:#ECA31C">Open offline version →</a></p>
+    </div>
+  </noscript>
   <script>try{if(!window.WebGLRenderingContext)throw new Error('no-webgl');}catch(e){location.replace('offline-fallback.html')}
-  window.__appErrorFallback=function(){location.replace('offline-fallback.html')};\n  window.addEventListener('error',function(e){try{throw e.error||e;}catch(err){if(/WebGL/.test(err.message)||/YT is not defined/.test(err.message))window.__appErrorFallback&&window.__appErrorFallback();}});\n  </script>
+  window.__appErrorFallback=function(){location.replace('offline-fallback.html')};
+  window.addEventListener('error',function(e){try{throw e.error||e;}catch(err){if(/WebGL/.test(err.message)||/YT is not defined/.test(err.message))window.__appErrorFallback&&window.__appErrorFallback();}});</script>
 
   <!-- ===== Start menu ===== -->
   <div class="start-scrim" id="startScrim"></div>
