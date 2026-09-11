@@ -23,8 +23,60 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/studio.css">
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
+</script>
 </head>
 <body class="win11">
+
+<canvas id="studioCanvas" aria-label="Explorable 3D studio. Drag to look, WASD to move, click objects to open music sections."></canvas>
+<div id="studioVignette" aria-hidden="true"></div>
+<div id="studioCross" aria-hidden="true"></div>
+
+<!-- Studio intro: the doorway into the world (replaces conventional homepage/hero) -->
+<div id="studioIntro" role="dialog" aria-label="Enter the studio">
+  <div class="studio-intro-card">
+    <div class="studio-kicker">PUNJABI REWIND · INTERACTIVE STUDIO</div>
+    <h1>STEP INSIDE THE STUDIO</h1>
+    <p>A small explorable control-room that <strong>is</strong> the radio. Walk up to the <strong>wall of sound</strong> for all 50 tracks, spin the <strong>control deck</strong> to play, tune the <strong>radio mast</strong> for live stations, dig the <strong>vinyl shelves</strong> for playlists, and find lyrics, artists, history &amp; stats hidden in the room.</p>
+    <div class="studio-controls-hint"><span>🖱 drag · look</span><span>WASD · move</span><span>click objects · open</span><span>📱 touch · stick + tap</span></div>
+    <button id="studioEnter" type="button">▶&nbsp; Enter the studio</button>
+  </div>
+</div>
+
+<!-- Persistent HUD -->
+<header id="studioHud">
+  <button class="studio-brand" id="studioBrand" type="button" aria-label="Back to room overview"><span class="studio-brand-mark">ਪ</span> REWIND&nbsp;STUDIO</button>
+  <button class="studio-nav-btn" id="studioMenuBtn" type="button" aria-label="Menu">☰</button>
+  <nav aria-label="Studio sections">
+    <button class="studio-nav-btn" data-action="console" type="button">◉ Deck</button>
+    <button class="studio-nav-btn" data-action="songs" type="button">▦ Tracks</button>
+    <button class="studio-nav-btn" data-action="radio" type="button">📡 Radio</button>
+    <button class="studio-nav-btn" data-action="playlists" type="button">Shelves</button>
+    <button class="studio-nav-btn" data-action="lyrics" type="button">Mic</button>
+    <button class="studio-nav-btn" data-action="artists" type="button">Gallery</button>
+    <button class="studio-nav-btn" data-action="history" type="button">Clock</button>
+    <button class="studio-nav-btn" data-action="stats" type="button">Orb</button>
+  </nav>
+</header>
+<div id="studioTip" aria-hidden="true"></div>
+<div id="studioHint" aria-hidden="true">drag to look · WASD to walk · click glowing objects · Esc closes panels</div>
+
+<!-- Always-on Now Playing -->
+<div id="studioNow" role="status" aria-live="polite" aria-label="Now playing">
+  <span class="np-disc" aria-hidden="true">◉</span>
+  <div class="np-meta"><strong id="npTitle">Punjabi Rewind</strong><span id="npSub">Pick a track to begin</span></div>
+  <span class="np-live">● LIVE</span>
+  <div class="np-btns">
+    <button id="npPrev" type="button" aria-label="Previous track">⏮</button>
+    <button id="npPlay" type="button" aria-label="Play or pause">⏯</button>
+    <button id="npNext" type="button" aria-label="Next track">⏭</button>
+    <button id="npRadio" type="button" aria-label="Toggle live radio">📡</button>
+  </div>
+</div>
+<div id="studioStick" aria-hidden="true"><div id="studioStickKnob"></div></div>
+<div id="studioTapHint" aria-hidden="true">drag&nbsp;·&nbsp;look<br>tap&nbsp;objects&nbsp;·&nbsp;open</div>
 
 <div class="win11-desktop" id="win11Desktop">
 
@@ -504,5 +556,13 @@
 <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="assets/app.bundle.js"></script>
+<script type="module" src="assets/studio.js"></script>
+<script>
+// Studio bridge: brand button returns to room overview; guard if 3D module fails.
+document.getElementById('studioBrand')?.addEventListener('click', () => {
+  document.body.classList.remove('show-songs', 'show-radio', 'show-library');
+  document.querySelectorAll('.app-window').forEach(w => w.remove());
+});
+</script>
 </body>
 </html>
