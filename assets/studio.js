@@ -11,9 +11,10 @@
    a styled 2D player (body.studio-2d) instead of blackness. */
 function enter2D(msg) {
   if (window.__studioOK || window.__studio2D) return;
+  document.body.classList.add('studio-2d');
+  document.body.classList.remove('studio-3d');
   if (window.__studioFallback2D) { window.__studioFallback2D(msg); return; }
   window.__studio2D = true;
-  document.body.classList.add('studio-2d');
   const f = document.getElementById('studioFallback');
   if (f) f.hidden = false;
 }
@@ -508,10 +509,11 @@ function syncNav() {
       (a === 'radio' && document.body.classList.contains('show-radio')));
   });
 }
-document.querySelectorAll('.studio-nav-btn').forEach((b) =>
-  b.addEventListener('click', () => activate(b.dataset.action)));
+/* Nav buttons are wired by the inline 2D/3D bridge in index.html
+   (single binding — it delegates here in 3D mode). */
 $('studioMenuBtn').addEventListener('click', () => $('studioHud').classList.toggle('menu-open'));
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanels(); });
+window.__studioActivate = activate;
 
 // inject panel header bars (close buttons) into preserved panels
 function addBar(container, title) {
@@ -568,17 +570,19 @@ setTimeout(() => {
     }
     if (mx < 14) throw new Error('blank-frame');
     window.__studioOK = true;
+    try { clearTimeout(window.__studio3DTimer); } catch (_) {}
   } catch (_) { enter2D('3D preview could not start — full player below.'); }
 }, 3000);
 renderer.domElement.addEventListener('webglcontextlost', (e) => {
   e.preventDefault(); enter2D('Graphics context lost — full player below.');
 });
 
-/* ---------- main loop ---------- */
+/* ---------- main loop (pausable: 3D runs only while entered) ---------- */
 const clockT = new THREE.Clock();
-let beatPhase = 0;
+let beatPhase = 0, running = false, rafId = 0;
 function frame() {
-  requestAnimationFrame(frame);
+  if (!running) return;
+  rafId = requestAnimationFrame(frame);
   if (document.hidden) return;
   const dt = Math.min(clockT.getDelta(), 0.05);
   const t = clockT.elapsedTime;
@@ -658,4 +662,8 @@ addEventListener('resize', () => {
 });
 
 drawScreen();
+running = true;
 frame();
+window.__studioBootDone = true;
+window.__studioResume = () => { if (!running) { running = true; frame(); } };
+window.__studioPause = () => { running = false; cancelAnimationFrame(rafId); };

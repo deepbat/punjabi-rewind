@@ -88,7 +88,22 @@
 #studioFallback p{margin:0;flex:1;}
 #studioFallback button{background:var(--st-amber);color:#0a0a0a;font-weight:700;border-radius:9px;padding:8px 14px;}
 
-/* ---- 2D fallback: full player, no 3D ---- */
+#studioEnter3D{
+  font-weight:700;font-size:12px;color:#0a0a0a;letter-spacing:.03em;
+  background:linear-gradient(100deg,var(--st-amber),#ffd479);border-radius:10px;padding:8px 14px;
+  box-shadow:0 6px 22px rgba(236,163,28,.35);pointer-events:auto;white-space:nowrap;
+}
+#studioExit3D,#studioFull3D{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:#dfe7f2;
+  background:rgba(10,16,28,.7);border:1px solid var(--st-line);border-radius:10px;padding:8px 11px;
+  pointer-events:auto;white-space:nowrap;
+}
+#studioFull3D{border-color:rgba(91,214,255,.5);}
+body:not(.studio-2d) #studioEnter3D{display:none !important;}
+body.studio-2d #studioExit3D,body.studio-2d #studioFull3D{display:none !important;}
+body.studio-2d .studio-panel-bar{display:none !important;}
+/* 2D default page backdrop */
+body.studio-2d .win11-desktop{background:radial-gradient(1200px 600px at 50% -10%,#12203a 0%,#0b0b0d 60%) !important;}
 body.studio-2d #studioCanvas,body.studio-2d #studioVignette,body.studio-2d #studioCross,
 body.studio-2d #studioHint,body.studio-2d #studioStick,body.studio-2d #studioTapHint,
 body.studio-2d #studioWelcome{display:none !important;}
@@ -106,7 +121,7 @@ body.studio-2d .w11-sidebar{
 body.studio-2d .w11-sidebar{width:300px !important;flex:0 0 auto;}
 body.studio-2d .w11-playbar{position:sticky !important;bottom:0 !important;transform:none !important;left:auto !important;width:auto !important;}
 body.studio-2d #studioNow{display:none !important;}
-body.studio-2d #studioHud nav{display:flex !important;}
+@media (min-width:761px){body.studio-2d #studioHud nav{display:flex !important;}}
 
 /* ---- top HUD ---- */
 #studioHud{

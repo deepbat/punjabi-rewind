@@ -23,12 +23,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
-<link rel="stylesheet" href="assets/studio.css">
+<link rel="stylesheet" href="assets/studio.css?v=4">
 <script type="importmap">
 {"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}
 </script>
 </head>
-<body class="win11">
+<body class="win11 studio-2d">
 
 <canvas id="studioCanvas" aria-label="Explorable 3D studio. Drag to look, WASD to move, click objects to open music sections."></canvas>
 <div id="studioVignette" aria-hidden="true"></div>
@@ -61,6 +61,9 @@
     <button class="studio-nav-btn" data-action="history" type="button">Clock</button>
     <button class="studio-nav-btn" data-action="stats" type="button">Orb</button>
   </nav>
+  <button id="studioEnter3D" type="button" aria-label="Enter the 3D studio">✨ Enter 3D studio</button>
+  <button id="studioExit3D" type="button" aria-label="Exit the 3D studio">← Exit 3D</button>
+  <button id="studioFull3D" type="button" aria-label="Toggle fullscreen">⛶ Fullscreen</button>
 </header>
 <div id="studioTip" aria-hidden="true"></div>
 <div id="studioHint" aria-hidden="true">drag to look · WASD to walk · click glowing objects · Esc closes panels</div>
@@ -558,31 +561,93 @@
 <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 <script src="assets/app.bundle.js"></script>
-<script type="module" src="assets/studio.js"></script>
+<!-- 3D studio world loads lazily ONLY after the user taps "Enter 3D studio" (see bridge below). -->
 <script>
-// Studio bridge: brand button returns to room overview; guard if 3D module fails.
-// Inline watchdog: if the 3D module never reports success (blocked CDN,
-// no WebGL, old browser), fall back to the full 2D player — never a blank page.
+// Studio bridge: the 2D player is the default page and works with zero 3D
+// dependency. The 3D world loads ONLY after the user taps "Enter 3D studio",
+// and fullscreen happens ONLY via the explicit ⛶ button (user gesture).
+// NEVER force either — no blank page, no irritation.
+function __show2D() {
+  document.body.classList.add('studio-2d');
+  document.body.classList.remove('studio-3d');
+  document.body.classList.remove('show-songs', 'show-radio', 'show-library', 'show-console');
+  try { window.__studioPause && window.__studioPause(); } catch (_) {}
+  try { document.fullscreenElement && document.exitFullscreen().catch(() => {}); } catch (_) {}
+}
 document.getElementById('studioBrand')?.addEventListener('click', () => {
-  document.body.classList.remove('show-songs', 'show-radio', 'show-library');
   document.querySelectorAll('.app-window').forEach(w => w.remove());
+  if (document.body.classList.contains('studio-3d') && window.__studioActivate) window.__studioActivate('home');
 });
 document.getElementById('studioWelcomeX')?.addEventListener('click', () => {
   document.getElementById('studioWelcome')?.classList.add('gone');
 });
 setTimeout(() => document.getElementById('studioWelcome')?.classList.add('gone'), 14000);
+
+// Nav buttons: delegate to the 3D world when inside it, else drive the
+// preserved player directly (all original buttons/IDs untouched).
+function __studioNav(action) {
+  if (document.body.classList.contains('studio-3d') && window.__studioActivate) {
+    window.__studioActivate(action); return;
+  }
+  const click = (id) => { const el = document.getElementById(id); if (el) { el.click(); return true; } return false; };
+  if (action !== 'songs' && action !== 'radio') document.querySelectorAll('.app-window').forEach(w => w.remove());
+  if (action === 'songs') document.getElementById('songGrid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else if (action === 'radio') document.getElementById('radioToggle')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  else if (action === 'console') document.getElementById('playBtn')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  else if (action === 'playlists') click('navPlaylists');
+  else if (action === 'lyrics') click('navLyrics');
+  else if (action === 'artists') click('startAppArtists') || click('desktopIconArtists');
+  else if (action === 'history') click('navHistory');
+  else if (action === 'stats') click('navStats');
+}
+document.querySelectorAll('.studio-nav-btn[data-action]').forEach((b) =>
+  b.addEventListener('click', () => __studioNav(b.dataset.action)));
+
+// Opt-in 3D: lazy-load the world module on first entry only.
+document.getElementById('studioEnter3D')?.addEventListener('click', () => {
+  document.body.classList.remove('studio-2d');
+  document.body.classList.add('studio-3d');
+  const w = document.getElementById('studioWelcome');
+  if (w && !sessionStorage.getItem('pr_welcomed')) {
+    w.classList.remove('gone');
+    sessionStorage.setItem('pr_welcomed', '1');
+    try { clearTimeout(window.__welcomeTimer); } catch (_) {}
+    window.__welcomeTimer = setTimeout(() => w.classList.add('gone'), 12000);
+  }
+  if (window.__studioBootDone) { try { window.__studioResume && window.__studioResume(); } catch (_) {} return; }
+  if (window.__studioBooting) return;
+  window.__studioBooting = true;
+  window.__studio3DTimer = setTimeout(() => {
+    if (!window.__studioOK) { __show2D(); __studioFallback2D('3D took too long — full player below.'); }
+  }, 12000);
+  const s = document.createElement('script');
+  s.type = 'module'; s.src = 'assets/studio.js?v=4';
+  s.onerror = () => { try { clearTimeout(window.__studio3DTimer); } catch (_) {} __show2D(); __studioFallback2D('3D failed to load — full player below.'); };
+  document.head.appendChild(s);
+});
+document.getElementById('studioExit3D')?.addEventListener('click', __show2D);
+// Fullscreen ONLY here, on explicit user tap. Esc exits natively.
+document.getElementById('studioFull3D')?.addEventListener('click', async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch (_) { /* user denied or unsupported — stay windowed, no irritation */ }
+});
+document.addEventListener('fullscreenchange', () => {
+  const b = document.getElementById('studioFull3D');
+  if (b) b.textContent = document.fullscreenElement ? '⛶ Windowed' : '⛶ Fullscreen';
+});
 function __studioFallback2D(msg) {
   if (window.__studioOK || window.__studio2D) return;
   window.__studio2D = true;
-  document.body.classList.add('studio-2d');
+  __show2D();
   const f = document.getElementById('studioFallback');
   if (f) f.hidden = false;
   if (msg) { const e = document.getElementById('studioError'); if (e) { e.hidden = false; e.textContent = msg; } }
 }
 document.getElementById('studioRetry')?.addEventListener('click', () => location.reload());
-setTimeout(() => __studioFallback2D(), 8000);
 window.addEventListener('error', (e) => {
-  if (window.__studioOK || window.__studio2D) return;
+  if (window.__studioOK || window.__studio2D || !document.body.classList.contains('studio-3d')) return;
   const m = String((e && e.message) || '');
   if (/three|webgl|import|module/i.test(m)) __studioFallback2D('3D could not load (' + m.slice(0, 90) + ') — player below works fully.');
 }, true);
