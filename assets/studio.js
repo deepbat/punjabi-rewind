@@ -5,7 +5,31 @@
    assets/app.bundle.js and is only *triggered* from here —
    nothing is reimplemented or removed.
    ============================================================ */
-import * as THREE from 'three';
+/* ---------- resilient loader: never a blank page ----------
+   The 3D world is progressive enhancement over the fully working
+   music site. If the CDN, WebGL, or first frame fails, we drop to
+   a styled 2D player (body.studio-2d) instead of blackness. */
+function enter2D(msg) {
+  if (window.__studioOK || window.__studio2D) return;
+  if (window.__studioFallback2D) { window.__studioFallback2D(msg); return; }
+  window.__studio2D = true;
+  document.body.classList.add('studio-2d');
+  const f = document.getElementById('studioFallback');
+  if (f) f.hidden = false;
+}
+
+let THREE = null;
+const THREE_URLS = [
+  'three',
+  'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js',
+  'https://unpkg.com/three@0.160.0/build/three.module.js',
+];
+for (const url of THREE_URLS) {
+  try { THREE = await import(/* @vite-ignore */url); break; }
+  catch (_) { /* try next CDN */ }
+}
+if (!THREE) { enter2D('3D library unreachable — full player below.'); throw new Error('studio: three.js unreachable'); }
 
 const $ = (id) => document.getElementById(id);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -28,8 +52,12 @@ const VIEWS = {
 /* ---------- renderer / scene ---------- */
 let renderer;
 try {
+  const test = document.createElement('canvas');
+  if (!(window.WebGLRenderingContext && (test.getContext('webgl2') || test.getContext('webgl')))) {
+    throw new Error('webgl-unavailable');
+  }
   renderer = new THREE.WebGLRenderer({ canvas: $('studioCanvas'), antialias: true });
-} catch (e) { location.replace('offline-fallback.html'); throw e; }
+} catch (e) { enter2D('WebGL unavailable on this device — full player below.'); throw e; }
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
@@ -334,7 +362,6 @@ const keys = new Set();
 const MOVE_CODES = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 addEventListener('keydown', (e) => {
   if (e.target.matches('input,textarea,select')) return;
-  if ($('studioIntro') && !$('studioIntro').classList.contains('gone')) return;
   if (MOVE_CODES.has(e.code)) {
     keys.add(e.code);
     e.stopPropagation();
@@ -347,7 +374,6 @@ let dragging = false, dragMoved = 0, lastX = 0, lastY = 0, downX = 0, downY = 0,
 const canvas = $('studioCanvas');
 canvas.style.touchAction = 'none';
 canvas.addEventListener('pointerdown', (e) => {
-  if ($('studioIntro') && !$('studioIntro').classList.contains('gone')) return;
   dragging = true; dragMoved = 0; lastX = downX = e.clientX; lastY = downY = e.clientY; downT = performance.now();
   canvas.setPointerCapture(e.pointerId);
 });
@@ -522,17 +548,30 @@ $('npPrev').addEventListener('click', (e) => { e.stopPropagation(); clickEl('pre
 $('npNext').addEventListener('click', (e) => { e.stopPropagation(); clickEl('nextBtn'); });
 nowEl.addEventListener('click', () => activate('console'));
 
-/* ---------- intro ---------- */
-$('studioEnter').addEventListener('click', () => {
-  $('studioIntro').classList.add('gone');
-  flyTo('home');
-  try { drawScreen(); } catch (_) {}
-  // gentle auto-tour on first entry (skipped for reduced motion)
-  if (!reducedMotion && !localStorage.getItem('pr_studio_seen')) {
-    localStorage.setItem('pr_studio_seen', '1');
-    setTimeout(() => flyTo('console'), 700);
-    setTimeout(() => flyTo('home'), 2600);
-  }
+/* ---------- no fullscreen gate: the room is open on load ---------- */
+flyTo('home');
+try { drawScreen(); } catch (_) {}
+
+/* ---------- render watchdog: blank frame => 2D player, never black ---------- */
+setTimeout(() => {
+  if (window.__studioOK || window.__studio2D) return;
+  try {
+    renderer.render(scene, camera);
+    const gl = renderer.getContext();
+    const w = gl.drawingBufferWidth, h = gl.drawingBufferHeight;
+    const px = new Uint8Array(64 * 64 * 4);
+    gl.readPixels(Math.max(0, w / 2 - 32), Math.max(0, h / 2 - 32), 64, 64, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    let mx = 0;
+    for (let i = 0; i < px.length; i += 4) {
+      const l = px[i] * 0.3 + px[i + 1] * 0.6 + px[i + 2] * 0.1;
+      if (l > mx) mx = l;
+    }
+    if (mx < 14) throw new Error('blank-frame');
+    window.__studioOK = true;
+  } catch (_) { enter2D('3D preview could not start — full player below.'); }
+}, 3000);
+renderer.domElement.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault(); enter2D('Graphics context lost — full player below.');
 });
 
 /* ---------- main loop ---------- */

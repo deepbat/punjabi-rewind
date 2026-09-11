@@ -34,15 +34,17 @@
 <div id="studioVignette" aria-hidden="true"></div>
 <div id="studioCross" aria-hidden="true"></div>
 
-<!-- Studio intro: the doorway into the world (replaces conventional homepage/hero) -->
-<div id="studioIntro" role="dialog" aria-label="Enter the studio">
-  <div class="studio-intro-card">
-    <div class="studio-kicker">PUNJABI REWIND · INTERACTIVE STUDIO</div>
-    <h1>STEP INSIDE THE STUDIO</h1>
-    <p>A small explorable control-room that <strong>is</strong> the radio. Walk up to the <strong>wall of sound</strong> for all 50 tracks, spin the <strong>control deck</strong> to play, tune the <strong>radio mast</strong> for live stations, dig the <strong>vinyl shelves</strong> for playlists, and find lyrics, artists, history &amp; stats hidden in the room.</p>
-    <div class="studio-controls-hint"><span>🖱 drag · look</span><span>WASD · move</span><span>click objects · open</span><span>📱 touch · stick + tap</span></div>
-    <button id="studioEnter" type="button">▶&nbsp; Enter the studio</button>
-  </div>
+<!-- Small non-blocking welcome card (no fullscreen gate) -->
+<aside id="studioWelcome" aria-label="Welcome to the studio">
+  <strong>◉ REWIND STUDIO</strong>
+  <p>Walk up to glowing objects — the <b>wall</b> holds all 50 tracks, the <b>mast</b> is live radio, the <b>shelves</b> are playlists.</p>
+  <p class="mono">drag · look &nbsp;&nbsp; WASD · walk &nbsp;&nbsp; tap · open</p>
+  <button id="studioWelcomeX" type="button" aria-label="Dismiss">Got it ✕</button>
+</aside>
+<div id="studioError" role="alert" hidden></div>
+<div id="studioFallback" hidden>
+  <p><strong>3D studio unavailable</strong> — showing the full player instead. Every song, station &amp; playlist works below.</p>
+  <button id="studioRetry" type="button">↻ Retry 3D</button>
 </div>
 
 <!-- Persistent HUD -->
@@ -559,10 +561,31 @@
 <script type="module" src="assets/studio.js"></script>
 <script>
 // Studio bridge: brand button returns to room overview; guard if 3D module fails.
+// Inline watchdog: if the 3D module never reports success (blocked CDN,
+// no WebGL, old browser), fall back to the full 2D player — never a blank page.
 document.getElementById('studioBrand')?.addEventListener('click', () => {
   document.body.classList.remove('show-songs', 'show-radio', 'show-library');
   document.querySelectorAll('.app-window').forEach(w => w.remove());
 });
+document.getElementById('studioWelcomeX')?.addEventListener('click', () => {
+  document.getElementById('studioWelcome')?.classList.add('gone');
+});
+setTimeout(() => document.getElementById('studioWelcome')?.classList.add('gone'), 14000);
+function __studioFallback2D(msg) {
+  if (window.__studioOK || window.__studio2D) return;
+  window.__studio2D = true;
+  document.body.classList.add('studio-2d');
+  const f = document.getElementById('studioFallback');
+  if (f) f.hidden = false;
+  if (msg) { const e = document.getElementById('studioError'); if (e) { e.hidden = false; e.textContent = msg; } }
+}
+document.getElementById('studioRetry')?.addEventListener('click', () => location.reload());
+setTimeout(() => __studioFallback2D(), 8000);
+window.addEventListener('error', (e) => {
+  if (window.__studioOK || window.__studio2D) return;
+  const m = String((e && e.message) || '');
+  if (/three|webgl|import|module/i.test(m)) __studioFallback2D('3D could not load (' + m.slice(0, 90) + ') — player below works fully.');
+}, true);
 </script>
 </body>
 </html>
