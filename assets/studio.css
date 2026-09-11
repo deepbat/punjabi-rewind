@@ -15,15 +15,48 @@
   --st-line:rgba(255,255,255,.12);
 }
 
-/* ---- 3D canvas ---- */
-#studioCanvas{
-  position:fixed;inset:0;width:100%;height:100%;
-  display:block;z-index:0;background:#04060c;
+/* ---- 3D window: a NORMAL window on the page, never fullscreen ---- */
+#studioWindow{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(1060px,94vw);height:min(680px,86vh);z-index:30;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:#04060c;border:1px solid var(--st-line);border-radius:18px;
+  box-shadow:0 40px 120px rgba(0,0,0,.65),0 0 60px rgba(91,214,255,.07);
 }
+#studioWindow[hidden]{display:none !important;}
+#studioWindowBar{
+  flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:9px 10px 9px 14px;
+  background:rgba(10,16,28,.95);border-bottom:1px solid var(--st-line);
+  cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;
+}
+#studioWindowBar:active{cursor:grabbing;}
+.studio-window-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;letter-spacing:.05em;color:#fff;white-space:nowrap;}
+.studio-brand-mark.sm{width:24px;height:24px;font-size:13px;border-radius:7px;}
+#studio3DStatus{
+  flex:1;min-width:0;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9fb3c8;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
+}
+#studioWindowX{
+  flex:0 0 auto;width:32px;height:32px;border-radius:9px;font-size:14px;color:#fff;
+  background:rgba(255,255,255,.08);
+}
+#studioWindowX:hover{background:#d14a3f;}
+#studioStage{position:relative;flex:1;min-height:0;background:#04060c;}
+#studioCanvas{position:absolute;inset:0;width:100% !important;height:100% !important;display:block;cursor:grab;}
 #studioVignette{
-  position:fixed;inset:0;z-index:1;pointer-events:none;
+  position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse at 50% 42%,transparent 55%,rgba(0,0,0,.55) 100%);
 }
+#studioWindowFoot{
+  flex:0 0 auto;padding:7px 12px;text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#8fa3b8;letter-spacing:.03em;
+  background:rgba(10,16,28,.95);border-top:1px solid var(--st-line);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* holographic sub-panels float above the 3D window */
+body.studio-3d .w11-main,body.studio-3d .w11-sidebar{z-index:46 !important;pointer-events:auto !important;}
+body.studio-3d .win-content{pointer-events:none !important;}
+body.studio-3d .w11-playbar{pointer-events:auto !important;}
 
 /* ---- hide the old desktop shell (nodes stay for JS compat) ---- */
 .wallpaper-bloom,.desktop-icons,.taskbar,.start-menu,.start-scrim,
@@ -50,16 +83,16 @@
 /* ---- no conventional hero ---- */
 .w11-hero{display:none !important;}
 
-/* ---- crosshair ---- */
+/* ---- crosshair (centered in the 3D stage) ---- */
 #studioCross{
-  position:fixed;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
-  border-radius:50%;background:rgba(255,255,255,.75);z-index:6;pointer-events:none;
+  position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;
+  border-radius:50%;background:rgba(255,255,255,.75);pointer-events:none;
   box-shadow:0 0 8px rgba(91,214,255,.9);
 }
 
 /* ---- welcome card (small, dismissible — never fullscreen) ---- */
 #studioWelcome{
-  position:fixed;left:14px;bottom:230px;z-index:30;width:280px;max-width:82vw;
+  position:fixed;left:14px;bottom:230px;z-index:47;width:280px;max-width:82vw;
   background:rgba(8,12,20,.9);border:1px solid var(--st-line);border-radius:14px;padding:13px 14px;
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   box-shadow:0 18px 60px rgba(0,0,0,.55);font-size:12.5px;color:#c9cfd8;line-height:1.5;
@@ -79,7 +112,7 @@
   padding:10px 16px;font-size:13px;
 }
 #studioFallback{
-  position:fixed;left:50%;transform:translateX(-50%);top:56px;z-index:29;
+  position:fixed;left:50%;transform:translateX(-50%);top:56px;z-index:49;
   display:flex;align-items:center;gap:12px;max-width:min(620px,94vw);
   background:rgba(8,12,20,.92);border:1px solid var(--st-amber);color:#fff;border-radius:14px;
   padding:10px 12px 10px 16px;font-size:13px;
@@ -93,19 +126,17 @@
   background:linear-gradient(100deg,var(--st-amber),#ffd479);border-radius:10px;padding:8px 14px;
   box-shadow:0 6px 22px rgba(236,163,28,.35);pointer-events:auto;white-space:nowrap;
 }
-#studioExit3D,#studioFull3D{
+#studioExit3D{
   font-family:'JetBrains Mono',monospace;font-size:11px;color:#dfe7f2;
   background:rgba(10,16,28,.7);border:1px solid var(--st-line);border-radius:10px;padding:8px 11px;
   pointer-events:auto;white-space:nowrap;
 }
-#studioFull3D{border-color:rgba(91,214,255,.5);}
 body:not(.studio-2d) #studioEnter3D{display:none !important;}
-body.studio-2d #studioExit3D,body.studio-2d #studioFull3D{display:none !important;}
+body.studio-2d #studioExit3D{display:none !important;}
 body.studio-2d .studio-panel-bar{display:none !important;}
 /* 2D default page backdrop */
 body.studio-2d .win11-desktop{background:radial-gradient(1200px 600px at 50% -10%,#12203a 0%,#0b0b0d 60%) !important;}
-body.studio-2d #studioCanvas,body.studio-2d #studioVignette,body.studio-2d #studioCross,
-body.studio-2d #studioHint,body.studio-2d #studioStick,body.studio-2d #studioTapHint,
+body.studio-2d #studioWindow{display:none !important;}
 body.studio-2d #studioWelcome{display:none !important;}
 body.studio-2d{background:#0b0b0d;}
 body.studio-2d .w11app{position:static !important;pointer-events:auto !important;display:flex !important;min-height:100vh;}
@@ -125,7 +156,7 @@ body.studio-2d #studioNow{display:none !important;}
 
 /* ---- top HUD ---- */
 #studioHud{
-  position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:10px;
+  position:fixed;top:0;left:0;right:0;z-index:48;display:flex;align-items:center;gap:10px;
   padding:10px 14px;pointer-events:none;
 }
 #studioHud .studio-brand{
@@ -146,25 +177,19 @@ body.studio-2d #studioNow{display:none !important;}
 .studio-nav-btn:hover{border-color:var(--st-cyan);transform:translateY(-1px);}
 .studio-nav-btn.active{border-color:var(--st-amber);color:var(--st-amber);}
 
-/* ---- tooltip + hint ---- */
+/* ---- object tooltip (floats inside the 3D stage) ---- */
 #studioTip{
-  position:fixed;left:50%;top:58%;transform:translateX(-50%);z-index:20;pointer-events:none;
-  background:rgba(5,8,14,.85);border:1px solid var(--st-cyan);color:#eaf6ff;border-radius:12px;
+  position:absolute;left:50%;top:62%;transform:translateX(-50%);pointer-events:none;
+  background:rgba(5,8,14,.88);border:1px solid var(--st-cyan);color:#eaf6ff;border-radius:12px;
   padding:9px 16px;font-size:13px;font-weight:600;opacity:0;transition:opacity .18s;white-space:nowrap;
-  box-shadow:0 0 24px rgba(91,214,255,.35);
+  box-shadow:0 0 24px rgba(91,214,255,.35);max-width:90%;overflow:hidden;text-overflow:ellipsis;
 }
 #studioTip.show{opacity:1;}
 #studioTip small{display:block;font-weight:400;color:#9fb3c8;font-size:11px;text-align:center;}
-#studioHint{
-  position:fixed;left:50%;bottom:152px;transform:translateX(-50%);z-index:19;pointer-events:none;
-  font-family:'JetBrains Mono',monospace;font-size:11px;color:#8fa3b8;letter-spacing:.04em;
-  background:rgba(5,8,14,.6);padding:7px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.08);
-  white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;
-}
 
 /* ---- persistent Now Playing pill ---- */
 #studioNow{
-  position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:25;
+  position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:48;
   display:flex;align-items:center;gap:10px;max-width:min(560px,94vw);
   background:rgba(8,12,20,.82);border:1px solid var(--st-line);border-radius:16px;padding:8px 10px 8px 8px;
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
@@ -268,7 +293,7 @@ body.show-console .w11-playbar{border-color:var(--st-amber) !important;box-shado
 
 /* ---- touch joystick ---- */
 #studioStick{
-  position:fixed;left:16px;bottom:170px;z-index:21;width:112px;height:112px;border-radius:50%;
+  position:fixed;left:16px;bottom:170px;z-index:48;width:112px;height:112px;border-radius:50%;
   border:1px solid var(--st-line);background:rgba(8,12,20,.5);display:none;touch-action:none;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
 }
@@ -276,16 +301,15 @@ body.show-console .w11-playbar{border-color:var(--st-amber) !important;box-shado
   position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff,var(--st-cyan));box-shadow:0 0 18px rgba(91,214,255,.6);
 }
-body.touch #studioStick{display:block;}
-body.touch #studioHint{display:none;}
-
-/* ---- look pad hint for mobile ---- */
+body.touch:not(.studio-3d) #studioStick{display:none !important;}
+body.touch.studio-3d #studioStick{display:block;}
+/* ---- look pad hint for mobile (only while 3D window open) ---- */
 #studioTapHint{
-  position:fixed;right:16px;bottom:190px;z-index:21;display:none;
+  position:fixed;right:16px;bottom:190px;z-index:48;display:none;
   font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#9fb3c8;text-align:center;
   background:rgba(8,12,20,.6);border:1px solid var(--st-line);border-radius:12px;padding:8px 12px;
 }
-body.touch #studioTapHint{display:block;}
+body.touch.studio-3d #studioTapHint{display:block;}
 
 /* ---- toasts ---- */
 .toast{
@@ -302,6 +326,8 @@ body.touch #studioTapHint{display:block;}
 .vault-scrim,.vault-panel,.start-scrim{pointer-events:none !important;}
 
 @media (max-width:760px){
+  #studioWindow{width:96vw;height:78vh;}
+  #studioWindowFoot{display:none;}
   #studioHud nav{display:none;}
   #studioHud.menu-open nav{display:flex;position:fixed;top:56px;right:10px;flex-direction:column;background:rgba(7,11,19,.95);padding:10px;border-radius:14px;border:1px solid var(--st-line);}
   #studioMenuBtn{display:inline-block !important;}

@@ -13,6 +13,8 @@ function enter2D(msg) {
   if (window.__studioOK || window.__studio2D) return;
   document.body.classList.add('studio-2d');
   document.body.classList.remove('studio-3d');
+  const st = document.getElementById('studio3DStatus');
+  if (st) st.textContent = msg || '3D unavailable.';
   if (window.__studioFallback2D) { window.__studioFallback2D(msg); return; }
   window.__studio2D = true;
   const f = document.getElementById('studioFallback');
@@ -31,6 +33,8 @@ for (const url of THREE_URLS) {
   catch (_) { /* try next CDN */ }
 }
 if (!THREE) { enter2D('3D library unreachable — full player below.'); throw new Error('studio: three.js unreachable'); }
+function setStatusEarly(t) { const el = document.getElementById('studio3DStatus'); if (el) el.textContent = t; }
+setStatusEarly('Building studio…');
 
 const $ = (id) => document.getElementById(id);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
@@ -60,11 +64,24 @@ try {
   renderer = new THREE.WebGLRenderer({ canvas: $('studioCanvas'), antialias: true });
 } catch (e) { enter2D('WebGL unavailable on this device — full player below.'); throw e; }
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.12;
+
+// The world renders inside the normal page window (#studioStage), never fullscreen.
+function setStatus(t) { const el = $('studio3DStatus'); if (el) el.textContent = t; }
+function fitStage() {
+  try {
+    const stage = $('studioStage');
+    const w = Math.max(50, stage ? stage.clientWidth : innerWidth);
+    const h = Math.max(50, stage ? stage.clientHeight : innerHeight);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  } catch (_) { /* stage not laid out yet */ }
+}
+fitStage();
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x04060c);
@@ -570,8 +587,12 @@ setTimeout(() => {
     }
     if (mx < 14) throw new Error('blank-frame');
     window.__studioOK = true;
+    setStatus('Explore — drag to look · WASD to walk · click glowing objects');
     try { clearTimeout(window.__studio3DTimer); } catch (_) {}
-  } catch (_) { enter2D('3D preview could not start — full player below.'); }
+  } catch (_) {
+    setStatus('3D preview could not start.');
+    enter2D('3D preview could not start — full player below.');
+  }
 }, 3000);
 renderer.domElement.addEventListener('webglcontextlost', (e) => {
   e.preventDefault(); enter2D('Graphics context lost — full player below.');
@@ -655,11 +676,8 @@ function frame() {
   renderer.render(scene, camera);
 }
 
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
+addEventListener('resize', fitStage);
+try { new ResizeObserver(fitStage).observe($('studioStage')); } catch (_) {}
 
 drawScreen();
 running = true;
