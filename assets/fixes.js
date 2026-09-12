@@ -45,7 +45,9 @@
   }
   var oldYTReady=window.onYouTubeIframeAPIReady;
   window.onYouTubeIframeAPIReady=function(){
-    ytReady=true; if(typeof oldYTReady==='function')oldYTReady();
+    ytReady=true;
+    var f=$('instantYTPlayer'); if(f){f.src='about:blank';f.hidden=true;}
+    if(typeof oldYTReady==='function')oldYTReady();
     if(pendingSong!==null){var i=pendingSong;pendingSong=null;setTimeout(function(){try{window.selectSong(i,true)}catch(_){}},0)}
   };
 
