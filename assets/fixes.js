@@ -65,11 +65,10 @@
   }
   function hookYT(){
     var old=window.onYouTubeIframeAPIReady;if(old&&old.__fastHook)return;
-    window.onYouTubeIframeAPIReady=function(){if(typeof old==='function')return old.apply(this,arguments)};
-    window.__ytPlayerReady=false;
+    var wrapped=function(){if(typeof old==='function')return old.apply(this,arguments)};wrapped.__fastHook=true;window.onYouTubeIframeAPIReady=wrapped;window.__ytPlayerReady=false;
   }
   function setupFastRadio(){
-    var btn=$('radioToggle');if(!btn||btn.dataset.fastRadio)return;btn.dataset.fastRadio='1';var audio=new Audio();audio.preload='auto',stations=window.RADIO_STATIONS||[],idx=0,playing=false;
+    var btn=$('radioToggle');if(!btn||btn.dataset.fastRadio)return;btn.dataset.fastRadio='1';var audio=new Audio();audio.preload='auto';var stations=window.RADIO_STATIONS||[],idx=0,playing=false;
     if(stations[0]&&stations[0].url){audio.src=stations[0].url;try{audio.load()}catch(_){} }
     audio.addEventListener('playing',function(){playing=true;if($('radioStatus'))$('radioStatus').textContent='Live now';if($('dialGlyph'))$('dialGlyph').textContent='Ⅱ';btn.setAttribute('aria-pressed','true');if(window.__pauseSongPlayback)window.__pauseSongPlayback()});
     audio.addEventListener('error',function(){if(!stations.length)return;idx=(idx+1)%stations.length;var s=stations[idx];audio.src=s.url;try{audio.load();audio.play().catch(function(){})}catch(_){} });
@@ -81,8 +80,7 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();setTimeout(init,300);setTimeout(init,1000);setTimeout(init,2000);
 })();
 
-/* Final playback guard: always use direct user-initiated YouTube embed for play clicks.
-   This prevents the old "YouTube player loading, please wait" path from firing. */
+/* Final playback guard: always use direct user-initiated YouTube embed for play clicks. */
 (function(){
   function init(){
     var grid=document.getElementById('songGrid');
