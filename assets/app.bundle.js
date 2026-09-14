@@ -1,1 +1,1 @@
-document.write('<script src="assets/app.core.js"></script><script src="assets/fixes.js"></script>');
+document.write('<link rel="stylesheet" href="assets/fluid-theme.css?v=1"><script src="assets/app.core.js"></script><script src="assets/fixes.js"></script>');
