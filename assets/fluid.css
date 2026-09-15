@@ -168,6 +168,8 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   gap: 13px;
   max-height: calc(100dvh - 340px);
   min-height: 280px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 25;
 }
 .library[hidden] { display: none !important; }
@@ -205,7 +207,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   padding: 0 12px 0 0;
   overflow-y: auto;
   flex: 1;
-  min-height: 140px;
+  min-height: 80px;
   overscroll-behavior: contain;
 }
 .track-row { display: flex; align-items: center; gap: 2px; }
@@ -521,7 +523,10 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
      the panel itself scrolls on short screens instead of overflowing. */
   .library { overflow-y: auto; }
   .library > * { flex: none; }
-  .library > .track-list { flex: 1 1 auto; min-height: 90px; }
+  /* One unified scroll: the list grows naturally and the whole panel
+     (tracks + footer + radio) scrolls together. A separately-scrolling
+     inner list would swallow touch gestures and trap the radio below. */
+  .library > .track-list { flex: none; overflow: visible; max-height: none; min-height: 0; }
   .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
   .chip { flex: none; }
   .radio { padding: 10px; gap: 8px; }

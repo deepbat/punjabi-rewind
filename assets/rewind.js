@@ -1004,6 +1004,15 @@ function renderNow() {
     announce(state.chromeHidden ? 'Controls hidden. Press H to bring them back.' : 'Controls shown');
   }
 
+  /* The two round buttons top-right had no click wiring — on touch devices
+     there is no keyboard, so the panels were unreachable. */
+  function wireChromeToggles() {
+    var settingsBtn = $('settings');
+    if (settingsBtn) settingsBtn.addEventListener('click', function () { togglePanel(); });
+    var libraryBtn = $('libraryToggle');
+    if (libraryBtn) libraryBtn.addEventListener('click', function () { toggleLibrary(); });
+  }
+
   function showError(title, text) {
     var box = $('error');
     if (!box) return;
@@ -1153,6 +1162,7 @@ function wireLibrary() {
     wireDock();
     wireTransport();
     wireLibrary();
+    wireChromeToggles();
     wireKeys();
 
     var engine = ink();
