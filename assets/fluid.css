@@ -494,44 +494,66 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   .library { width: 292px; }
 }
 @media (max-width: 860px) {
-  .brand { left: 24px; top: 28px; }
-  .brand h1 { font-size: 38px; }
+  /* Slimmer brand so panels start higher and the list gets room. */
+  .brand { left: 20px; top: 20px; right: 112px; }
+  .brand h1 { font-size: 34px; margin: 8px 0 6px; }
+  .eyebrow { font-size: 9px; letter-spacing: .18em; }
   .subtitle { font-size: 11px; }
-  .top-right { top: 24px; right: 20px; }
+  .top-right { top: 20px; right: 12px; gap: 10px; }
   .status { display: none; }
-  .now-pill { top: 74px; right: 20px; }
-  .panel {
-    left: 16px;
-    right: 16px;
+  .round-button { width: 40px; height: 40px; }
+  .now-pill { top: 68px; right: 12px; max-width: 52vw; }
+  /* Panels are strictly bounded: brand above, now-playing + dock below.
+     Nothing may bleed into its neighbour. */
+  .panel,
+  .library {
+    left: 12px;
+    right: 12px;
     width: auto;
-    top: 168px;
-    max-height: calc(100dvh - 326px);
+    top: 158px;
+    bottom: 184px;
+    max-height: none;
+    min-height: 0;
     z-index: 30;
   }
-  .library {
-    left: 16px;
-    right: 16px;
-    width: auto;
-    top: 168px;
-    max-height: calc(100dvh - 326px);
-  }
-  .left-bottom { left: 16px; right: 16px; bottom: 92px; max-width: none; }
+  .panel { overflow-y: auto; }
+  /* Library: fixed sections never shrink; only the track list flexes, and
+     the panel itself scrolls on short screens instead of overflowing. */
+  .library { overflow-y: auto; }
+  .library > * { flex: none; }
+  .library > .track-list { flex: 1 1 auto; min-height: 90px; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
+  .chip { flex: none; }
+  .radio { padding: 10px; gap: 8px; }
+  .radio-presets { flex-wrap: nowrap; overflow-x: auto; }
+  .radio-presets button { flex: none; min-width: 64px; }
+  /* Now-playing sits above the dock with room to breathe; no hint between. */
+  .left-bottom { left: 12px; right: 12px; bottom: 84px; max-width: none; }
+  .now { padding: 8px 10px 8px 8px; gap: 10px; }
+  .cover { width: 42px; height: 42px; border-radius: 10px; }
+  .transport button { width: 30px; height: 30px; }
+  .transport button.play { width: 36px; height: 36px; }
   .footer { display: none; }
-  .bottom { bottom: 20px; }
-  .dock button { padding: 0 12px; }
+  .hint { display: none; }
+  .bottom { bottom: 14px; gap: 0; }
+  .dock button { padding: 0 12px; min-height: 40px; }
   .dock button span { display: none; }
-  .hint { font-size: 10px; }
   .dock { gap: 6px; }
-  .video-slot { width: min(344px, calc(100vw - 32px)); }
-  .video-slot.open { right: 16px; bottom: 176px; }
-  .toast { right: 16px; bottom: 176px; }
+  .video-slot { width: min(344px, calc(100vw - 24px)); }
+  .video-slot.open { right: 12px; bottom: 190px; }
+  .toast { right: 12px; left: 12px; bottom: 190px; max-width: none; }
+}
+@media (max-width: 380px) {
+  .eyebrow { font-size: 8px; letter-spacing: .14em; }
+  .brand h1 { font-size: 30px; }
+  .panel, .library { top: 148px; }
 }
 @media (max-height: 620px) {
   .brand { top: 22px; }
   .top-right { top: 20px; }
   .now-pill { display: none; }
   .panel { top: 82px; max-height: calc(100dvh - 176px); }
-  .library { top: 150px; max-height: calc(100dvh - 236px); }
+  .library { top: 150px; max-height: calc(100dvh - 236px); overflow-y: auto; }
   .bottom { bottom: 14px; gap: 10px; }
 }
 
