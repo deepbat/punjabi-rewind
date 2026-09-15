@@ -525,8 +525,8 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
   .chip { flex: none; }
   .radio { padding: 10px; gap: 8px; }
-  .radio-presets { flex-wrap: nowrap; overflow-x: auto; }
-  .radio-presets button { flex: none; min-width: 64px; }
+  .radio-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow: visible; }
+  .radio-presets button { min-width: 0; width: 100%; padding: 9px 6px; font-size: 10.5px; }
   /* Now-playing sits above the dock with room to breathe; no hint between. */
   .left-bottom { left: 12px; right: 12px; bottom: 84px; max-width: none; }
   .now { padding: 8px 10px 8px 8px; gap: 10px; }
