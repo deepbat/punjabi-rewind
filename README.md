@@ -66,6 +66,16 @@ python3 -m http.server 8080
 Then open <http://localhost:8080>. WebGL 2 is required for the ink; without it
 the page shows a clear message and the library and playback still work.
 
+## Notes
+
+- First visit shows a one-time intro card (what it is, drag hint, play hint)
+  that fades on first interaction and never nags again (`pr_intro_seen`).
+- Quality tiers are merit-based: the engine watches real frame rate for ~5 s
+  after load and auto-drops to Efficient below ~24 fps (never overriding a
+  manual choice), with an OOM fallback on top.
+- Without WebGL 2 the page falls back to a slowly drifting ink-echo gradient
+  (honours `prefers-reduced-motion`) with the full library and playback.
+
 ## Files
 
 | File | Purpose |

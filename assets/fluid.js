@@ -45,6 +45,10 @@
   var lost = false, dirty = true, time = 0, previousTime = 0, frameCount = 0, fpsTime = 0;
   var resizePending = true, colorIndex = 0, pendingBlooms = 1, savePending = false;
   var consecutiveErrors = 0;
+  // Merit-based quality: watch real frame rate for a few seconds after load
+  // and drop to Efficient on weak GPUs — once, and never over a manual choice.
+  var userChoseQuality = false, autoQualityDone = false;
+  var fpsWatchStart = 0, fpsSamples = [];
   var raf = 0, inited = false;
   var pointers = new Map();
   var splats = [];
@@ -484,10 +488,11 @@ function writeImage() {
       if (savePending) writeImage();
       consecutiveErrors = 0;
       if (now - fpsTime > 1000) {
-        hooks.status(paused ? 'PAUSED · WEBGL 2'
-          : Math.round(frameCount * 1000 / (now - fpsTime)) + ' FPS · WEBGL 2');
+        var fps = Math.round(frameCount * 1000 / (now - fpsTime));
+        hooks.status(paused ? 'PAUSED · WEBGL 2' : fps + ' FPS · WEBGL 2');
         frameCount = 0;
         fpsTime = now;
+        watchFps(fps);
       }
     } catch (error) {
       // A single transient GPU hiccup must not blank the canvas (with
@@ -504,6 +509,28 @@ function writeImage() {
     cancelAnimationFrame(raf);
     hooks.status('GPU UNAVAILABLE');
     hooks.error(error.message || 'The simulation could not start.');
+  }
+
+  /* Collect early frame rates (skipping frozen time); sustained sub-24 fps
+     on a fresh session means the GPU can't hold the tier — step down once. */
+  function watchFps(fps) {
+    if (autoQualityDone || userChoseQuality || paused || lost) return;
+    if (!isFinite(fps) || fps <= 0) return;
+    fpsSamples.push(fps);
+    if (performance.now() - fpsWatchStart < 5000) return;
+    autoQualityDone = true;
+    var samples = fpsSamples.slice(1); // drop the warm-up second
+    if (!samples.length || settings.quality === 'efficient') return;
+    var sum = 0;
+    for (var i = 0; i < samples.length; i++) sum += samples[i];
+    if (sum / samples.length < 24) {
+      settings.quality = 'efficient';
+      resizePending = true;
+      dirty = true;
+      var qualityBox = document.getElementById('quality');
+      if (qualityBox) qualityBox.value = 'efficient';
+      hooks.announce('This device runs the ink smoothly on Efficient quality — switched automatically.');
+    }
   }
 
   function position(event) {
@@ -605,6 +632,7 @@ function init(options) {
       inited = true;
       hooks.pause(paused);
       fpsTime = performance.now();
+      fpsWatchStart = fpsTime;
       raf = requestAnimationFrame(frame);
     } catch (error) {
       fail(error);
@@ -624,7 +652,10 @@ function init(options) {
 
   function set(key, value) {
     if (!(key in settings)) return getState();
-    if (key === 'quality' && settings.quality !== value) resizePending = true;
+    if (key === 'quality') {
+      if (settings.quality !== value) resizePending = true;
+      userChoseQuality = true; // a manual choice always beats the auto watcher
+    }
     if ((key === 'glow') || (key === 'palette')) dirty = true;
     settings[key] = value;
     return getState();

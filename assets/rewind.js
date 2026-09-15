@@ -1098,6 +1098,38 @@ function renderNow() {
     if (heading) heading.textContent = title;
     if (body) body.textContent = text;
     box.hidden = false;
+    document.body.classList.add('no-webgl'); // living gradient fallback
+    dismissIntro(true);
+  }
+
+  /* One-time intro: what it is, one drag hint, one play hint. Fades on
+     first interaction and never nags returning visitors. */
+  var INTRO_KEY = 'pr_intro_seen';
+  function showIntro() {
+    var box = $('intro');
+    if (!box) return;
+    try {
+      if (localStorage.getItem(INTRO_KEY)) return;
+    } catch (e) {}
+    box.hidden = false;
+    requestAnimationFrame(function () { box.classList.add('show'); });
+  }
+  function dismissIntro(silent) {
+    var box = $('intro');
+    if (!box || box.hidden) return;
+    try { localStorage.setItem(INTRO_KEY, '1'); } catch (e) {}
+    box.classList.remove('show');
+    setTimeout(function () { box.hidden = true; }, silent ? 0 : 350);
+    if (!silent) announce('Welcome in. Drag the ink, pick a track.');
+  }
+  function wireIntro() {
+    var close = $('introClose');
+    if (close) close.addEventListener('click', function () { dismissIntro(); close.blur(); });
+    var canvas = $('fluid');
+    if (canvas) canvas.addEventListener('pointerdown', function () { dismissIntro(); }, { once: true });
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') dismissIntro();
+    });
   }
 function wireLibrary() {
     var list = $('trackList');
@@ -1423,6 +1455,7 @@ function wireLibrary() {
     wireTransport();
     wireLibrary();
     wireChromeToggles();
+    wireIntro();
     wireKeys();
 
     var engine = ink();
@@ -1459,6 +1492,7 @@ function wireLibrary() {
     });
 
     announce('Punjabi Rewind ready. ' + SONGS.length + ' all-time hits in the library.');
+    showIntro();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
