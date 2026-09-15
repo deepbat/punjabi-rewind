@@ -56,3 +56,20 @@ window.SONGS = [
 {title:'Lag Ja Gale',artist:'Lata Mangeshkar (Woh Kaun Thi)',year:1964,youtubeIds:['br6C4U3Dyfo'],lang:'hindi'},
 {title:'Mere Sapno Ki Rani',artist:'Kishore Kumar (Aradhana)',year:1969,youtubeIds:['JtH1n6zUFuk'],lang:'hindi'},
 ];
+
+/* Live Punjabi radio — third-party community streams with automatic fail-over. */
+window.RADIO_STATIONS = [
+{name:'Punjabi Radio USA',desc:'24/7 Punjabi music & talk',url:'https://s5.voscast.com:9281/stream'},
+{name:'ClubHouse Punjabi Vibes',desc:'Non-stop Punjabi party & DJ mix',url:'https://liveradio.swaggerbeat.com:8022/stream'},
+{name:'Harman Radio Australia',desc:'Punjabi geet & community',url:'https://radio.sanbroz.com/listen/harman_radio_australia/radio.mp3'},
+{name:'Start Radio',desc:'AzuraCast Punjabi station, 128kbps',url:'https://canada.startradio.in:8000/radio.mp3'},
+];
+
+/* Curated playlists — indices match the 50-track catalog above. */
+window.PLAYLISTS = [
+{name:'Chill',desc:'Laid-back tracks to wind down',indices:[9,25,35,41,44,48,1]},
+{name:'Workout',desc:'High-energy beats',indices:[2,12,13,16,22,30,33]},
+{name:'Retro Mix',desc:'Classic throwback vibes',indices:[0,1,27,28,48,49,20]},
+{name:'Late Night',desc:'Midnight drives',indices:[14,24,40,43,45,23,36]},
+{name:'Party',desc:'Dance-floor bangers',indices:[4,11,15,19,21,26,31]},
+];

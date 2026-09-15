@@ -31,7 +31,7 @@
 
 <a class="skip-link" href="#librarySearch">Skip to the track library</a>
 
-<canvas id="fluid" aria-label="Interactive coloured ink. Drag to stir and paint.">Your browser needs WebGL 2 to run this simulation. The track library and playback still work — open desktop.html for the classic player.</canvas>
+<canvas id="fluid" aria-label="Interactive coloured ink. Drag to stir and paint.">Your browser needs WebGL 2 to run this simulation. The track library and playback still work.</canvas>
 
 <header class="brand">
   <div class="eyebrow">Punjabi Rewind · an interactive ink study</div>
@@ -81,9 +81,8 @@
   <p class="panel-note">
     Drag to add colour and momentum.<br>
     <kbd>Space</kbd> play or pause · <kbd>B</kbd> bloom · <kbd>F</kbd> freeze<br>
-    <kbd>L</kbd> library · <kbd>V</kbd> video · <kbd>H</kbd> hide the controls<br>
-    A 2D fluid approximation, made for play.<br>
-    Prefer the old Windows-style shell? <a href="desktop.html">Open the classic desktop player</a>.
+    <kbd>L</kbd> library · <kbd>V</kbd> video · <kbd>R</kbd> radio · <kbd>H</kbd> hide the controls<br>
+    A 2D fluid approximation, made for play.
   </p>
 </aside>
 
@@ -100,10 +99,28 @@
     <button class="chip" type="button" data-filter="hindi" aria-pressed="false">Hindi</button>
     <button class="chip" type="button" data-filter="saved" aria-pressed="false">★ Saved</button>
   </div>
+  <label class="playlist-row">
+    <span>Playlist</span>
+    <select id="playlistSelect" aria-label="Choose a playlist">
+      <option value="all" selected>All 50 hits</option>
+    </select>
+    <button id="playlistPlay" type="button" title="Play this playlist" aria-label="Play this playlist">▶</button>
+  </label>
   <ul class="track-list" id="trackList"></ul>
   <div class="library-foot">
     <span id="libraryCount">50 of 50 hits</span>
     <button id="shuffleToggle" type="button" aria-pressed="false" title="Shuffle every track">Shuffle all</button>
+  </div>
+  <div class="radio" aria-label="Live radio">
+    <div class="radio-head">
+      <strong>Live radio</strong>
+      <span class="mono radio-status" id="radioStatus">Radio off</span>
+    </div>
+    <button class="radio-main" id="radioToggle" type="button" aria-pressed="false" aria-label="Play live radio">
+      <span id="dialGlyph" aria-hidden="true">▶</span>
+      <span class="radio-text"><strong id="radioStationName">Punjabi Radio USA</strong><em id="radioStationDesc">Tap to tune in</em></span>
+    </button>
+    <div class="radio-presets" id="radioStationList" role="group" aria-label="Radio stations"></div>
   </div>
 </aside>
 
@@ -165,7 +182,6 @@
   <p id="errorText">This browser or graphics driver cannot start the ink simulation.</p>
   <div class="error-actions">
     <button id="reload" type="button">Try again</button>
-    <a class="button ghost" href="desktop.html">Open the classic desktop player</a>
   </div>
 </section>
 

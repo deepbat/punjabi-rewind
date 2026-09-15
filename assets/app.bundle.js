@@ -1,1 +1,0 @@
-document.write('<link rel="stylesheet" href="assets/fluid-theme.css?v=1"><script src="assets/app.core.js"></script><script src="assets/fixes.js"></script><script src="assets/no-fullscreen.js"></script>');

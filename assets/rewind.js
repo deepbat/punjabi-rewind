@@ -7,9 +7,13 @@
   'use strict';
 
   var SONGS = window.SONGS || [];
+  var RADIO_STATIONS = window.RADIO_STATIONS || [];
+  var PLAYLISTS = window.PLAYLISTS || [];
   var FAVORITES_KEY = 'pr_favorites';
   var HISTORY_KEY = 'pr_history';
   var LAST_TRACK_KEY = 'pr_last_track';
+  var LAST_PLAYLIST_KEY = 'pr_last_playlist';
+  var RADIO_TIMEOUT_MS = 6000;
   var MAX_HISTORY = 50;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -18,6 +22,7 @@
     index: -1,
     playing: false,
     filter: 'all',
+    playlist: 'all',
     query: '',
     favorites: [],
     history: [],
@@ -30,6 +35,9 @@
     duration: 0,
     position: 0,
     failures: 0,
+    radioIndex: 0,
+    radioLive: false,
+    radioTuning: false,
   };
 
   /* ── Storage ────────────────────────────────────────────────────────── */
@@ -205,6 +213,137 @@
     } catch (error) { /* best effort only */ }
   }
 
+  function pauseSongPlayback() {
+    if (directMode) { try { postCommand('pauseVideo'); } catch (e) {} setPlaying(false); return; }
+    var player = yt.player;
+    if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
+    setPlaying(false);
+  }
+
+  /* ── Live radio: independent HTML5 audio streams with automatic fail-over ─ */
+  var radioAudio = null;
+  var radioTimer = 0;
+  function ensureRadioAudio() {
+    if (radioAudio) return radioAudio;
+    radioAudio = new Audio();
+    radioAudio.preload = 'none';
+    radioAudio.addEventListener('playing', onRadioConnected);
+    radioAudio.addEventListener('error', function () { tryNextStation('stream error'); });
+    radioAudio.addEventListener('stalled', function () { tryNextStation('stalled'); });
+    return radioAudio;
+  }
+  function setRadioStatus(text, live) {
+    var el = $('radioStatus');
+    if (el) { el.textContent = text; el.classList.toggle('live', !!live); }
+  }
+  function renderStations() {
+    var wrap = $('radioStationList');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    for (var i = 0; i < RADIO_STATIONS.length; i++) {
+      (function (idx) {
+        var s = RADIO_STATIONS[idx];
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = s.name.split(' ')[0];
+        b.title = s.name + (s.desc ? ' — ' + s.desc : '');
+        b.setAttribute('aria-label', 'Tune to ' + s.name);
+        if (idx === state.radioIndex) b.classList.add('active');
+        b.addEventListener('click', function () { startRadio(idx); });
+        wrap.appendChild(b);
+      })(i);
+    }
+    var name = $('radioStationName');
+    var desc = $('radioStationDesc');
+    if (RADIO_STATIONS[state.radioIndex]) {
+      if (name) name.textContent = RADIO_STATIONS[state.radioIndex].name;
+      if (desc && !state.radioLive && !state.radioTuning) desc.textContent = RADIO_STATIONS[state.radioIndex].desc || 'Tap to tune in';
+    }
+  }
+  function markStationActive() {
+    var wrap = $('radioStationList');
+    if (!wrap) return;
+    var btns = wrap.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', i === state.radioIndex);
+  }
+  function startRadio(i) {
+    if (!RADIO_STATIONS.length) { toast('No radio stations configured.'); return; }
+    if (typeof i !== 'number') i = state.radioIndex;
+    if (i >= RADIO_STATIONS.length) {
+      state.radioTuning = false; state.radioLive = false;
+      setRadioStatus('All stations unreachable', false);
+      renderRadioToggle(); renderNow();
+      return;
+    }
+    state.radioIndex = i;
+    var station = RADIO_STATIONS[i];
+    var audio = ensureRadioAudio();
+    markStationActive();
+    var name = $('radioStationName');
+    var desc = $('radioStationDesc');
+    if (name) name.textContent = station.name;
+    if (desc) desc.textContent = 'Tuning in…';
+    setRadioStatus('Tuning in…', false);
+    state.radioTuning = true; state.radioLive = false;
+    renderRadioToggle(); renderNow();
+    pauseSongPlayback();
+    clearTimeout(radioTimer);
+    try {
+      audio.pause();
+      audio.src = station.url;
+      audio.load();
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () { setRadioStatus('Tap radio again to play', false); state.radioTuning = false; renderRadioToggle(); });
+    } catch (e) { tryNextStation('exception'); return; }
+    radioTimer = setTimeout(function () { if (!state.radioLive) tryNextStation('timeout'); }, RADIO_TIMEOUT_MS);
+  }
+  function tryNextStation() {
+    if (!state.radioTuning && !state.radioLive) return;
+    if (state.radioLive) return; // a live stream that later stalls restarts same station
+    clearTimeout(radioTimer);
+    startRadio(state.radioIndex + 1);
+  }
+  function onRadioConnected() {
+    state.radioLive = true; state.radioTuning = false;
+    clearTimeout(radioTimer);
+    var station = RADIO_STATIONS[state.radioIndex];
+    setRadioStatus('Live now', true);
+    var desc = $('radioStationDesc');
+    if (desc) desc.textContent = (station && station.desc) || 'Live';
+    pauseSongPlayback();
+    renderRadioToggle(); renderNow();
+    announce('Live radio: ' + (station ? station.name : 'on air'));
+    if (window.PR && window.PR.Fluid && window.PR.Fluid.pulse) window.PR.Fluid.pulse(1);
+    if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) window.PR.Fluid.setEnergy(1.9);
+  }
+  function stopRadio(silent) {
+    clearTimeout(radioTimer);
+    state.radioLive = false; state.radioTuning = false;
+    if (radioAudio) { try { radioAudio.pause(); } catch (e) {} }
+    setRadioStatus('Radio off', false);
+    var desc = $('radioStationDesc');
+    var station = RADIO_STATIONS[state.radioIndex];
+    if (desc) desc.textContent = (station && station.desc) || 'Tap to tune in';
+    if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
+      window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
+    }
+    renderRadioToggle(); renderNow();
+    if (!silent) announce('Radio off');
+  }
+  function toggleRadio() {
+    if (state.radioLive || state.radioTuning) stopRadio();
+    else startRadio(state.radioIndex);
+  }
+  function renderRadioToggle() {
+    var btn = $('radioToggle');
+    if (!btn) return;
+    var on = state.radioLive || state.radioTuning;
+    btn.setAttribute('aria-pressed', String(state.radioLive));
+    btn.setAttribute('aria-label', state.radioLive ? 'Stop live radio' : 'Play live radio');
+    var glyph = $('dialGlyph');
+    if (glyph) glyph.textContent = state.radioLive ? 'Ⅱ' : '▶';
+  }
+
   function setPlaying(value) {
     state.playing = !!value;
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
@@ -224,6 +363,7 @@
   function playTrack(index, options) {
     options = options || {};
     if (!SONGS.length) return;
+    if (state.radioLive || state.radioTuning) stopRadio(true);
     index = ((index % SONGS.length) + SONGS.length) % SONGS.length;
     var song = SONGS[index];
     var videoId = song.youtubeIds && song.youtubeIds[0];
@@ -258,20 +398,41 @@
 
   function nextStep(step) {
     if (!SONGS.length) return;
-    if (state.index < 0) { playTrack(step < 0 ? SONGS.length - 1 : 0); return; }
-    if (step > 0 && state.shuffle) { playTrack(randomIndex()); return; }
+    var pool = visibleIndexes();
+    if (state.shuffle && step > 0 && pool.length > 1) {
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      if (pick === state.index) pick = pool[(pool.indexOf(pick) + 1) % pool.length];
+      playTrack(pick); return;
+    }
+    if (state.index < 0) {
+      if (pool.length) playTrack(step < 0 ? pool[pool.length - 1] : pool[0]);
+      else playTrack(step < 0 ? SONGS.length - 1 : 0);
+      return;
+    }
+    if (pool.length > 1) {
+      var at = pool.indexOf(state.index);
+      if (at > -1) { playTrack(pool[(at + step + pool.length) % pool.length]); return; }
+    }
     playTrack(state.index + step);
   }
 
   function randomIndex() {
+    var pool = visibleIndexes();
+    if (pool.length > 1) {
+      var pick = state.index;
+      var guard = 0;
+      while (pick === state.index && guard++ < 20) pick = pool[Math.floor(Math.random() * pool.length)];
+      return pick;
+    }
     if (SONGS.length < 2) return 0;
-    var pick = state.index;
-    while (pick === state.index) pick = Math.floor(Math.random() * SONGS.length);
-    return pick;
+    var fallback = state.index;
+    while (fallback === state.index) fallback = Math.floor(Math.random() * SONGS.length);
+    return fallback;
   }
 
   function togglePlay() {
-    if (state.index < 0) { playTrack(state.shuffle ? randomIndex() : 0); return; }
+    if (state.radioLive || state.radioTuning) { stopRadio(); return; }
+    if (state.index < 0) { playTrack(state.shuffle ? randomIndex() : (visibleIndexes()[0] || 0)); return; }
     if (directMode) {
       if (state.playing) { postCommand('pauseVideo'); setPlaying(false); }
       else { postCommand('playVideo'); setPlaying(true); }
@@ -305,11 +466,22 @@
     shuffle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h4v4M20 4l-6 6M16 20h4v-4M20 20l-6-6M4 20h3l9-9 3-3"/></svg>',
   };
 
+  function playlistIndices() {
+    if (state.playlist === 'all') return null;
+    var found = null;
+    for (var p = 0; p < PLAYLISTS.length; p++) {
+      if (PLAYLISTS[p].name === state.playlist) { found = PLAYLISTS[p].indices; break; }
+    }
+    return found || null;
+  }
+
   function visibleIndexes() {
     var query = state.query.trim().toLowerCase();
+    var allowed = playlistIndices();
     var list = [];
     for (var i = 0; i < SONGS.length; i++) {
       var song = SONGS[i];
+      if (allowed && allowed.indexOf(i) < 0) continue;
       var sentence = (song.title + ' ' + song.artist + ' ' + song.year + ' ' + song.lang).toLowerCase();
       if (state.filter === 'saved' && !isFavorite(i)) continue;
       if ((state.filter === 'punjabi' || state.filter === 'hindi') && song.lang !== state.filter) continue;
@@ -384,8 +556,29 @@
     if (count) count.textContent = indexes.length + ' of ' + SONGS.length + ' hits';
   }
 function renderNow() {
+    var radioOn = state.radioLive || state.radioTuning;
     var song = SONGS[state.index];
     var cover = $('cover');
+    if (radioOn && RADIO_STATIONS[state.radioIndex]) {
+      var station = RADIO_STATIONS[state.radioIndex];
+      if (cover) {
+        cover.innerHTML = '<span aria-hidden="true">📡</span>';
+        cover.setAttribute('aria-label', 'Live radio ' + station.name);
+      }
+      var rTitle = $('nowTitle');
+      var rArtist = $('nowArtist');
+      if (rTitle) rTitle.textContent = station.name + (state.radioLive ? '' : ' · tuning…');
+      if (rArtist) rArtist.textContent = (station.desc || 'Live radio') + ' · tap radio to stop';
+      var rPill = $('nowPill');
+      if (rPill) rPill.hidden = false;
+      var rPillTitle = $('nowPillTitle');
+      var rPillArtist = $('nowPillArtist');
+      if (rPillTitle) rPillTitle.textContent = station.name;
+      if (rPillArtist) rPillArtist.textContent = state.radioLive ? 'Live radio' : 'Tuning…';
+      var rDot = $('liveDot');
+      if (rDot) rDot.classList.toggle('live', state.radioLive);
+      return;
+    }
     if (cover) {
       var url = song ? coverUrl(song) : '';
       cover.innerHTML = url
@@ -431,6 +624,29 @@ function renderNow() {
     for (var i = 0; i < chips.length; i++) {
       chips[i].setAttribute('aria-pressed', String(chips[i].dataset.filter === state.filter));
     }
+    var sel = $('playlistSelect');
+    if (sel && sel.value !== state.playlist) sel.value = state.playlist;
+  }
+
+  function renderPlaylists() {
+    var sel = $('playlistSelect');
+    if (!sel) return;
+    sel.innerHTML = '';
+    var all = document.createElement('option');
+    all.value = 'all';
+    all.textContent = 'All 50 hits';
+    sel.appendChild(all);
+    for (var i = 0; i < PLAYLISTS.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = PLAYLISTS[i].name;
+      opt.textContent = PLAYLISTS[i].name + ' · ' + PLAYLISTS[i].indices.length;
+      sel.appendChild(opt);
+    }
+    try {
+      var saved = localStorage.getItem(LAST_PLAYLIST_KEY);
+      if (saved && (saved === 'all' || PLAYLISTS.some(function (p) { return p.name === saved; }))) state.playlist = saved;
+    } catch (e) {}
+    sel.value = state.playlist;
   }
 
   /* The engine calls this on init and on every freeze toggle, so the dock
@@ -638,6 +854,23 @@ function wireLibrary() {
       renderTransport();
       announce(state.shuffle ? 'Shuffle on' : 'Shuffle off');
     });
+    var playlistSelect = $('playlistSelect');
+    if (playlistSelect) playlistSelect.addEventListener('change', function () {
+      state.playlist = playlistSelect.value;
+      try { localStorage.setItem(LAST_PLAYLIST_KEY, state.playlist); } catch (e) {}
+      renderFilters();
+      renderList();
+      var allowed = playlistIndices();
+      announce(state.playlist === 'all' ? 'Showing all fifty hits' : state.playlist + ' playlist · ' + (allowed ? allowed.length : 0) + ' tracks');
+    });
+    var playlistPlay = $('playlistPlay');
+    if (playlistPlay) playlistPlay.addEventListener('click', function () {
+      var pool = visibleIndexes();
+      if (!pool.length) { toast('This playlist is empty for the current filter.'); return; }
+      playTrack(state.shuffle ? pool[Math.floor(Math.random() * pool.length)] : pool[0]);
+    });
+    var radioToggle = $('radioToggle');
+    if (radioToggle) radioToggle.addEventListener('click', toggleRadio);
   }
 
   function isInteractive(target) {
@@ -665,6 +898,7 @@ function wireLibrary() {
       if (key === 'l') { toggleLibrary(); return; }
       if (key === 'h') { toggleChrome(); return; }
       if (key === 'v') { toggleVideo(); return; }
+      if (key === 'r') { toggleRadio(); return; }
       if (key === '/') {
         event.preventDefault();
         var box = $('librarySearch');
@@ -681,9 +915,10 @@ function wireLibrary() {
     });
   }
 
-  /* The canvas breathes while a track plays, so the ink feels tied to the music. */
+  /* The canvas breathes while music or radio plays, so the ink feels tied to sound. */
   setInterval(function () {
-    if (!state.playing || document.hidden) return;
+    if (document.hidden) return;
+    if (!state.playing && !state.radioLive) return;
     var engine = ink();
     if (!engine || !engine.isReady || !engine.isReady()) return;
     engine.pulse(0.4 + Math.random() * 0.3);
@@ -692,8 +927,11 @@ function wireLibrary() {
   function init() {
     state.favorites = readFavorites();
     state.history = readHistory();
+    renderPlaylists();
     renderFilters();
     renderList();
+    renderStations();
+    renderRadioToggle();
     renderNow();
     renderTransport();
 
