@@ -108,8 +108,13 @@
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, hold || 5200);
   }
 /* ── Playback: the YouTube IFrame API, or a direct embed when it is slow ─ */
+/* Only ONE transport may ever sound at a time. Whenever we switch paths we
+   fully stop and remove the other one — a detached YouTube iframe can keep
+   playing its audio in some browsers, which sounds like "two players". */
   var yt = { ready: false, player: null, failed: false, queue: [] };
   var directMode = false;
+  var directFrame = null;
+  var playToken = 0;
 
   window.onYouTubeIframeAPIReady = function () { markApiReady(); };
 
@@ -140,7 +145,7 @@
   }
 
   function ensurePlayer(videoId, shouldPlay) {
-    if (directMode || yt.player || !yt.ready || yt.failed) return yt.player;
+    if (yt.player || !yt.ready || yt.failed) return yt.player;
     if (!window.YT || !window.YT.Player || !$('ytStage')) return null;
     var vars = { autoplay: 0, controls: 1, rel: 0, playsinline: 1, modestbranding: 1, iv_load_policy: 3 };
     if (playerOrigin()) vars.origin = playerOrigin();
@@ -185,19 +190,62 @@
     else toast('Several tracks could not be embedded here. Pick another, or open one on YouTube.', 8000);
   }
 /* When the IFrame API is blocked or slow, a plain embed still plays — and it
-     can be driven with YouTube's own postMessage commands. */
+   can be driven with YouTube's own postMessage commands. */
+  function apiIframe() {
+    try { return (yt.player && yt.player.getIframe) ? yt.player.getIframe() : null; }
+    catch (error) { return null; }
+  }
+  function commandFrame(frame, func) {
+    if (!frame || !frame.contentWindow) return;
+    try {
+      frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
+    } catch (error) { /* best effort only */ }
+  }
+  function stopApiPlayer() {
+    var player = yt.player;
+    if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
+  }
+  /* Stop and remove every direct-embed frame except the API player's own.
+     Called before any API playback so a leftover embed can never overlap it. */
+  function killDirect() {
+    directMode = false;
+    var keep = apiIframe();
+    var frames = [];
+    if (directFrame) frames.push(directFrame);
+    var slot = $('videoSlot');
+    if (slot) {
+      var list = slot.querySelectorAll('iframe');
+      for (var i = 0; i < list.length; i++) frames.push(list[i]);
+    }
+    for (var n = 0; n < frames.length; n++) {
+      var frame = frames[n];
+      if (!frame || frame === keep) continue;
+      commandFrame(frame, 'stopVideo');
+      commandFrame(frame, 'pauseVideo');
+      try { frame.src = 'about:blank'; } catch (e) {}
+      try { if (frame.parentNode) frame.parentNode.removeChild(frame); } catch (e) {}
+    }
+    directFrame = null;
+  }
   function directPlay(videoId) {
+    stopApiPlayer();
+    killDirect(); // drop any previous embed before starting a fresh one
     var stage = $('ytStage');
     if (!stage) return;
-    directMode = true;
-    var frame = stage.querySelector('iframe');
-    if (!frame) {
-      frame = document.createElement('iframe');
-      frame.setAttribute('title', 'YouTube player');
-      frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
-      frame.setAttribute('allowfullscreen', '');
-      stage.appendChild(frame);
+    // After the API player is created, #ytStage IS its iframe — never nest
+    // a raw embed inside it; fall back to the video slot container instead.
+    if (stage.tagName === 'IFRAME') {
+      var slot = $('videoSlot');
+      if (!slot) return;
+      stage = slot;
     }
+    directMode = true;
+    var frame = document.createElement('iframe');
+    frame.setAttribute('title', 'YouTube player');
+    frame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    frame.setAttribute('allowfullscreen', '');
+    stage.appendChild(frame);
+    directFrame = frame;
     var params = ['autoplay=1', 'playsinline=1', 'rel=0', 'modestbranding=1', 'enablejsapi=1'];
     if (playerOrigin()) params.push('origin=' + encodeURIComponent(playerOrigin()));
     frame.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?' + params.join('&');
@@ -205,18 +253,22 @@
   }
 
   function postCommand(func) {
+    if (directFrame) { commandFrame(directFrame, func); return; }
     var stage = $('ytStage');
-    var frame = stage && stage.querySelector('iframe');
-    if (!frame || !frame.contentWindow) return;
-    try {
-      frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
-    } catch (error) { /* best effort only */ }
+    var frame = stage && stage.tagName !== 'IFRAME' ? stage.querySelector('iframe') : null;
+    commandFrame(frame, func);
   }
 
   function pauseSongPlayback() {
-    if (directMode) { try { postCommand('pauseVideo'); } catch (e) {} setPlaying(false); return; }
-    var player = yt.player;
-    if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
+    // Pause BOTH transports: whichever one is sounding must stop, and a
+    // stale embed must never survive a pause (radio, track switch, etc.).
+    stopApiPlayer();
+    if (directFrame) commandFrame(directFrame, 'pauseVideo');
+    else {
+      var stage = $('ytStage');
+      var stray = stage && stage.tagName !== 'IFRAME' ? stage.querySelector('iframe') : null;
+      if (stray) commandFrame(stray, 'pauseVideo');
+    }
     setPlaying(false);
   }
 
@@ -369,6 +421,7 @@
     var videoId = song.youtubeIds && song.youtubeIds[0];
     state.index = index;
     state.failures = 0;
+    var token = ++playToken; // stale async callbacks must never start audio
     rememberPlay(index);
     applyPalette(index);
     renderList();
@@ -380,19 +433,26 @@
       toast('There is no playable source for <strong>' + song.title + '</strong>.');
       return;
     }
-    var player = ensurePlayer(videoId, true);
-    if (player && player.loadVideoById) {
-      player.loadVideoById(videoId);
-      if (player.playVideo) player.playVideo();
-      setPlaying(true);
+    if (yt.ready && !yt.failed && window.YT && window.YT.Player) {
+      killDirect(); // the API player is the only transport from here on
+      var player = ensurePlayer(videoId, true);
+      if (player && player.loadVideoById) {
+        try { player.loadVideoById(videoId); } catch (e) { if (token === playToken) directPlay(videoId); return; }
+        if (player.playVideo) { try { player.playVideo(); } catch (e) {} }
+        setPlaying(true);
+        return;
+      }
+    } else {
+      stopApiPlayer();
+      if (token === playToken) directPlay(videoId);
       return;
     }
-    if (yt.failed || !yt.ready) { directPlay(videoId); return; }
     whenApiReady(function () {
-      if (state.index !== index) return;
+      if (token !== playToken || state.index !== index) return; // superseded
+      killDirect();
       var late = ensurePlayer(videoId, true);
-      if (late && late.loadVideoById) late.loadVideoById(videoId);
-      else directPlay(videoId);
+      if (late && late.loadVideoById) { try { late.loadVideoById(videoId); } catch (e) {} }
+      else if (token === playToken) directPlay(videoId);
     });
   }
 
@@ -433,15 +493,24 @@
   function togglePlay() {
     if (state.radioLive || state.radioTuning) { stopRadio(); return; }
     if (state.index < 0) { playTrack(state.shuffle ? randomIndex() : (visibleIndexes()[0] || 0)); return; }
-    if (directMode) {
+    if (directFrame || directMode) {
       if (state.playing) { postCommand('pauseVideo'); setPlaying(false); }
-      else { postCommand('playVideo'); setPlaying(true); }
+      else {
+        var song = SONGS[state.index];
+        var videoId = song && song.youtubeIds && song.youtubeIds[0];
+        // Resume the embed if it still holds our video; otherwise restart it —
+        // never layer a second stream on top.
+        if (directFrame && directFrame.src && videoId && directFrame.src.indexOf(videoId) > -1) {
+          postCommand('playVideo'); setPlaying(true);
+        } else if (videoId) playTrack(state.index);
+        else { postCommand('playVideo'); setPlaying(true); }
+      }
       return;
     }
     var player = yt.player;
     if (!player || !player.pauseVideo) { playTrack(state.index); return; }
-    if (state.playing) { player.pauseVideo(); setPlaying(false); }
-    else { player.playVideo(); setPlaying(true); }
+    if (state.playing) { try { player.pauseVideo(); } catch (e) {} setPlaying(false); }
+    else { try { player.playVideo(); } catch (e) {} setPlaying(true); }
   }
 
   setInterval(function () {
