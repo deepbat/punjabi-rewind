@@ -116,6 +116,20 @@
   var directFrame = null;
   var playToken = 0;
 
+  /* Trace every audio start/stop. If overlap ever happens again, F12 Console
+     lines starting with [pr-audio] show exactly which two transports sounded.
+     Also mirrored to window.__prAudioLog for easy copy-paste. */
+  var audioLog = [];
+  function alog(what, detail) {
+    try {
+      var line = new Date().toISOString().substr(11, 12) + ' ' + what + (detail ? ' ' + detail : '');
+      audioLog.push(line);
+      if (audioLog.length > 100) audioLog.shift();
+      window.__prAudioLog = audioLog.slice();
+      if (window.console && console.log) console.log('[pr-audio] ' + line);
+    } catch (e) {}
+  }
+
   window.onYouTubeIframeAPIReady = function () { markApiReady(); };
 
   function markApiReady() {
@@ -163,6 +177,7 @@
       yt.failed = true;
       return null;
     }
+    alog('api-created', videoId);
     return yt.player;
   }
 
@@ -170,7 +185,12 @@
     var namespace = window.YT;
     if (!namespace || !namespace.PlayerState) return;
     var status = namespace.PlayerState;
-    if (event.data === status.PLAYING) { state.failures = 0; setPlaying(true); }
+    if (event.data === status.PLAYING) {
+      state.failures = 0;
+      alog('api-playing', 'track ' + state.index);
+      killDirect(); // the API sounds ⇒ no fallback embed may exist, ever
+      setPlaying(true);
+    }
     else if (event.data === status.PAUSED) setPlaying(false);
     else if (event.data === status.ENDED) nextStep(1);
   }
@@ -215,6 +235,7 @@
   function destroyApiPlayer() {
     var player = yt.player;
     yt.player = null;
+    if (player) alog('api-destroyed');
     if (player) {
       try { if (player.stopVideo) player.stopVideo(); } catch (e) {}
       try { if (player.pauseVideo) player.pauseVideo(); } catch (e) {}
@@ -255,14 +276,17 @@
       var list = slot.querySelectorAll('iframe');
       for (var i = 0; i < list.length; i++) frames.push(list[i]);
     }
+    var killed = 0;
     for (var n = 0; n < frames.length; n++) {
       var frame = frames[n];
       if (!frame || frame === keep) continue;
+      killed++;
       commandFrame(frame, 'stopVideo');
       commandFrame(frame, 'pauseVideo');
       try { frame.src = 'about:blank'; } catch (e) {}
       try { if (frame.parentNode) frame.parentNode.removeChild(frame); } catch (e) {}
     }
+    if (killed) alog('kill-direct', killed + ' frame(s)');
     directFrame = null;
   }
   function directPlay(videoId) {
@@ -287,6 +311,7 @@
     var params = ['autoplay=1', 'playsinline=1', 'rel=0', 'modestbranding=1', 'enablejsapi=1'];
     if (playerOrigin()) params.push('origin=' + encodeURIComponent(playerOrigin()));
     frame.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?' + params.join('&');
+    alog('direct-start', videoId);
     setPlaying(true);
   }
 
@@ -300,6 +325,7 @@
   function pauseSongPlayback() {
     // Pause BOTH transports: whichever one is sounding must stop, and a
     // stale embed must never survive a pause (radio, track switch, etc.).
+    alog('pause-all');
     stopApiPlayer();
     if (directFrame) pauseDirectEmbed();
     else {
@@ -376,6 +402,7 @@
     setRadioStatus('Tuning in…', false);
     state.radioTuning = true; state.radioLive = false;
     renderRadioToggle(); renderNow();
+    alog('radio-start', station.name);
     pauseSongPlayback();
     clearTimeout(radioTimer);
     try {
@@ -396,6 +423,7 @@
   function onRadioConnected() {
     state.radioLive = true; state.radioTuning = false;
     clearTimeout(radioTimer);
+    alog('radio-live', RADIO_STATIONS[state.radioIndex] && RADIO_STATIONS[state.radioIndex].name);
     var station = RADIO_STATIONS[state.radioIndex];
     setRadioStatus('Live now', true);
     var desc = $('radioStationDesc');
@@ -408,6 +436,7 @@
   }
   function stopRadio(silent) {
     clearTimeout(radioTimer);
+    var wasLive = state.radioLive || state.radioTuning;
     state.radioLive = false; state.radioTuning = false;
     if (radioAudio) { try { radioAudio.pause(); } catch (e) {} }
     setRadioStatus('Radio off', false);
@@ -418,6 +447,7 @@
       window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
     }
     renderRadioToggle(); renderNow();
+    if (wasLive) alog('radio-stop');
     if (!silent) announce('Radio off');
   }
   function toggleRadio() {
@@ -473,6 +503,7 @@
     }
     if (yt.ready && !yt.failed && window.YT && window.YT.Player) {
       killDirect(); // the API player is the only transport from here on
+      alog('play', 'track ' + index + ' ' + videoId + ' via api');
       var player = ensurePlayer(videoId, true);
       if (player && player.loadVideoById) {
         try { player.loadVideoById(videoId); }
@@ -490,6 +521,7 @@
       }
     } else {
       stopApiPlayer();
+      alog('play', 'track ' + index + ' ' + videoId + ' via direct');
       if (token === playToken) directPlay(videoId);
       return;
     }
@@ -566,6 +598,34 @@
     state.duration = yt.player.getDuration() || 0;
     renderProgress();
   }, 500);
+
+  /* Watchdog: no matter which path leaked, at most ONE YouTube frame may
+     exist and it may never coexist with a fallback embed while the API
+     sounds. Runs silently unless it has to clean up. */
+  setInterval(function () {
+    try {
+      var keep = apiIframe();
+      var slot = $('videoSlot');
+      if (!slot) return;
+      var list = slot.querySelectorAll('iframe');
+      var sounding = [];
+      for (var i = 0; i < list.length; i++) {
+        var frame = list[i];
+        var src = '';
+        try { src = frame.src || ''; } catch (e) {}
+        if (src.indexOf('youtube') > -1 && frame !== keep) sounding.push(frame);
+      }
+      var apiPlaying = false;
+      try {
+        apiPlaying = !!(yt.player && yt.player.getPlayerState && window.YT &&
+          yt.player.getPlayerState() === window.YT.PlayerState.PLAYING);
+      } catch (e) {}
+      if ((apiPlaying && (directFrame || sounding.length)) || sounding.length > 1 || (keep && sounding.length > 0 && directFrame)) {
+        alog('watchdog-kill', 'apiPlaying=' + apiPlaying + ' strays=' + sounding.length);
+        killDirect();
+      }
+    } catch (e) {}
+  }, 2000);
 /* ── Rendering ─────────────────────────────────────────────────────── */
   var ICON_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
   var ICON_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>';
