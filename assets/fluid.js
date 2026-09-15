@@ -43,7 +43,8 @@
   var gl = null, resources = null, programs = null, vao = null;
   var paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var lost = false, dirty = true, time = 0, previousTime = 0, frameCount = 0, fpsTime = 0;
-  var resizePending = true, colorIndex = 0, pendingBlooms = 1, savePending = false;
+  var resizePending = true, colorIndex = 0, pendingBlooms = 2, savePending = false;
+  var consecutiveErrors = 0;
   var raf = 0, inited = false;
   var pointers = new Map();
   var splats = [];
@@ -221,7 +222,13 @@ shaders.copy = [bilinear, 'uniform sampler2D source;',
   function clearTarget(target) { gl.bindFramebuffer(gl.FRAMEBUFFER, target.framebuffer); gl.clear(gl.COLOR_BUFFER_BIT); }
 function dimensions(shortSide, cap) {
     cap = cap || 2048;
-    var aspect = canvas.clientWidth / canvas.clientHeight;
+    // Guard against a zero-size canvas (CSS not applied yet, hidden tab, etc.)
+    // so we never create NaN / degenerate GL targets that kill the loop.
+    var cw = (canvas && canvas.clientWidth) || window.innerWidth || 2;
+    var ch = (canvas && canvas.clientHeight) || window.innerHeight || 2;
+    if (!(cw > 0)) cw = 2;
+    if (!(ch > 0)) ch = 2;
+    var aspect = cw / ch;
     var width = aspect >= 1 ? shortSide * aspect : shortSide;
     var height = aspect >= 1 ? shortSide : shortSide / aspect;
     var scale = Math.min(1, cap / Math.max(width, height));
@@ -254,33 +261,59 @@ function dimensions(shortSide, cap) {
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
-  function resize() {
-    resizePending = false;
+  function makeResources() {
     var quality = qualities[settings.quality];
-    var dpr = Math.min(window.devicePixelRatio || 1, quality.dpr,
-      2560 / Math.max(window.innerWidth, window.innerHeight));
-    canvas.width = Math.max(2, Math.round(canvas.clientWidth * dpr));
-    canvas.height = Math.max(2, Math.round(canvas.clientHeight * dpr));
     var s = dimensions(quality.simulation, 768);
     var d = dimensions(quality.dye);
     var b = dimensions(160, 512);
     if (resources && resources.velocity.read.width === s[0] && resources.velocity.read.height === s[1] &&
       resources.dye.read.width === d[0] && resources.dye.read.height === d[1]) {
-      dirty = true;
-      return;
+      return false; // grid unchanged — keep the living ink, just repaint
     }
-    var old = resources;
-    resources = {
+    var next = {
       velocity: createPair(s[0], s[1], 2), dye: createPair(d[0], d[1], 4),
       pressure: createPair(s[0], s[1], 1), divergence: createTarget(s[0], s[1], 1),
       curl: createTarget(s[0], s[1], 1), bloom: createPair(b[0], b[1], 4),
     };
+    var old = resources;
+    resources = next;
     if (old) {
-      draw('copy', resources.dye.read, { source: old.dye.read });
+      // Carry the dye over so a resize never blanks the canvas.
+      try { draw('copy', resources.dye.read, { source: old.dye.read }); } catch (e) { /* keep going */ }
       // Restart velocity when the grid changes so its cells/second units stay valid.
       for (var key in old) {
         if (!Object.prototype.hasOwnProperty.call(old, key)) continue;
         if (old[key].read) { releaseTarget(old[key].read); releaseTarget(old[key].write); } else releaseTarget(old[key]);
+      }
+    }
+    return true;
+  }
+
+  function resize() {
+    resizePending = false;
+    var quality = qualities[settings.quality];
+    var denom = Math.max(window.innerWidth || 1, window.innerHeight || 1);
+    var dpr = Math.min(window.devicePixelRatio || 1, quality.dpr, 2560 / denom);
+    if (!(dpr > 0) || !isFinite(dpr)) dpr = 1;
+    var cw = canvas.clientWidth || window.innerWidth || 2;
+    var ch = canvas.clientHeight || window.innerHeight || 2;
+    canvas.width = Math.max(2, Math.round(cw * dpr));
+    canvas.height = Math.max(2, Math.round(ch * dpr));
+    try {
+      makeResources();
+    } catch (error) {
+      // Low-memory GPUs can fail on Balanced/High targets after the first
+      // frames. Fall back to Efficient and keep the ink alive instead of dying.
+      if (settings.quality !== 'efficient') {
+        settings.quality = 'efficient';
+        try {
+          makeResources();
+          hooks.announce('Quality set to Efficient so the ink stays fluid on this device.');
+          var qualityBox = document.getElementById('quality');
+          if (qualityBox) qualityBox.value = 'efficient';
+        } catch (retryError) { throw retryError; }
+      } else {
+        throw error;
       }
     }
     dirty = true;
@@ -292,6 +325,11 @@ function inkColor(index) {
   }
 
   function addSplat(x, y, dx, dy, color, radius, amount) {
+    if (!resources || lost) return;
+    // One NaN/Infinity would poison the velocity + dye fields and blank the
+    // whole canvas within frames — drop degenerate splats instead.
+    if (!isFinite(x) || !isFinite(y) || !isFinite(dx) || !isFinite(dy) ||
+        !isFinite(radius) || !isFinite(amount) || !(radius > 0)) return;
     var velocity = resources.velocity, dye = resources.dye;
     var common = {
       point: [x, y], radius: radius,
@@ -309,6 +347,7 @@ function inkColor(index) {
 
   /* A ten-petal ink flower — the signature gesture of the canvas. */
   function bloom() {
+    if (!resources || lost) return;
     var aspect = canvas.clientWidth / canvas.clientHeight;
     var centerX = 0.43 + Math.random() * 0.12;
     var centerY = 0.42 + Math.random() * 0.16;
@@ -425,6 +464,7 @@ function writeImage() {
     previousTime = now;
     try {
       if (resizePending) resize();
+      if (!resources) { dirty = true; return; }
       while (pendingBlooms > 0) { bloom(); pendingBlooms--; }
       var queued = splats.splice(0);
       for (var i = 0; i < queued.length; i++) addSplat.apply(null, queued[i]);
@@ -438,13 +478,20 @@ function writeImage() {
       }
       if (dirty) render();
       if (savePending) writeImage();
+      consecutiveErrors = 0;
       if (now - fpsTime > 1000) {
         hooks.status(paused ? 'PAUSED · WEBGL 2'
           : Math.round(frameCount * 1000 / (now - fpsTime)) + ' FPS · WEBGL 2');
         frameCount = 0;
         fpsTime = now;
       }
-    } catch (error) { fail(error); }
+    } catch (error) {
+      // A single transient GPU hiccup must not blank the canvas (with
+      // preserveDrawingBuffer:false a stopped loop reads as "disappeared").
+      consecutiveErrors++;
+      if (consecutiveErrors > 8) fail(error);
+      else { resizePending = true; dirty = true; }
+    }
   }
 
   function fail(error) {
@@ -498,6 +545,18 @@ function writeImage() {
     window.addEventListener('blur', function () { pointers.clear(); });
     window.addEventListener('resize', function () { resizePending = true; });
     window.addEventListener('orientationchange', function () { resizePending = true; });
+    // Window resize alone misses layout changes (CSS arriving late, panels
+    // opening, mobile URL bars). Watch the canvas itself so the backing
+    // store never drifts from the displayed size.
+    if ('ResizeObserver' in window) {
+      try {
+        var canvasWatcher = new ResizeObserver(function () { resizePending = true; });
+        canvasWatcher.observe(canvas);
+      } catch (error) { /* older browsers simply keep the window hook */ }
+    }
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { previousTime = 0; dirty = true; }
+    });
 
     canvas.addEventListener('webglcontextlost', function (event) {
       event.preventDefault();
