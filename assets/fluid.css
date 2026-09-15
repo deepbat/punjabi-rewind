@@ -166,7 +166,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   display: flex;
   flex-direction: column;
   gap: 13px;
-  max-height: calc(100dvh - 340px);
+  max-height: calc(100dvh - 388px);
   min-height: 280px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -374,7 +374,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
 .left-bottom {
   position: fixed;
   left: 42px;
-  bottom: 30px;
+  bottom: 76px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -441,7 +441,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
 .video-slot.open {
   left: auto;
   right: 34px;
-  bottom: 30px;
+  bottom: 76px;
   opacity: 1;
   pointer-events: auto;
   border: 1px solid var(--line);
@@ -477,7 +477,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
 .toast {
   position: fixed;
   right: 34px;
-  bottom: 30px;
+  bottom: 76px;
   z-index: 45;
   padding: 12px 16px;
   border-radius: 14px;
@@ -513,7 +513,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
     right: 12px;
     width: auto;
     top: 158px;
-    bottom: 184px;
+    bottom: 230px;
     max-height: none;
     min-height: 0;
     z-index: 30;
@@ -533,7 +533,7 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   .radio-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow: visible; }
   .radio-presets button { min-width: 0; width: 100%; padding: 9px 6px; font-size: 10.5px; }
   /* Now-playing sits above the dock with room to breathe; no hint between. */
-  .left-bottom { left: 12px; right: 12px; bottom: 84px; max-width: none; }
+  .left-bottom { left: 12px; right: 12px; bottom: 130px; max-width: none; }
   .now { padding: 8px 10px 8px 8px; gap: 10px; }
   .cover { width: 42px; height: 42px; border-radius: 10px; }
   .transport button { width: 30px; height: 30px; }
@@ -545,8 +545,8 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   .dock button span { display: none; }
   .dock { gap: 6px; }
   .video-slot { width: min(344px, calc(100vw - 24px)); }
-  .video-slot.open { right: 12px; bottom: 190px; }
-  .toast { right: 12px; left: 12px; bottom: 190px; max-width: none; }
+  .video-slot.open { right: 12px; bottom: 238px; }
+  .toast { right: 12px; left: 12px; bottom: 238px; max-width: none; }
 }
 @media (max-width: 380px) {
   .eyebrow { font-size: 8px; letter-spacing: .14em; }
