@@ -7,13 +7,14 @@ fluid study**. The whole page is one GPU ink simulation: drag it, bloom it,
 freeze it, save it — and let it answer every track you play.
 
 - **Drag** anywhere to stir the ink and add colour.
-- **Pick a track** from the library (search, All/Punjabi/Hindi/★ Saved, shuffle)
+- **Pick a track** from the library (search, All/Punjabi/Hindi, shuffle)
   — the canvas blooms on every change and breathes while the music plays.
-- **Playlists** — Chill, Workout, Retro Mix, Late Night, Party. Pick one from
-  the Playlist dropdown, then ▶ to play it. Combines with search, language
-  filter and shuffle.
-- **Live radio** — 4 Punjabi stations in the library panel with auto fail-over.
-  Tuning pauses YouTube; picking a track stops the radio. `R` toggles radio.
+- **Playlists** — All 50 hits, ★ Saved, Chill, Workout, Retro Mix, Late Night,
+  Party. Pick one from the Playlist dropdown, then ▶ to play it. Combines
+  with search, language filter and shuffle.
+- **Live radio** — tap the 📡 Radio chip to jump to the radio block: 4 Punjabi
+  stations with auto fail-over. Tuning pauses YouTube; picking a track stops
+  the radio. `R` toggles radio.
 - **Colour story** follows the track by default (warm stories for Punjabi,
   cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself.
 - **Pulse with music** — the ink keeps a soft heartbeat while a song or the

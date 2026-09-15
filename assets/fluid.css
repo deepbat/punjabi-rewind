@@ -279,6 +279,12 @@ input[type=checkbox] { width: 30px; height: 18px; accent-color: #a4dbc8; cursor:
   display: flex;
   flex-direction: column;
   gap: 10px;
+  scroll-margin: 12px;
+  transition: border-color .3s ease, box-shadow .3s ease;
+}
+.radio.flash {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(164, 235, 215, .55), var(--shadow);
 }
 .radio-head { display: flex; align-items: center; justify-content: space-between; }
 .radio-head strong { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }

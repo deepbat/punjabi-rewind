@@ -77,6 +77,7 @@
     if (at > -1) state.favorites.splice(at, 1);
     else state.favorites.push(index);
     writeFavorites();
+    renderPlaylists(false); // keep the ★ Saved count fresh
     renderList();
     renderNow();
     announce(isFavorite(index) ? 'Saved ' + SONGS[index].title : 'Removed ' + SONGS[index].title + ' from saved');
@@ -662,6 +663,7 @@
 
   function playlistIndices() {
     if (state.playlist === 'all') return null;
+    if (state.playlist === '__saved') return state.favorites.slice();
     var found = null;
     for (var p = 0; p < PLAYLISTS.length; p++) {
       if (PLAYLISTS[p].name === state.playlist) { found = PLAYLISTS[p].indices; break; }
@@ -697,7 +699,8 @@
     if (!indexes.length) {
       var empty = document.createElement('li');
       empty.className = 'empty-note';
-      empty.textContent = state.filter === 'saved'
+      var isSavedView = state.filter === 'saved' || state.playlist === '__saved';
+      empty.textContent = isSavedView
         ? 'Nothing saved yet — tap the ☆ beside a song to keep it here.'
         : 'No track matches that. Try another word.';
       list.appendChild(empty);
@@ -822,7 +825,7 @@ function renderNow() {
     if (sel && sel.value !== state.playlist) sel.value = state.playlist;
   }
 
-  function renderPlaylists() {
+  function renderPlaylists(restore) {
     var sel = $('playlistSelect');
     if (!sel) return;
     sel.innerHTML = '';
@@ -830,17 +833,43 @@ function renderNow() {
     all.value = 'all';
     all.textContent = 'All 50 hits';
     sel.appendChild(all);
+    var savedOpt = document.createElement('option');
+    savedOpt.value = '__saved';
+    savedOpt.textContent = '★ Saved · ' + state.favorites.length;
+    sel.appendChild(savedOpt);
     for (var i = 0; i < PLAYLISTS.length; i++) {
       var opt = document.createElement('option');
       opt.value = PLAYLISTS[i].name;
       opt.textContent = PLAYLISTS[i].name + ' · ' + PLAYLISTS[i].indices.length;
       sel.appendChild(opt);
     }
-    try {
-      var saved = localStorage.getItem(LAST_PLAYLIST_KEY);
-      if (saved && (saved === 'all' || PLAYLISTS.some(function (p) { return p.name === saved; }))) state.playlist = saved;
-    } catch (e) {}
+    if (restore === true) {
+      try {
+        var saved = localStorage.getItem(LAST_PLAYLIST_KEY);
+        if (saved && (saved === 'all' || saved === '__saved' ||
+            PLAYLISTS.some(function (p) { return p.name === saved; }))) state.playlist = saved;
+      } catch (e) {}
+    }
     sel.value = state.playlist;
+  }
+
+  /* The 📡 chip is navigation, not a filter: reveal the radio block. */
+  var radioFlashTimer = 0;
+  function gotoRadio() {
+    toggleLibrary(true);
+    var radio = $('radioBlock');
+    if (radio) {
+      try { radio.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+      catch (e) { try { radio.scrollIntoView(); } catch (e2) {} }
+      radio.classList.remove('flash');
+      void radio.offsetWidth; // restart the highlight animation
+      radio.classList.add('flash');
+      clearTimeout(radioFlashTimer);
+      radioFlashTimer = setTimeout(function () { radio.classList.remove('flash'); }, 1600);
+    }
+    var toggle = $('radioToggle');
+    if (toggle) { try { toggle.focus({ preventScroll: true }); } catch (e) { toggle.focus(); } }
+    announce('Live radio is at the bottom of the library. Tune in.');
   }
 
   /* The engine calls this on init and on every freeze toggle, so the dock
@@ -1059,6 +1088,7 @@ function wireLibrary() {
     var chips = document.querySelectorAll('.chip[data-filter]');
     for (var i = 0; i < chips.length; i++) {
       chips[i].addEventListener('click', function () {
+        if (this.dataset.filter === 'radio') { gotoRadio(); return; }
         state.filter = this.dataset.filter;
         renderFilters();
         renderList();
@@ -1151,7 +1181,7 @@ function wireLibrary() {
   function init() {
     state.favorites = readFavorites();
     state.history = readHistory();
-    renderPlaylists();
+    renderPlaylists(true);
     renderFilters();
     renderList();
     renderStations();
