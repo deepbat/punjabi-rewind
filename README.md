@@ -1,36 +1,87 @@
-# Punjabi Rewind — A Sonic Constellation
+# Punjabi Rewind — fifty hits, painted in ink
 
 **Live at <https://deepbat.github.io/punjabi-rewind/>**
 
-50 all-time Hindi & Punjabi hits (25 each), presented as an
-app inside a simulated Windows 11 desktop, with wallpaper, draggable windows,
-a Start menu, and a taskbar.
+Fifty all-time Hindi & Punjabi hits (25 each) inside an interactive **WebGL 2
+fluid study**. The whole page is one GPU ink simulation: drag it, bloom it,
+freeze it, save it — and let it answer every track you play.
 
-- **Drag** to orbit around the core.
-- **Scroll / pinch** to dive in or pull back.
-- **Click a light** to select it — the camera eases in on its own, the song
-  starts, and its label appears. Click another light or scroll back out to
-  keep exploring.
-- **Brand button (top left)** flies the camera back to the wide view.
-- **Autopilot** (top right) lets go of your input entirely and flies the
-  camera through the field on its own, speeding up and pulsing with the
-  simulated beat of whatever's playing.
-- **☰** opens the "starmap index" — search, language filters, favorites,
-  shuffle — a frosted panel that slides in without stopping the scene
-  behind it.
-- **Search** works from the taskbar or the Start menu: typing filters the
-  pinned apps, and Enter hands the same query to the track index.
-- The desktop chrome is real too: File Explorer and Photos open onto the
-  track library, Notepad has the readme, and windows minimize, maximize,
-  and drag.
+- **Drag** anywhere to stir the ink and add colour.
+- **Pick a track** from the library (search, All/Punjabi/Hindi/★ Saved, shuffle)
+  — the canvas blooms on every change and breathes while the music plays.
+- **Colour story** follows the track by default (warm stories for Punjabi,
+  cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself.
+- **Swirl, Ink lifetime, Brush size, Living flow, Soft glow, Quality** — the
+  fluid controls, live, exactly as a fluid study should have them.
+- **Dock**: Bloom · Freeze · Clear | Save (downloads the canvas as a PNG).
+- **Now playing card**: cover, transport, progress, and a video toggle that
+  slides the YouTube player in without ever leaving the page.
 
-Playback is a hybrid chain: YouTube first, an Invidious proxy if the embed
-is blocked, then a Spotify embed when the track has a verified `spotifyId`.
-Favorites persist in `localStorage`. The scene respects
-`prefers-reduced-motion` (no auto-rotation or ambient drift) and pauses its
-render loop while the tab is hidden.
+### Keyboard
 
-## New features
+`Space` play/pause · `←` `→` previous/next · `B` bloom · `F` freeze the ink ·
+`C` clear · `S` save the canvas · `L` library · `V` video · `H` hide every
+control (press again to bring them back) · `/` search · `Esc` close what's open.
+
+### How it works
+
+The simulation runs entirely on the GPU — velocity, vorticity confinement,
+pressure projection and a dye field, all in WebGL 2 fragment shaders in
+`assets/fluid.js`. No libraries, no build step, no network requests for the
+canvas itself. It honours `prefers-reduced-motion` (the ink starts frozen),
+pauses its render loop while the tab is hidden, throttles itself to ~60 Hz on
+high-refresh displays, and offers three quality tiers (Efficient, Balanced,
+High detail).
+
+Playback uses the YouTube IFrame API, and falls back to a direct embed (driven
+by YouTube's own postMessage commands) when the API is blocked or slow, so the
+first click always plays. Favorites (`pr_favorites`) and history (`pr_history`)
+live in `localStorage` and are shared with the classic desktop app.
+
+## The classic desktop app
+
+The previous experience — a simulated Windows 11 desktop with draggable
+windows, a Start menu, taskbar and the same 50 tracks — is preserved in full at
+**[desktop.html](desktop.html)** (linked from the info panel and the WebGL
+fallback card).
+
+- File Explorer and Photos open onto the track library; Notepad holds the
+  readme; windows minimize, maximize, snap and drag.
+- Lyrics, Artists, Playlists, Queue, Sleep timer, History, Equalizer,
+  Reactions, Sticky Notes, Stats and the shortcut sheet.
+- Live radio, now-playing toasts, Party mode, wallpaper cycling.
+
+## Local preview
+
+A plain static server is enough — the new page uses classic scripts, so it also
+survives `file://`:
+
+```bash
+python3 -m http.server 8080
+```
+
+Then open <http://localhost:8080>. WebGL 2 is required for the ink; without it
+the page shows a clear message and the library and playback still work.
+
+## Files
+
+| File | Purpose |
+| --- | --- |
+| `index.html` | The ink playground: canvas, brand, library, controls, dock |
+| `assets/fluid.js` | The WebGL 2 fluid engine (shaders, simulation, export) |
+| `assets/fluid.css` | The ink-playground design system |
+| `assets/rewind.js` | Library, playback, favorites, history, keyboard |
+| `assets/tracks.js` | The 50 all-time hits (oEmbed-verified YouTube IDs) |
+| `desktop.html` | The classic Windows 11 desktop app (unchanged) |
+| `assets/app.bundle.js` | Loader for the classic app's scripts and theme |
+| `assets/app.core.js` | The classic app: desktop shell, apps, player, scene |
+| `assets/fixes.js` | Classic app: fast playback, Halo menu, windowed fixes |
+| `assets/no-fullscreen.js` | Blocks automatic fullscreen; manual still works |
+| `assets/fluid-theme.css` | Earlier dark-glass theme for the classic app |
+| `assets/styles.css` / `styles-base.css` | Classic app styling |
+| `favicon.svg` / `og-image.png` | Tab icon and the social share card |
+
+## Classic desktop app — full feature list
 
 - **Lyrics** — open the Lyrics app to view transliterated/English/Hindi lyrics for the current track.
 - **Artists** — browse artist bios and top tracks, then hit Play all.
@@ -47,7 +98,7 @@ render loop while the tab is hidden.
 - **Track info** — click the now-playing cover/title for details and links.
 - **Offline fallback** — graceful page with saved favorites if WebGL/JS fails.
 
-## Spark extras ✨
+### Spark extras ✨
 
 - **Every icon works** — desktop icons, Start menu, sidebar and playbar buttons are wired with timing-proof binding, so Lyrics/Artists/Playlists/History/Stats always open.
 - **Living visualizer** — 24-bar EQ in the playbar dances while music plays; the covers pulse with the beat.
@@ -58,43 +109,3 @@ render loop while the tab is hidden.
 - **Artists A–Z** — all 24 artists with bios, search, and one-tap play.
 - **Right-click the desktop** — Sort, Refresh, Next desktop background, New folder/text file, Display settings.
 
-## Local preview
-
-This needs a real server (ES modules and CSS2DRenderer won't load over
-`file://`):
-
-```bash
-python3 -m http.server 8080
-```
-
-Then open <http://localhost:8080>. A WebGL-capable browser is required — 
-there's a plain-text fallback message if WebGL isn't available, but no
-visual experience without it.
-
-## Files
-
-| File | Purpose |
-| --- | --- |
-| `index.html` | Desktop shell markup + the app window the scene mounts into |
-| `style.css` | HUD, vault panel, and player-dock styling inside the app window |
-| `win11.css` | Desktop chrome: wallpaper, icons, window frames, Start menu, taskbar |
-| `win11.js` | Window management, Start menu + search, generic apps (Explorer, Photos, Notepad, Edge) |
-| `scene.js` | The 3D experience: starfield, spiral of song markers, radio beacons, camera flight, raycasting, autopilot |
-| `songs.js` | Curated track data (YouTube IDs oEmbed-verified) |
-| `radio.js` | Live-radio stations, failover, and scene "mood" color hooks |
-| `player.js` | Playback, search, filtering, favorites, hybrid source fallback |
-| `lyrics.js` | Lyrics data + key helper |
-| `artists.js` | Artist bios and top track indices |
-| `playlists.js` | Curated playlists |
-| `queue.js` | Queue panel with drag reorder and session persistence |
-| `sleeptimer.js` | Sleep timer logic |
-| `history.js` | Listening history persistence and replay |
-| `equalizer.js` | EQ presets and popover |
-| `reactions.js` | Emoji reactions per track |
-| `sticky-notes.js` | Sticky Notes desktop app |
-| `stats.js` | Listening stats dashboard |
-| `track-info.js` | Now-playing details panel |
-| `shortcuts.js` | Keyboard shortcuts overlay |
-| `apps.js` | App registry/wiring for new desktop apps |
-| `app.js` | Live clock and the onboarding hint fade |
-| `favicon.svg` / `og-image.png` | Tab icon and the social share preview card |
