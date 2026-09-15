@@ -186,7 +186,10 @@
       toast('<strong>' + song.title + '</strong> — ' + note +
         ' <a href="' + youtubeUrl(song) + '" target="_blank" rel="noopener">Open on YouTube</a>', 7000);
     }
-    if (state.failures <= 4) setTimeout(function () { nextStep(1); }, 2600);
+    if (state.failures <= 4) {
+      var retryToken = playToken;
+      setTimeout(function () { if (retryToken === playToken) nextStep(1); }, 2600);
+    }
     else toast('Several tracks could not be embedded here. Pick another, or open one on YouTube.', 8000);
   }
 /* When the IFrame API is blocked or slow, a plain embed still plays — and it
@@ -204,6 +207,20 @@
   function stopApiPlayer() {
     var player = yt.player;
     if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
+  }
+  /* A postMessage pause is silently lost when the embed's inner player is not
+     listening yet (slow network, first seconds of playback) — the music then
+     "keeps playing" after pause. Hammer it: duplicates are harmless. */
+  function pauseDirectEmbed() {
+    var frame = directFrame;
+    if (!frame) return;
+    commandFrame(frame, 'pauseVideo');
+    var attempt = 0;
+    var hammer = setInterval(function () {
+      if (directFrame !== frame) { clearInterval(hammer); return; }
+      commandFrame(frame, 'pauseVideo');
+      if (++attempt >= 4) clearInterval(hammer);
+    }, 450);
   }
   /* Stop and remove every direct-embed frame except the API player's own.
      Called before any API playback so a leftover embed can never overlap it. */
@@ -263,7 +280,7 @@
     // Pause BOTH transports: whichever one is sounding must stop, and a
     // stale embed must never survive a pause (radio, track switch, etc.).
     stopApiPlayer();
-    if (directFrame) commandFrame(directFrame, 'pauseVideo');
+    if (directFrame) pauseDirectEmbed();
     else {
       var stage = $('ytStage');
       var stray = stage && stage.tagName !== 'IFRAME' ? stage.querySelector('iframe') : null;
@@ -494,7 +511,7 @@
     if (state.radioLive || state.radioTuning) { stopRadio(); return; }
     if (state.index < 0) { playTrack(state.shuffle ? randomIndex() : (visibleIndexes()[0] || 0)); return; }
     if (directFrame || directMode) {
-      if (state.playing) { postCommand('pauseVideo'); setPlaying(false); }
+      if (state.playing) { if (directFrame) pauseDirectEmbed(); else postCommand('pauseVideo'); setPlaying(false); }
       else {
         var song = SONGS[state.index];
         var videoId = song && song.youtubeIds && song.youtubeIds[0];
