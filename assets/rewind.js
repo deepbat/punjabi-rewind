@@ -208,6 +208,27 @@
     var player = yt.player;
     if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
   }
+  /* Tear down a broken API player completely. A half-constructed YT player
+     can keep sounding even when its methods throw — pausing is not enough,
+     it must be destroyed and its iframe removed. A clean #ytStage mount is
+     restored so a future API player can start fresh. */
+  function destroyApiPlayer() {
+    var player = yt.player;
+    yt.player = null;
+    if (player) {
+      try { if (player.stopVideo) player.stopVideo(); } catch (e) {}
+      try { if (player.pauseVideo) player.pauseVideo(); } catch (e) {}
+      try { if (player.destroy) player.destroy(); } catch (e) {}
+    }
+    var stage = document.getElementById('ytStage');
+    if (stage && stage.tagName === 'IFRAME') {
+      try {
+        var fresh = document.createElement('div');
+        fresh.id = 'ytStage';
+        stage.parentNode.replaceChild(fresh, stage);
+      } catch (e) {}
+    }
+  }
   /* A postMessage pause is silently lost when the embed's inner player is not
      listening yet (slow network, first seconds of playback) — the music then
      "keeps playing" after pause. Hammer it: duplicates are harmless. */
@@ -245,7 +266,7 @@
     directFrame = null;
   }
   function directPlay(videoId) {
-    stopApiPlayer();
+    if (yt.failed) destroyApiPlayer(); else stopApiPlayer();
     killDirect(); // drop any previous embed before starting a fresh one
     var stage = $('ytStage');
     if (!stage) return;
@@ -454,7 +475,15 @@
       killDirect(); // the API player is the only transport from here on
       var player = ensurePlayer(videoId, true);
       if (player && player.loadVideoById) {
-        try { player.loadVideoById(videoId); } catch (e) { if (token === playToken) directPlay(videoId); return; }
+        try { player.loadVideoById(videoId); }
+        catch (e) {
+          // The fresh player is unusable but may still autoplay its
+          // constructor video — destroy it before falling back, or both
+          // transports will sound at once.
+          destroyApiPlayer();
+          if (token === playToken) directPlay(videoId);
+          return;
+        }
         if (player.playVideo) { try { player.playVideo(); } catch (e) {} }
         setPlaying(true);
         return;
@@ -467,8 +496,9 @@
     whenApiReady(function () {
       if (token !== playToken || state.index !== index) return; // superseded
       killDirect();
-      var late = ensurePlayer(videoId, true);
-      if (late && late.loadVideoById) { try { late.loadVideoById(videoId); } catch (e) {} }
+      var late = null;
+      try { late = ensurePlayer(videoId, true); } catch (e) { late = null; }
+      if (late && late.loadVideoById) { try { late.loadVideoById(videoId); } catch (e) { destroyApiPlayer(); if (token === playToken) directPlay(videoId); } }
       else if (token === playToken) directPlay(videoId);
     });
   }
