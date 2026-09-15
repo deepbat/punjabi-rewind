@@ -107,10 +107,12 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, hold || 5200);
   }
-/* ── Playback: the YouTube IFrame API, or a direct embed when it is slow ─ */
-/* Only ONE transport may ever sound at a time. Whenever we switch paths we
-   fully stop and remove the other one — a detached YouTube iframe can keep
-   playing its audio in some browsers, which sounds like "two players". */
+/* ── Playback: exactly ONE player, never two ────────────────────────────
+   The YouTube IFrame API player is the only transport. While it loads,
+   tracks queue up (a "Player is loading" note shows); only if the API is
+   proven dead does a single fallback embed start. The old design started a
+   fallback embed during API load and layered the API player on top — that
+   overlap is gone by construction. */
   var yt = { ready: false, player: null, failed: false, queue: [] };
   var directMode = false;
   var directFrame = null;
@@ -137,12 +139,16 @@
     if (!window.YT || !window.YT.Player) return;
     yt.ready = true;
     yt.failed = false;
-    var queued = yt.queue.splice(0);
-    for (var i = 0; i < queued.length; i++) queued[i]();
+    flushQueue();
   }
   function whenApiReady(callback) {
-    if (yt.ready) { callback(); return; }
+    if (yt.ready && !yt.failed) { try { callback(); } catch (e) {} return; }
+    if (yt.failed) { try { callback(); } catch (e) {} return; } // API dead → fall back now
     yt.queue.push(callback);
+  }
+  function flushQueue() {
+    var queued = yt.queue.splice(0);
+    for (var i = 0; i < queued.length; i++) { try { queued[i](); } catch (e) {} }
   }
   /* A poll costs nothing and covers the case where the API finished loading
      before this script ran. */
@@ -151,7 +157,11 @@
   }, 250);
   setTimeout(function () {
     clearInterval(apiPoll);
-    if (!yt.ready) yt.failed = true;
+    if (!yt.ready) {
+      yt.failed = true;
+      alog('api-failed', 'timeout — queued tracks fall back');
+      flushQueue(); // wake anything queued during load so it plays via fallback
+    }
   }, 9000);
 
   function playerOrigin() {
@@ -212,8 +222,9 @@
     }
     else toast('Several tracks could not be embedded here. Pick another, or open one on YouTube.', 8000);
   }
-/* When the IFrame API is blocked or slow, a plain embed still plays — and it
-   can be driven with YouTube's own postMessage commands. */
+/* Last-resort embed, used ONLY when the IFrame API is proven dead. It is the
+   lone transport in that situation — never alongside the API player — and it
+   answers the same postMessage pause/play commands. */
   function apiIframe() {
     try { return (yt.player && yt.player.getIframe) ? yt.player.getIframe() : null; }
     catch (error) { return null; }
@@ -501,12 +512,13 @@
       toast('There is no playable source for <strong>' + song.title + '</strong>.');
       return;
     }
-    if (yt.ready && !yt.failed && window.YT && window.YT.Player) {
-      killDirect(); // the API player is the only transport from here on
-      alog('play', 'track ' + index + ' ' + videoId + ' via api');
-      var player = ensurePlayer(videoId, true);
-      if (player && player.loadVideoById) {
-        try { player.loadVideoById(videoId); }
+    function startNow() {
+      if (token !== playToken || state.index !== index) return; // superseded
+      killDirect(); // the single transport starts from silence
+      var now = null;
+      try { now = ensurePlayer(videoId, true); } catch (e) { now = null; }
+      if (now && now.loadVideoById) {
+        try { now.loadVideoById(videoId); }
         catch (e) {
           // The fresh player is unusable but may still autoplay its
           // constructor video — destroy it before falling back, or both
@@ -515,24 +527,25 @@
           if (token === playToken) directPlay(videoId);
           return;
         }
-        if (player.playVideo) { try { player.playVideo(); } catch (e) {} }
+        if (now.playVideo) { try { now.playVideo(); } catch (e) {} }
         setPlaying(true);
-        return;
-      }
+      } else if (token === playToken) directPlay(videoId);
+    }
+    if (yt.ready && !yt.failed && window.YT && window.YT.Player) {
+      alog('play', 'track ' + index + ' ' + videoId + ' via api');
+      startNow();
+    } else if (!yt.failed) {
+      // API still loading: queue the start. Never spin up a parallel embed —
+      // the track begins the moment the one true player is ready.
+      alog('play', 'track ' + index + ' ' + videoId + ' queued — api loading');
+      announce('Player is loading. Your track starts in a moment.');
+      toast('Player is loading — your track starts in a moment.', 2500);
+      whenApiReady(startNow);
     } else {
       stopApiPlayer();
       alog('play', 'track ' + index + ' ' + videoId + ' via direct');
       if (token === playToken) directPlay(videoId);
-      return;
     }
-    whenApiReady(function () {
-      if (token !== playToken || state.index !== index) return; // superseded
-      killDirect();
-      var late = null;
-      try { late = ensurePlayer(videoId, true); } catch (e) { late = null; }
-      if (late && late.loadVideoById) { try { late.loadVideoById(videoId); } catch (e) { destroyApiPlayer(); if (token === playToken) directPlay(videoId); } }
-      else if (token === playToken) directPlay(videoId);
-    });
   }
 
   function nextStep(step) {
