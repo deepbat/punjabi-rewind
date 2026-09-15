@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://www.youtube.com">
 <link rel="preconnect" href="https://i.ytimg.com">
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/fluid.css?v=20260916l">
+<link rel="stylesheet" href="assets/fluid.css?v=20260916m">
 </head>
 <body>
 
@@ -71,7 +71,15 @@
   <div class="divider"></div>
   <label class="switch-row" for="autoflow">Living flow <input id="autoflow" type="checkbox" checked></label>
   <label class="switch-row" for="glow">Soft glow <input id="glow" type="checkbox" checked></label>
-  <label class="switch-row" for="musicPulse">Pulse with music <input id="musicPulse" type="checkbox" checked></label>
+  <label class="switch-row" for="audioReactive">Audio Reactive <input id="audioReactive" type="checkbox" checked></label>
+  <div class="reactive-controls" id="reactiveControls">
+    <div class="reactive-head"><span>Sensitivity</span><button class="mic-btn" id="micToggle" type="button" aria-pressed="false" title="Use your microphone so the ink hears any music in the room">🎙 Mic off</button></div>
+    <label class="sens-row"><span>Bass</span><input id="sensBass" type="range" min="0" max="200" value="100" aria-label="Bass sensitivity"><output id="sensBassValue">100%</output></label>
+    <label class="sens-row"><span>Beat</span><input id="sensBeat" type="range" min="0" max="200" value="100" aria-label="Beat sensitivity"><output id="sensBeatValue">100%</output></label>
+    <label class="sens-row"><span>Vocals</span><input id="sensVocals" type="range" min="0" max="200" value="100" aria-label="Vocals sensitivity"><output id="sensVocalsValue">100%</output></label>
+    <label class="sens-row"><span>Treble</span><input id="sensTreble" type="range" min="0" max="200" value="100" aria-label="Treble sensitivity"><output id="sensTrebleValue">100%</output></label>
+    <label class="sens-row"><span>Energy</span><input id="sensEnergy" type="range" min="0" max="200" value="100" aria-label="Energy sensitivity"><output id="sensEnergyValue">100%</output></label>
+  </div>
   <label class="control"><span class="label-row">Quality</span>
     <select id="quality">
       <option value="efficient">Efficient</option>
@@ -191,6 +199,6 @@
 <script src="https://www.youtube.com/iframe_api" async></script>
 <script src="assets/tracks.js?v=20260916d"></script>
 <script src="assets/fluid.js?v=20260916d"></script>
-<script src="assets/rewind.js?v=20260916j"></script>
+<script src="assets/rewind.js?v=20260916k"></script>
 </body>
 </html>

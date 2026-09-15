@@ -39,7 +39,7 @@
     duration: 0,
     position: 0,
     failures: 0,
-    musicPulse: true,
+    audioReactive: true,
     radioIndex: 0,
     radioLive: false,
     radioTuning: false,
@@ -448,7 +448,7 @@
     pauseSongPlayback();
     renderRadioToggle(); renderNow();
     announce('Live radio: ' + (station ? station.name : 'on air'));
-    if (state.musicPulse && window.PR && window.PR.Fluid && window.PR.Fluid.pulse) window.PR.Fluid.pulse(1);
+    if (state.audioReactive && window.PR && window.PR.Fluid && window.PR.Fluid.pulse) window.PR.Fluid.pulse(1);
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) window.PR.Fluid.setEnergy(1.9);
   }
   function stopRadio(silent) {
@@ -461,7 +461,8 @@
     var station = RADIO_STATIONS[state.radioIndex];
     if (desc) desc.textContent = (station && station.desc) || 'Tap to tune in';
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
-      window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
+      if (!state.audioReactive) window.PR.Fluid.setEnergy(1);
+      else window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
     }
     renderRadioToggle(); renderNow();
     if (wasLive) alog('radio-stop');
@@ -484,7 +485,8 @@
   function setPlaying(value) {
     state.playing = !!value;
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
-      window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
+      if (!state.audioReactive) window.PR.Fluid.setEnergy(1);
+      else window.PR.Fluid.setEnergy(state.playing ? 1.9 : 0.85);
     }
     renderTransport();
     renderNow();
@@ -511,7 +513,7 @@
     applyPalette(index);
     renderList();
     renderNow();
-    if (state.musicPulse && options.quiet !== true && window.PR && window.PR.Fluid && window.PR.Fluid.isReady && window.PR.Fluid.isReady()) {
+    if (state.audioReactive && options.quiet !== true && window.PR && window.PR.Fluid && window.PR.Fluid.isReady && window.PR.Fluid.isReady()) {
       window.PR.Fluid.pulse(1); // the canvas answers every new track
     }
     if (!videoId) {
@@ -906,6 +908,7 @@ function renderNow() {
           var value = Number(input.value);
           if (output) output.textContent = spec.format(value);
           setInk(spec.id, value);
+          if (spec.id === 'swirl') reactive.baseSwirl = value; // treble reacts around this
         };
         input.addEventListener('input', sync);
         sync();
@@ -931,17 +934,58 @@ function renderNow() {
       var box = $(key);
       if (box) box.addEventListener('change', function () { setInk(key, box.checked); });
     });
-    var musicPulse = $('musicPulse');
-    if (musicPulse) {
-      musicPulse.checked = state.musicPulse;
-      musicPulse.addEventListener('change', function () {
-        state.musicPulse = musicPulse.checked;
-        if (!state.musicPulse && window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
-          window.PR.Fluid.setEnergy(state.playing || state.radioLive ? 1.9 : 0.85);
+    var audioReactive = $('audioReactive');
+    var reactiveControls = $('reactiveControls');
+    function syncReactiveVisibility() {
+      if (reactiveControls) reactiveControls.hidden = !state.audioReactive;
+    }
+    if (audioReactive) {
+      audioReactive.checked = state.audioReactive;
+      syncReactiveVisibility();
+      audioReactive.addEventListener('change', function () {
+        state.audioReactive = audioReactive.checked;
+        syncReactiveVisibility();
+        if (!state.audioReactive) {
+          if (reactive.mic.live) disableMic();
+          reactiveBaseline(); // plain fluid behaviour, slider values kept
         }
-        announce(state.musicPulse ? 'Ink pulses with the music' : 'Music pulse off — ink flows on its own');
+        announce(state.audioReactive
+          ? 'Audio Reactive on — bass expands, beats burst, treble stirs'
+          : 'Audio Reactive off — plain fluid behaviour');
       });
     }
+    var sensSpecs = [
+      { id: 'sensBass', out: 'sensBassValue', key: 'bass' },
+      { id: 'sensBeat', out: 'sensBeatValue', key: 'beat' },
+      { id: 'sensVocals', out: 'sensVocalsValue', key: 'vocals' },
+      { id: 'sensTreble', out: 'sensTrebleValue', key: 'treble' },
+      { id: 'sensEnergy', out: 'sensEnergyValue', key: 'energy' },
+    ];
+    for (var si = 0; si < sensSpecs.length; si++) {
+      (function (spec) {
+        var input = $(spec.id), output = $(spec.out);
+        if (!input) return;
+        var syncSens = function () {
+          var pct = Math.max(0, Math.min(200, Number(input.value) || 0));
+          reactive.sens[spec.key] = pct / 100;
+          if (output) output.textContent = pct + '%';
+        };
+        input.addEventListener('input', syncSens);
+        syncSens();
+      })(sensSpecs[si]);
+    }
+    var micToggle = $('micToggle');
+    if (micToggle) micToggle.addEventListener('click', function () {
+      if (reactive.mic.live) disableMic();
+      else {
+        if (!state.audioReactive && audioReactive) {
+          state.audioReactive = true;
+          audioReactive.checked = true;
+          syncReactiveVisibility();
+        }
+        enableMic();
+      }
+    });
 
     var quality = $('quality');
     if (quality) quality.addEventListener('change', function () {
@@ -1162,21 +1206,203 @@ function wireLibrary() {
     });
   }
 
-  /* The canvas breathes with the music: a soft heartbeat while a song or the
-     radio sounds, stronger accents every fourth beat, energy swelling with
-     it. Note: YouTube/radio audio is cross-origin so true FFT beat-tracking
-     is impossible — this is a musical pulse, not a measured beat. */
-  var beatStep = 0;
-  setInterval(function () {
-    if (document.hidden) return;
-    if ((!state.playing && !state.radioLive) || !state.musicPulse) return;
-    var engine = ink();
-    if (!engine || !engine.isReady || !engine.isReady()) return;
-    beatStep++;
-    var strong = beatStep % 4 === 0;
-    if (engine.pulse) engine.pulse(strong ? 0.9 + Math.random() * 0.3 : 0.35 + Math.random() * 0.25);
-    if (engine.setEnergy) engine.setEnergy(1.55 + 0.45 * Math.abs(Math.sin(Date.now() / 480)));
-  }, 520);
+/* ── Beat-Reactive Ink ────────────────────────────────────────────────
+   Five bands drive five ink behaviours: Bass→expansion, Beat→bursts,
+   Vocals→gentle colour drift, Treble→fine turbulence (swirl), Energy→flow.
+   Signal sources, in priority order:
+     1. Microphone (opt-in): REAL FFT of whatever sounds in the room.
+     2. Simulation: YouTube/radio audio is cross-origin, so browsers forbid
+        routing it into an AnalyserNode — a musical simulation feeds the same
+        bands instead. Honest motion, same engine.
+   Every band is attack/release damped so motion stays organic, never jittery.
+   Toggle the master switch off and the ink returns to its plain behaviour. */
+  var reactive = {
+    sens: { bass: 1, beat: 1, vocals: 1, treble: 1, energy: 1 },
+    damp: { bass: 0, beat: 0, vocals: 0, treble: 0, energy: 0 },
+    prev: { bass: 0, mid: 0 },
+    fluxAvg: 0.1,
+    baseSwirl: 30,
+    lastBeat: 0,
+    lastBloom: 0,
+    vocalTick: 0,
+    simT: Math.random() * 100,
+    mic: { stream: null, ctx: null, analyser: null, data: null, live: false },
+  };
+
+  function reactiveEngine() { return ink(); }
+  function reactiveReady() {
+    var engine = reactiveEngine();
+    return engine && engine.isReady && engine.isReady();
+  }
+  function reactiveBaseline() {
+    var engine = reactiveEngine();
+    if (!engine) return;
+    try {
+      if (engine.set) engine.set('swirl', reactive.baseSwirl);
+      if (engine.setEnergy) engine.setEnergy(1);
+    } catch (e) {}
+  }
+
+  function ensureMicContext() {
+    if (reactive.mic.ctx) return reactive.mic.ctx;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    reactive.mic.ctx = new AC();
+    return reactive.mic.ctx;
+  }
+  function enableMic() {
+    var toggle = $('micToggle');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      toast('This browser cannot open a microphone.');
+      return;
+    }
+    var ctx = ensureMicContext();
+    if (!ctx) { toast('Web Audio is unavailable here.'); return; }
+    if (ctx.state === 'suspended') { try { ctx.resume(); } catch (e) {} }
+    announce('Requesting the microphone — the ink will hear the room.');
+    navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+    }).then(function (stream) {
+      try {
+        var source = ctx.createMediaStreamSource(stream);
+        var analyser = ctx.createAnalyser();
+        analyser.fftSize = 2048;
+        analyser.smoothingTimeConstant = 0.8;
+        source.connect(analyser);
+        reactive.mic.stream = stream;
+        reactive.mic.analyser = analyser;
+        reactive.mic.data = new Uint8Array(analyser.frequencyBinCount);
+        reactive.mic.live = true;
+        if (toggle) {
+          toggle.setAttribute('aria-pressed', 'true');
+          toggle.textContent = '🎙 Mic live';
+        }
+        announce('Microphone live — the ink hears the room now.');
+      } catch (e) {
+        toast('Could not analyse the microphone here.');
+      }
+    }).catch(function () {
+      toast('Microphone blocked — staying with the simulated pulse.');
+      announce('Microphone blocked. Simulated pulse continues.');
+    });
+  }
+  function disableMic() {
+    var toggle = $('micToggle');
+    try {
+      if (reactive.mic.stream) reactive.mic.stream.getTracks().forEach(function (t) { t.stop(); });
+    } catch (e) {}
+    reactive.mic.stream = null;
+    reactive.mic.analyser = null;
+    reactive.mic.data = null;
+    reactive.mic.live = false;
+    if (toggle) {
+      toggle.setAttribute('aria-pressed', 'false');
+      toggle.textContent = '🎙 Mic off';
+    }
+    announce('Microphone off. Simulated pulse continues.');
+  }
+
+  /* Real FFT bands from the mic: bass 20–160 Hz, low-mids for beat flux,
+     vocals 300–3400 Hz, treble 6–16 kHz, energy overall. */
+  function measureMicBands() {
+    var mic = reactive.mic;
+    if (!mic.live || !mic.analyser || !mic.data) return null;
+    var analyser = mic.analyser, data = mic.data;
+    try { analyser.getByteFrequencyData(data); }
+    catch (e) { return null; }
+    var rate = (mic.ctx && mic.ctx.sampleRate) || 48000;
+    var bins = data.length;
+    function avg(f0, f1) {
+      var b0 = Math.max(0, Math.floor(f0 / rate * analyser.fftSize));
+      var b1 = Math.min(bins - 1, Math.ceil(f1 / rate * analyser.fftSize));
+      if (b1 < b0) return 0;
+      var sum = 0;
+      for (var b = b0; b <= b1; b++) sum += data[b];
+      return sum / (b1 - b0 + 1) / 255;
+    }
+    return {
+      bass: avg(20, 160),
+      mid: avg(120, 500),
+      vocals: avg(300, 3400),
+      treble: avg(6000, 16000),
+      energy: avg(20, 16000),
+    };
+  }
+
+  /* Simulated bands when no measurable signal exists: a ~128 BPM kick,
+     wandering bass, slow vocal phrases and treble shimmer. */
+  function simulateBands(dt) {
+    var s = reactive.simT += dt;
+    var kickRate = 128 / 60 * Math.PI * 2;
+    var kick = Math.pow(Math.max(0, Math.sin(s * kickRate)), 6);
+    var wobble = 0.5 + 0.5 * Math.sin(s * 0.9 + Math.sin(s * 0.37) * 2);
+    var bass = Math.min(1, 0.25 + kick * 0.65 + wobble * 0.18);
+    var mid = Math.min(1, 0.2 + kick * 0.5 + 0.5 * Math.abs(Math.sin(s * 1.7)) * 0.25);
+    var vocals = Math.min(1, 0.3 + 0.45 * (0.5 + 0.5 * Math.sin(s * 0.9 + 1.3)) + 0.2 * Math.abs(Math.sin(s * 2.3)));
+    var treble = Math.min(1, 0.25 + 0.5 * Math.abs(Math.sin(s * 5.1) * Math.sin(s * 3.3 + 0.7)));
+    return {
+      bass: bass, mid: mid, vocals: vocals, treble: treble,
+      energy: Math.min(1, bass * 0.45 + mid * 0.2 + vocals * 0.2 + treble * 0.15),
+    };
+  }
+
+  function dampBand(key, target) {
+    var damp = reactive.damp;
+    damp[key] += (target - damp[key]) * (target > damp[key] ? 0.4 : 0.12);
+    return damp[key];
+  }
+
+  function reactiveTick() {
+    if (document.hidden || !state.audioReactive || !reactiveReady()) return;
+    var sounding = state.playing || state.radioLive;
+    var engine = reactiveEngine();
+    var useMic = reactive.mic.live;
+    if (!sounding && !useMic) return; // silence → leave the ink alone
+    var raw = useMic ? measureMicBands() : null;
+    if (!raw && sounding) raw = simulateBands(0.12);
+    if (!raw) return;
+    var now = Date.now();
+    var bass = dampBand('bass', raw.bass);
+    var mid = dampBand('beat', raw.mid);
+    var vocals = dampBand('vocals', raw.vocals);
+    var treble = dampBand('treble', raw.treble);
+    var energy = dampBand('energy', raw.energy);
+
+    // Bass → ink expansion.
+    var bassAmt = bass * reactive.sens.bass;
+    if (bassAmt > 0.04 && engine.pulse) {
+      try { engine.pulse(0.2 + Math.min(1.2, bassAmt * 1.1)); } catch (e) {}
+    }
+    // Beat → bursts: bass/mid flux over an adaptive floor, with cooldown.
+    var flux = Math.max(0, raw.bass - reactive.prev.bass) + 0.5 * Math.max(0, raw.mid - reactive.prev.mid);
+    reactive.prev.bass = raw.bass;
+    reactive.prev.mid = raw.mid;
+    reactive.fluxAvg += (flux - reactive.fluxAvg) * 0.06;
+    var threshold = Math.max(0.1, reactive.fluxAvg * 1.6) / (0.4 + reactive.sens.beat);
+    if (flux > threshold && now - reactive.lastBeat > 350) {
+      reactive.lastBeat = now;
+      if (engine.pulse) { try { engine.pulse(1 + 0.4 * reactive.sens.beat); } catch (e) {} }
+      if (reactive.sens.beat > 0.02 && now - reactive.lastBloom > 2200 && engine.bloom) {
+        reactive.lastBloom = now;
+        try { engine.bloom(1, true); } catch (e) {} // silent: no announcement spam
+      }
+    }
+    // Vocals → subtle movement drift.
+    reactive.vocalTick++;
+    if (reactive.vocalTick % 5 === 0 && vocals * reactive.sens.vocals > 0.05 && engine.pulse) {
+      try { engine.pulse(0.2 + Math.min(0.7, vocals * reactive.sens.vocals * 0.5)); } catch (e) {}
+    }
+    // Treble → fine turbulence via swirl, around the user's slider base.
+    if (engine.set) {
+      var swirl = reactive.baseSwirl + treble * reactive.sens.treble * 26;
+      try { engine.set('swirl', Math.max(0, Math.min(60, Math.round(swirl)))); } catch (e) {}
+    }
+    // Energy → overall movement intensity.
+    if (engine.setEnergy) {
+      try { engine.setEnergy(Math.max(0.2, Math.min(2.2, 0.85 + energy * reactive.sens.energy * 1.25))); } catch (e) {}
+    }
+  }
+  setInterval(reactiveTick, 120);
 
   function init() {
     state.favorites = readFavorites();

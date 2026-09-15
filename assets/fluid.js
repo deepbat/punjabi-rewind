@@ -674,9 +674,9 @@ function init(options) {
     set: set,
     setPalette: function (name) { return set('palette', name); },
     setEnergy: function (value) { return set('energy', Math.max(0.2, Math.min(2.2, Number(value) || 1))); },
-    bloom: function (count) {
+    bloom: function (count, silent) {
       pendingBlooms = Math.min(pendingBlooms + (count || 1), 3);
-      hooks.announce('Added a bloom');
+      if (!silent) hooks.announce('Added a bloom');
     },
     pulse: pulse,
     clear: clear,

@@ -17,11 +17,14 @@ freeze it, save it — and let it answer every track you play.
   the radio. `R` toggles radio.
 - **Colour story** follows the track by default (warm stories for Punjabi,
   cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself.
-- **Pulse with music** — the ink keeps a soft heartbeat while a song or the
-  radio sounds (stronger every fourth beat, energy swelling with it), blooms
-  on every track change, and settles when paused. Toggle it in the panel.
-  True FFT beat-tracking is impossible with cross-origin YouTube/radio audio,
-  so this is a musical pulse, not a measured beat.
+- **Audio Reactive** (panel toggle, on by default) — the ink listens in five
+  bands: Bass expands the ink, Beats fire bursts, Vocals drift the colour,
+  Treble stirs fine turbulence, Energy drives overall movement. Everything is
+  attack/release damped so it feels organic. Per-band sensitivity sliders
+  (0–200%) plus an opt-in 🎙 Mic mode for REAL FFT analysis of any music in
+  the room. YouTube/radio streams are cross-origin, so browsers forbid FFT on
+  them — they drive the same bands from a musical simulation instead.
+  Toggle off for plain fluid behaviour; sliders and performance untouched.
 - **Swirl, Ink lifetime, Brush size, Living flow, Soft glow, Quality** — the
   fluid controls, live, exactly as a fluid study should have them.
 - **Dock**: Bloom · Freeze · Clear | Save (downloads the canvas as a PNG).
