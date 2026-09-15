@@ -43,7 +43,7 @@
   var gl = null, resources = null, programs = null, vao = null;
   var paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var lost = false, dirty = true, time = 0, previousTime = 0, frameCount = 0, fpsTime = 0;
-  var resizePending = true, colorIndex = 0, pendingBlooms = 2, savePending = false;
+  var resizePending = true, colorIndex = 0, pendingBlooms = 1, savePending = false;
   var consecutiveErrors = 0;
   var raf = 0, inited = false;
   var pointers = new Map();
@@ -101,7 +101,8 @@ shaders.advect = [bilinear,
     '  float r = abs(texture(curl, uv+vec2(texel.x,0)).x);',
     '  float b = abs(texture(curl, uv-vec2(0,texel.y)).x);',
     '  float t = abs(texture(curl, uv+vec2(0,texel.y)).x);',
-    '  vec2 gradient = vec2(t-b, r-l) * 0.5;',
+    '  vec2 gradient = 0.5 * vec2(r-l, t-b);',
+    '  gradient /= max(length(gradient), 0.0001);',
     '  vec2 force = vec2(gradient.y, -gradient.x) * texture(curl, uv).x * strength;',
     '  fragColor = vec4(clamp(texture(velocity, uv).xy + force * dt, vec2(-900), vec2(900)),0,1); }'].join('\n');
 
@@ -326,6 +327,9 @@ function inkColor(index) {
 
   function addSplat(x, y, dx, dy, color, radius, amount) {
     if (!resources || lost) return;
+    // Same defaults as a brush stroke: a bare click still paints.
+    if (radius === undefined) radius = settings.brush / 1000;
+    if (amount === undefined) amount = 0.6;
     // One NaN/Infinity would poison the velocity + dye fields and blank the
     // whole canvas within frames — drop degenerate splats instead.
     if (!isFinite(x) || !isFinite(y) || !isFinite(dx) || !isFinite(dy) ||

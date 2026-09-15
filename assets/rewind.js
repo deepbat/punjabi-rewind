@@ -692,11 +692,14 @@ function renderNow() {
     var palette = $('palette');
     if (palette) palette.addEventListener('change', function () {
       state.palette = palette.value;
+      var engine = ink();
       if (state.palette === 'auto') {
         applyPalette(state.index < 0 ? 0 : state.index);
+        if (engine) engine.bloom(1);
         announce('Colour story now follows each track');
       } else {
         setInk('palette', state.palette);
+        if (engine) engine.bloom(1);
         announce(palette.options[palette.selectedIndex].text + ' colour story');
       }
     });
