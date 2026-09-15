@@ -35,6 +35,7 @@
     duration: 0,
     position: 0,
     failures: 0,
+    musicPulse: true,
     radioIndex: 0,
     radioLive: false,
     radioTuning: false,
@@ -442,7 +443,7 @@
     pauseSongPlayback();
     renderRadioToggle(); renderNow();
     announce('Live radio: ' + (station ? station.name : 'on air'));
-    if (window.PR && window.PR.Fluid && window.PR.Fluid.pulse) window.PR.Fluid.pulse(1);
+    if (state.musicPulse && window.PR && window.PR.Fluid && window.PR.Fluid.pulse) window.PR.Fluid.pulse(1);
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) window.PR.Fluid.setEnergy(1.9);
   }
   function stopRadio(silent) {
@@ -505,7 +506,7 @@
     applyPalette(index);
     renderList();
     renderNow();
-    if (options.quiet !== true && window.PR && window.PR.Fluid && window.PR.Fluid.isReady && window.PR.Fluid.isReady()) {
+    if (state.musicPulse && options.quiet !== true && window.PR && window.PR.Fluid && window.PR.Fluid.isReady && window.PR.Fluid.isReady()) {
       window.PR.Fluid.pulse(1); // the canvas answers every new track
     }
     if (!videoId) {
@@ -897,6 +898,17 @@ function renderNow() {
       var box = $(key);
       if (box) box.addEventListener('change', function () { setInk(key, box.checked); });
     });
+    var musicPulse = $('musicPulse');
+    if (musicPulse) {
+      musicPulse.checked = state.musicPulse;
+      musicPulse.addEventListener('change', function () {
+        state.musicPulse = musicPulse.checked;
+        if (!state.musicPulse && window.PR && window.PR.Fluid && window.PR.Fluid.setEnergy) {
+          window.PR.Fluid.setEnergy(state.playing || state.radioLive ? 1.9 : 0.85);
+        }
+        announce(state.musicPulse ? 'Ink pulses with the music' : 'Music pulse off — ink flows on its own');
+      });
+    }
 
     var quality = $('quality');
     if (quality) quality.addEventListener('change', function () {
@@ -1107,14 +1119,21 @@ function wireLibrary() {
     });
   }
 
-  /* The canvas breathes while music or radio plays, so the ink feels tied to sound. */
+  /* The canvas breathes with the music: a soft heartbeat while a song or the
+     radio sounds, stronger accents every fourth beat, energy swelling with
+     it. Note: YouTube/radio audio is cross-origin so true FFT beat-tracking
+     is impossible — this is a musical pulse, not a measured beat. */
+  var beatStep = 0;
   setInterval(function () {
     if (document.hidden) return;
-    if (!state.playing && !state.radioLive) return;
+    if ((!state.playing && !state.radioLive) || !state.musicPulse) return;
     var engine = ink();
     if (!engine || !engine.isReady || !engine.isReady()) return;
-    engine.pulse(0.4 + Math.random() * 0.3);
-  }, 1500);
+    beatStep++;
+    var strong = beatStep % 4 === 0;
+    if (engine.pulse) engine.pulse(strong ? 0.9 + Math.random() * 0.3 : 0.35 + Math.random() * 0.25);
+    if (engine.setEnergy) engine.setEnergy(1.55 + 0.45 * Math.abs(Math.sin(Date.now() / 480)));
+  }, 520);
 
   function init() {
     state.favorites = readFavorites();

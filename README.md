@@ -16,6 +16,11 @@ freeze it, save it — and let it answer every track you play.
   Tuning pauses YouTube; picking a track stops the radio. `R` toggles radio.
 - **Colour story** follows the track by default (warm stories for Punjabi,
   cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself.
+- **Pulse with music** — the ink keeps a soft heartbeat while a song or the
+  radio sounds (stronger every fourth beat, energy swelling with it), blooms
+  on every track change, and settles when paused. Toggle it in the panel.
+  True FFT beat-tracking is impossible with cross-origin YouTube/radio audio,
+  so this is a musical pulse, not a measured beat.
 - **Swirl, Ink lifetime, Brush size, Living flow, Soft glow, Quality** — the
   fluid controls, live, exactly as a fluid study should have them.
 - **Dock**: Bloom · Freeze · Clear | Save (downloads the canvas as a PNG).
