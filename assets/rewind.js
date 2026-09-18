@@ -19,8 +19,8 @@
   var $ = function (id) { return document.getElementById(id); };
 
   /* Build stamp: F12 Console shows which player build the browser runs. */
-  window.__prVersion = '20260916-lift';
-  try { if (window.console && console.info) console.info('[rewind] build 20260916-lift'); } catch (e) {}
+window.__prVersion = '20260917-neon';
+   try { if (window.console && console.info) console.info('[rewind] build 20260917-neon'); } catch (e) {}
 
   var state = {
     index: -1,
