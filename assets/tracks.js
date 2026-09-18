@@ -73,3 +73,44 @@ window.PLAYLISTS = [
 {name:'Late Night',desc:'Midnight drives',indices:[14,24,40,43,45,23,36]},
 {name:'Party',desc:'Dance-floor bangers',indices:[4,11,15,19,21,26,31]},
 ];
+
+
+/* Audio exclusivity guard — radio and music tracks never play together. */
+(function () {
+  'use strict';
+  var NativeAudio = window.Audio;
+  if (!NativeAudio || window.__prAudioGuardInstalled) return;
+  window.__prAudioGuardInstalled = true;
+  window.Audio = function () {
+    var args = Array.prototype.slice.call(arguments);
+    var audio = new (Function.prototype.bind.apply(NativeAudio, [null].concat(args)))();
+    window.__prRadioAudio = audio;
+    return audio;
+  };
+  window.Audio.prototype = NativeAudio.prototype;
+  function pauseYoutube() {
+    var frames = document.querySelectorAll('iframe[src*="youtube"]');
+    for (var i = 0; i < frames.length; i++) {
+      try {
+        frames[i].contentWindow.postMessage(JSON.stringify({event:'command',func:'pauseVideo',args:[]}), '*');
+        frames[i].contentWindow.postMessage(JSON.stringify({event:'command',func:'stopVideo',args:[]}), '*');
+      } catch (e) {}
+    }
+  }
+  function pauseRadio() {
+    var audio = window.__prRadioAudio;
+    if (audio) { try { audio.pause(); } catch (e) {} }
+  }
+  document.addEventListener('click', function (event) {
+    var trackAction = event.target.closest && event.target.closest('#trackList [data-i], #playToggle, #nextBtn, #prevBtn, #playlistPlay, #shuffleToggle');
+    if (trackAction) pauseRadio();
+    var radioAction = event.target.closest && event.target.closest('#radioToggle, .chip[data-filter="radio"], #radioStationList button');
+    if (radioAction) pauseYoutube();
+  }, true);
+  var observer = new MutationObserver(function () {
+    var audio = window.__prRadioAudio;
+    if (!audio || audio.paused) return;
+    pauseYoutube();
+  });
+  observer.observe(document.documentElement, {childList:true, subtree:true});
+})();
