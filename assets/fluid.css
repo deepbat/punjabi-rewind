@@ -12,20 +12,56 @@
   --line-soft: rgba(180, 210, 200, .05);
   --glass: rgba(8, 14, 22, .82);
   --glass-soft: rgba(12, 20, 30, .7);
-  --glass-border: rgba(0, 255, 163, .12);
-  --accent: #00ffa3;
+  /* Every mint/amber tint in this file derives from these two channels, so a
+     palette swap repaints the chrome and the ink together — one room, one
+     colour story. */
+  --accent-rgb: 0, 255, 163;
+  --warm-rgb: 255, 167, 38;
+  --glass-border: rgba(var(--accent-rgb), .12);
+  --accent: rgb(var(--accent-rgb));
   --accent-dim: #00cc82;
-  --accent-glow: rgba(0, 255, 163, .35);
-  --accent-soft: rgba(0, 255, 163, .08);
+  --accent-glow: rgba(var(--accent-rgb), .35);
+  --accent-soft: rgba(var(--accent-rgb), .08);
   --accent-strong: #00ffb8;
   --accent-ink: #0a1a12;
-  --warm: #ffa726;
-  --warm-glow: rgba(255, 167, 38, .3);
-  --shadow: 0 8px 40px rgba(0, 0, 0, .5), 0 0 1px rgba(0, 255, 163, .1);
-  --shadow-lg: 0 16px 60px rgba(0, 0, 0, .6), 0 0 2px rgba(0, 255, 163, .15);
+  --warm: rgb(var(--warm-rgb));
+  --warm-glow: rgba(var(--warm-rgb), .3);
+  /* Transitions were written as var(--transition) 22 times while the property
+     itself was never defined — every one of them silently fell back to 0s. */
+  --transition: .18s cubic-bezier(.4, 0, .2, 1);
+  --shadow: 0 8px 40px rgba(0, 0, 0, .5), 0 0 1px rgba(var(--accent-rgb), .1);
+  --shadow-lg: 0 16px 60px rgba(0, 0, 0, .6), 0 0 2px rgba(var(--accent-rgb), .15);
   --font-display: 'Chakra Petch', sans-serif;
   --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mono: 'DM Sans Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COLOUR STORIES — one per ink palette, set from the track
+   ═══════════════════════════════════════════════════════════════ */
+[data-palette="aurora"] {
+  --accent-rgb: 0, 255, 163;
+  --accent-dim: #00cc82;
+  --accent-strong: #00ffb8;
+  --warm-rgb: 255, 61, 138;
+}
+[data-palette="ember"] {
+  --accent-rgb: 255, 167, 38;
+  --accent-dim: #f57c00;
+  --accent-strong: #ffc457;
+  --warm-rgb: 255, 59, 47;
+}
+[data-palette="lagoon"] {
+  --accent-rgb: 34, 211, 238;
+  --accent-dim: #0891b2;
+  --accent-strong: #67e8f9;
+  --warm-rgb: 63, 124, 255;
+}
+[data-palette="prism"] {
+  --accent-rgb: 38, 230, 102;
+  --accent-dim: #12b855;
+  --accent-strong: #5cff8f;
+  --warm-rgb: 255, 47, 122;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -54,20 +90,21 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* ═══════════════════════════════════════════════════════════════
-   COSMIC BACKGROUND — animated gradient that breathes
+   COSMIC BACKGROUND — the backdrop the ink canvas paints over. It
+   breathes only when the canvas is gone (body.no-webgl), so the live
+   page never pays for a full-screen blur animation nobody can see.
    ═══════════════════════════════════════════════════════════════ */
 body::before {
   content: '';
   position: fixed;
-  inset: -50%;
+  inset: -25%;
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(0, 255, 163, .07) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(255, 167, 38, .05) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(var(--accent-rgb), .07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 20%, rgba(var(--warm-rgb), .05) 0%, transparent 70%),
     radial-gradient(ellipse 70% 50% at 50% 80%, rgba(100, 60, 255, .04) 0%, transparent 70%);
-  animation: cosmicDrift 20s ease-in-out infinite alternate;
-  filter: blur(80px) saturate(1.4);
+  filter: blur(48px) saturate(1.4);
 }
 @keyframes cosmicDrift {
   0% { transform: translate(0, 0) scale(1); opacity: .8; }
@@ -76,7 +113,8 @@ body::before {
   100% { transform: translate(-1%, 1%) scale(1.02); opacity: 1; }
 }
 
-/* Floating particle dust */
+/* Floating particle dust — decorative, and the first thing the Soft glow
+   switch turns off. */
 body::after {
   content: '';
   position: fixed;
@@ -84,20 +122,21 @@ body::after {
   z-index: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(0, 255, 163, .3), transparent),
+    radial-gradient(1px 1px at 10% 20%, rgba(var(--accent-rgb), .3), transparent),
     radial-gradient(1px 1px at 30% 60%, rgba(255, 255, 255, .2), transparent),
-    radial-gradient(1.5px 1.5px at 50% 10%, rgba(0, 255, 163, .15), transparent),
-    radial-gradient(1px 1px at 70% 80%, rgba(255, 167, 38, .2), transparent),
+    radial-gradient(1.5px 1.5px at 50% 10%, rgba(var(--accent-rgb), .15), transparent),
+    radial-gradient(1px 1px at 70% 80%, rgba(var(--warm-rgb), .2), transparent),
     radial-gradient(1px 1px at 90% 40%, rgba(255, 255, 255, .15), transparent),
-    radial-gradient(1.5px 1.5px at 15% 85%, rgba(0, 255, 163, .1), transparent),
+    radial-gradient(1.5px 1.5px at 15% 85%, rgba(var(--accent-rgb), .1), transparent),
     radial-gradient(1px 1px at 60% 50%, rgba(255, 255, 255, .12), transparent),
-    radial-gradient(1px 1px at 85% 15%, rgba(0, 255, 163, .2), transparent),
-    radial-gradient(1px 1px at 40% 90%, rgba(255, 167, 38, .12), transparent),
+    radial-gradient(1px 1px at 85% 15%, rgba(var(--accent-rgb), .2), transparent),
+    radial-gradient(1px 1px at 40% 90%, rgba(var(--warm-rgb), .12), transparent),
     radial-gradient(1.5px 1.5px at 25% 45%, rgba(255, 255, 255, .1), transparent),
-    radial-gradient(1px 1px at 55% 30%, rgba(0, 255, 163, .15), transparent),
+    radial-gradient(1px 1px at 55% 30%, rgba(var(--accent-rgb), .15), transparent),
     radial-gradient(1px 1px at 75% 65%, rgba(255, 255, 255, .1), transparent);
-  animation: particleDrift 30s linear infinite;
+  animation: particleDrift 45s linear infinite;
 }
+body.no-dust::after { display: none; }
 @keyframes particleDrift {
   0% { transform: translateY(0) translateX(0); }
   25% { transform: translateY(-30px) translateX(15px); }
@@ -120,28 +159,34 @@ body::after {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   GLASS — enhanced frosted with neon border glow
+   VIGNETTE — darkens the frame so the ink and the chrome both read
+   ═══════════════════════════════════════════════════════════════ */
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(ellipse 125% 105% at 50% 45%, transparent 52%, rgba(2, 6, 10, .5) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLASS — frosted panes with a lit top edge
    ═══════════════════════════════════════════════════════════════ */
 .glass {
   background: var(--glass);
   border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(28px) saturate(1.4);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  /* The top highlight is what makes a pane read as glass; the inset is
+     cheap, always visible, and survives the panel's own opaque fill. */
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .07);
+  backdrop-filter: blur(12px) saturate(1.35);
+  -webkit-backdrop-filter: blur(12px) saturate(1.35);
   position: relative;
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
-.glass::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, rgba(0, 255, 163, .08), transparent 40%, transparent 60%, rgba(255, 167, 38, .05));
-  z-index: -1;
-  opacity: 0;
-  transition: opacity var(--transition);
-  pointer-events: none;
+.glass:hover {
+  border-color: rgba(var(--accent-rgb), .24);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .1), 0 0 22px var(--accent-soft);
 }
-.glass:hover::before { opacity: 1; }
 
 /* ═══════════════════════════════════════════════════════════════
    SKIP LINK
@@ -183,11 +228,7 @@ body::after {
   color: var(--accent);
   text-transform: uppercase;
   opacity: .85;
-  animation: irisGlow 4s ease-in-out infinite;
-}
-@keyframes irisGlow {
-  0%, 100% { opacity: .7; text-shadow: 0 0 8px var(--accent-glow); }
-  50% { opacity: 1; text-shadow: 0 0 16px var(--accent-glow), 0 0 32px rgba(0, 255, 163, .15); }
+  text-shadow: 0 0 10px var(--accent-glow);
 }
 .brand h1 {
   margin: 8px 0 6px;
@@ -201,8 +242,8 @@ body::after {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradientShift 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px rgba(0, 255, 163, .2));
+  animation: gradientShift 16s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(var(--accent-rgb), .2));
 }
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
@@ -249,8 +290,8 @@ body::after {
   font-weight: 500;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(0, 255, 163, .05);
-  border: 1px solid rgba(0, 255, 163, .1);
+  background: rgba(var(--accent-rgb), .05);
+  border: 1px solid rgba(var(--accent-rgb), .1);
 }
 .dot {
   display: inline-block;
@@ -260,16 +301,15 @@ body::after {
   background: var(--accent);
   margin-right: 6px;
   box-shadow: 0 0 8px var(--accent-glow);
-  animation: neonPulse 2s ease-in-out infinite;
 }
 @keyframes neonPulse {
   0%, 100% { box-shadow: 0 0 4px var(--accent-glow); transform: scale(1); }
-  50% { box-shadow: 0 0 12px var(--accent-glow), 0 0 24px rgba(0, 255, 163, .2); transform: scale(1.2); }
+  50% { box-shadow: 0 0 12px var(--accent-glow), 0 0 24px rgba(var(--accent-rgb), .2); transform: scale(1.2); }
 }
 .dot.live { background: var(--warm); box-shadow: 0 0 8px var(--warm-glow); animation: warmPulse 1.6s ease-in-out infinite; }
 @keyframes warmPulse {
   0%, 100% { box-shadow: 0 0 4px var(--warm-glow); transform: scale(1); }
-  50% { box-shadow: 0 0 12px var(--warm-glow), 0 0 24px rgba(255, 167, 38, .2); transform: scale(1.3); }
+  50% { box-shadow: 0 0 12px var(--warm-glow), 0 0 24px rgba(var(--warm-rgb), .2); transform: scale(1.3); }
 }
 .round-button {
   width: 44px;
@@ -277,8 +317,8 @@ body::after {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: rgba(0, 255, 163, .06);
-  border: 1px solid rgba(0, 255, 163, .12);
+  background: rgba(var(--accent-rgb), .06);
+  border: 1px solid rgba(var(--accent-rgb), .12);
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
@@ -293,8 +333,8 @@ body::after {
   transition: opacity var(--transition);
 }
 .round-button:hover {
-  background: rgba(0, 255, 163, .12);
-  border-color: rgba(0, 255, 163, .3);
+  background: rgba(var(--accent-rgb), .12);
+  border-color: rgba(var(--accent-rgb), .3);
   box-shadow: 0 0 20px var(--accent-glow);
   transform: scale(1.08);
 }
@@ -315,14 +355,14 @@ body::after {
   padding: 8px 14px;
   border-radius: 999px;
   max-width: min(300px, 42vw);
-  background: linear-gradient(135deg, rgba(0, 255, 163, .08), rgba(8, 14, 22, .85));
-  border: 1px solid rgba(0, 255, 163, .15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .4), inset 0 0 20px rgba(0, 255, 163, .03);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), .08), rgba(8, 14, 22, .85));
+  border: 1px solid rgba(var(--accent-rgb), .15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .4), inset 0 0 20px rgba(var(--accent-rgb), .03);
   animation: pillGlow 3s ease-in-out infinite;
 }
 @keyframes pillGlow {
-  0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, .4), inset 0 0 20px rgba(0, 255, 163, .03); }
-  50% { box-shadow: 0 4px 25px rgba(0, 0, 0, .4), 0 0 15px rgba(0, 255, 163, .08), inset 0 0 20px rgba(0, 255, 163, .05); }
+  0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, .4), inset 0 0 20px rgba(var(--accent-rgb), .03); }
+  50% { box-shadow: 0 4px 25px rgba(0, 0, 0, .4), 0 0 15px rgba(var(--accent-rgb), .08), inset 0 0 20px rgba(var(--accent-rgb), .05); }
 }
 .now-pill .now-dot {
   width: 7px;
@@ -373,7 +413,7 @@ body::after {
   z-index: 25;
   overscroll-behavior: contain;
   background: linear-gradient(180deg, rgba(8, 14, 22, .88), rgba(5, 10, 16, .92));
-  border-left: 2px solid rgba(0, 255, 163, .08);
+  border-left: 2px solid rgba(var(--accent-rgb), .08);
 }
 .panel-heading {
   display: flex;
@@ -396,8 +436,8 @@ body::after {
   font-family: var(--mono);
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(0, 255, 163, .05);
-  border: 1px solid rgba(0, 255, 163, .08);
+  background: rgba(var(--accent-rgb), .05);
+  border: 1px solid rgba(var(--accent-rgb), .08);
 }
 .control { display: block; margin-top: 18px; }
 .label-row {
@@ -433,15 +473,15 @@ input[type=range]::-moz-range-thumb {
 select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid rgba(0, 255, 163, .15);
+  border: 1px solid rgba(var(--accent-rgb), .15);
   border-radius: 8px;
-  background: rgba(0, 255, 163, .04);
+  background: rgba(var(--accent-rgb), .04);
   font-size: 12px;
   color: var(--ink);
   cursor: pointer;
   transition: all var(--transition);
 }
-select:hover { border-color: rgba(0, 255, 163, .3); }
+select:hover { border-color: rgba(var(--accent-rgb), .3); }
 select:focus { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); outline: none; }
 select option { background: #0a1018; color: var(--ink); }
 .switch-row {
@@ -454,11 +494,11 @@ select option { background: #0a1018; color: var(--ink); }
   color: var(--ink-dim);
 }
 input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); cursor: pointer; }
-.divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 255, 163, .15), transparent); margin: 18px 0 0; }
+.divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), .15), transparent); margin: 18px 0 0; }
 .reactive-controls {
   margin-top: 12px;
   padding-top: 10px;
-  border-top: 1px solid rgba(0, 255, 163, .08);
+  border-top: 1px solid rgba(var(--accent-rgb), .08);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -477,7 +517,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
 .mic-btn {
   padding: 5px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 255, 163, .15);
+  border: 1px solid rgba(var(--accent-rgb), .15);
   font-size: 10px;
   letter-spacing: .04em;
   color: var(--ink-dim);
@@ -515,8 +555,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   font-size: 9px;
   padding: 1px 5px;
   border-radius: 4px;
-  border: 1px solid rgba(0, 255, 163, .15);
-  background: rgba(0, 255, 163, .04);
+  border: 1px solid rgba(var(--accent-rgb), .15);
+  background: rgba(var(--accent-rgb), .04);
   color: var(--accent-dim);
 }
 
@@ -538,7 +578,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   overflow-y: auto;
   overscroll-behavior: contain;
   z-index: 25;
-  border-right: 2px solid rgba(0, 255, 163, .08);
+  border-right: 2px solid rgba(var(--accent-rgb), .08);
   background: linear-gradient(180deg, rgba(8, 14, 22, .88), rgba(5, 10, 16, .92));
 }
 .library[hidden] { display: none !important; }
@@ -551,14 +591,14 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   margin-right: 10px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(0, 255, 163, .04);
-  border: 1px solid rgba(0, 255, 163, .1);
+  background: rgba(var(--accent-rgb), .04);
+  border: 1px solid rgba(var(--accent-rgb), .1);
   transition: all var(--transition);
 }
 .library-search:focus-within {
   border-color: var(--accent);
   box-shadow: 0 0 12px var(--accent-glow);
-  background: rgba(0, 255, 163, .06);
+  background: rgba(var(--accent-rgb), .06);
 }
 .library-search input {
   flex: 1;
@@ -576,8 +616,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
 .chip {
   padding: 5px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 255, 163, .1);
-  background: rgba(0, 255, 163, .03);
+  border: 1px solid rgba(var(--accent-rgb), .1);
+  background: rgba(var(--accent-rgb), .03);
   font-family: var(--font-display);
   font-size: 10px;
   font-weight: 500;
@@ -585,7 +625,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   color: var(--ink-dim);
   transition: all var(--transition);
 }
-.chip:hover { color: var(--accent); border-color: rgba(0, 255, 163, .25); background: rgba(0, 255, 163, .06); }
+.chip:hover { color: var(--accent); border-color: rgba(var(--accent-rgb), .25); background: rgba(var(--accent-rgb), .06); }
 .chip[aria-pressed="true"] {
   background: var(--accent);
   border-color: var(--accent);
@@ -616,23 +656,71 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   border: 1px solid transparent;
 }
 .track:hover {
-  background: rgba(0, 255, 163, .06);
-  border-color: rgba(0, 255, 163, .08);
+  background: rgba(var(--accent-rgb), .06);
+  border-color: rgba(var(--accent-rgb), .08);
   transform: translateX(2px);
 }
 .track.is-playing {
-  background: linear-gradient(90deg, rgba(0, 255, 163, .1), transparent);
-  border-color: rgba(0, 255, 163, .15);
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), .1), transparent);
+  border-color: rgba(var(--accent-rgb), .15);
 }
-.track .num {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--ink-faint);
-  width: 20px;
+/* Real artwork per row, the position number as its badge and a play
+   triangle on hover — the library finally shows what the songs look like. */
+.track .art {
+  position: relative;
   flex: none;
-  font-weight: 600;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(140deg, rgba(var(--accent-rgb), .2), rgba(var(--warm-rgb), .16));
+  border: 1px solid rgba(255, 255, 255, .07);
 }
+.track .art img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .68;
+  transition: opacity var(--transition), transform .35s ease;
+}
+.track:hover .art img, .track.is-playing .art img { opacity: 1; transform: scale(1.08); }
+.track .art::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  z-index: 2;
+  opacity: 0;
+  transform: translate(-42%, -50%) scale(.8);
+  border-left: 9px solid #fff;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .9));
+  transition: opacity var(--transition), transform var(--transition);
+}
+.track:hover .art::after, .track:focus-visible .art::after { opacity: 1; transform: translate(-42%, -50%) scale(1); }
+.track .num {
+  position: relative;
+  z-index: 1;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #dfe8ee;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(3, 7, 11, .6);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .9);
+  transition: opacity var(--transition);
+}
+.track:hover .num { opacity: 0; }
 .track.is-playing .num { color: var(--accent); }
+.track.is-playing .art { border-color: rgba(var(--accent-rgb), .35); box-shadow: 0 0 10px var(--accent-soft); }
 .track .meta { flex: 1; min-width: 0; }
 .track .meta strong {
   display: block;
@@ -689,7 +777,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   border-radius: 6px;
   transition: all var(--transition);
 }
-.library-foot button:hover { color: var(--accent-strong); background: rgba(0, 255, 163, .1); box-shadow: 0 0 8px var(--accent-glow); }
+.library-foot button:hover { color: var(--accent-strong); background: rgba(var(--accent-rgb), .1); box-shadow: 0 0 8px var(--accent-glow); }
 
 /* Playlist */
 .playlist-row {
@@ -699,8 +787,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   margin-right: 10px;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(0, 255, 163, .04);
-  border: 1px solid rgba(0, 255, 163, .1);
+  background: rgba(var(--accent-rgb), .04);
+  border: 1px solid rgba(var(--accent-rgb), .1);
   font-size: 10.5px;
   color: var(--ink-dim);
   transition: all var(--transition);
@@ -730,8 +818,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   margin-right: 10px;
   padding: 12px;
   border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255, 167, 38, .04), rgba(0, 255, 163, .02));
-  border: 1px solid rgba(255, 167, 38, .1);
+  background: linear-gradient(180deg, rgba(var(--warm-rgb), .04), rgba(var(--accent-rgb), .02));
+  border: 1px solid rgba(var(--warm-rgb), .1);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -744,7 +832,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   animation: radioFlash 1.2s ease-out;
 }
 @keyframes radioFlash {
-  0% { box-shadow: 0 0 0 4px var(--accent-glow), 0 0 40px rgba(0, 255, 163, .2); }
+  0% { box-shadow: 0 0 0 4px var(--accent-glow), 0 0 40px rgba(var(--accent-rgb), .2); }
   100% { box-shadow: 0 0 0 2px var(--accent-glow), 0 0 30px var(--accent-soft); }
 }
 .radio-head { display: flex; align-items: center; justify-content: space-between; }
@@ -769,15 +857,15 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   gap: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  background: linear-gradient(135deg, rgba(255, 167, 38, .08), rgba(0, 255, 163, .04));
-  border: 1px solid rgba(255, 167, 38, .15);
+  background: linear-gradient(135deg, rgba(var(--warm-rgb), .08), rgba(var(--accent-rgb), .04));
+  border: 1px solid rgba(var(--warm-rgb), .15);
   text-align: left;
   width: 100%;
   transition: all var(--transition);
 }
 .radio-main:hover {
-  background: linear-gradient(135deg, rgba(255, 167, 38, .12), rgba(0, 255, 163, .06));
-  border-color: rgba(255, 167, 38, .25);
+  background: linear-gradient(135deg, rgba(var(--warm-rgb), .12), rgba(var(--accent-rgb), .06));
+  border-color: rgba(var(--warm-rgb), .25);
   box-shadow: 0 0 12px var(--warm-glow);
 }
 .radio-main[aria-pressed="true"] {
@@ -794,16 +882,11 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, var(--warm), rgba(255, 167, 38, .4));
+  background: linear-gradient(135deg, var(--warm), rgba(var(--warm-rgb), .4));
   color: var(--accent-ink);
   font-size: 11px;
   font-weight: 700;
   box-shadow: 0 0 10px var(--warm-glow);
-  animation: dialPulse 2s ease-in-out infinite;
-}
-@keyframes dialPulse {
-  0%, 100% { box-shadow: 0 0 6px var(--warm-glow); }
-  50% { box-shadow: 0 0 14px var(--warm-glow), 0 0 28px rgba(255, 167, 38, .15); }
 }
 .radio-text { flex: 1; min-width: 0; }
 .radio-text strong { display: block; font-size: 11.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -814,8 +897,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   min-width: 50px;
   padding: 6px 5px;
   border-radius: 6px;
-  border: 1px solid rgba(0, 255, 163, .1);
-  background: rgba(0, 255, 163, .03);
+  border: 1px solid rgba(var(--accent-rgb), .1);
+  background: rgba(var(--accent-rgb), .03);
   font-family: var(--font-display);
   font-size: 9.5px;
   font-weight: 500;
@@ -823,9 +906,9 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   color: var(--ink-dim);
   transition: all var(--transition);
 }
-.radio-presets button:hover { color: #fff; border-color: rgba(0, 255, 163, .25); background: rgba(0, 255, 163, .06); }
+.radio-presets button:hover { color: #fff; border-color: rgba(var(--accent-rgb), .25); background: rgba(var(--accent-rgb), .06); }
 .radio-presets button.active {
-  background: linear-gradient(135deg, var(--warm), rgba(255, 167, 38, .6));
+  background: linear-gradient(135deg, var(--warm), rgba(var(--warm-rgb), .6));
   border-color: var(--warm);
   color: var(--accent-ink);
   font-weight: 700;
@@ -853,11 +936,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   letter-spacing: .04em;
   text-align: center;
   white-space: nowrap;
-  animation: hintPulse 3s ease-in-out infinite;
-}
-@keyframes hintPulse {
-  0%, 100% { opacity: .6; }
-  50% { opacity: 1; color: var(--accent-dim); }
+  opacity: .7;
 }
 .dock {
   display: flex;
@@ -866,8 +945,8 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   border-radius: 14px;
   gap: 2px;
   background: linear-gradient(135deg, rgba(8, 14, 22, .9), rgba(12, 20, 30, .85));
-  border: 1px solid rgba(0, 255, 163, .12);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, .5), inset 0 0 1px rgba(0, 255, 163, .1);
+  border: 1px solid rgba(var(--accent-rgb), .12);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, .5), inset 0 0 1px rgba(var(--accent-rgb), .1);
 }
 .dock button {
   min-height: 40px;
@@ -899,7 +978,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
 }
 .dock button:hover {
   color: var(--accent);
-  background: rgba(0, 255, 163, .06);
+  background: rgba(var(--accent-rgb), .06);
   box-shadow: 0 0 12px var(--accent-soft);
 }
 .dock button:hover::after { width: 60%; }
@@ -915,7 +994,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   box-shadow: 0 4px 20px var(--accent-glow);
 }
 .dock button.primary::after { background: var(--accent-ink); }
-.dock-separator { width: 1px; height: 20px; background: linear-gradient(180deg, transparent, rgba(0, 255, 163, .15), transparent); margin: 0 3px; }
+.dock-separator { width: 1px; height: 20px; background: linear-gradient(180deg, transparent, rgba(var(--accent-rgb), .15), transparent); margin: 0 3px; }
 
 /* ═══════════════════════════════════════════════════════════════
    BOTTOM-LEFT: now playing + slogan
@@ -938,11 +1017,11 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   padding: 10px 14px 10px 10px;
   border-radius: 14px;
   background: linear-gradient(135deg, rgba(8, 14, 22, .88), rgba(12, 20, 30, .8));
-  border: 1px solid rgba(0, 255, 163, .1);
-  box-shadow: var(--shadow);
+  border: 1px solid rgba(var(--accent-rgb), .1);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .07);
   transition: all var(--transition);
 }
-.now:hover { border-color: rgba(0, 255, 163, .2); box-shadow: 0 0 16px var(--accent-soft); }
+.now:hover { border-color: rgba(var(--accent-rgb), .2); box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, .1), 0 0 16px var(--accent-soft); }
 .cover {
   position: relative;
   flex: none;
@@ -950,7 +1029,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   height: 44px;
   border-radius: 10px;
   overflow: hidden;
-  background: linear-gradient(140deg, rgba(0, 255, 163, .25), rgba(255, 167, 38, .2));
+  background: linear-gradient(140deg, rgba(var(--accent-rgb), .25), rgba(var(--warm-rgb), .2));
   display: grid;
   place-items: center;
   font-size: 16px;
@@ -974,7 +1053,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   color: var(--ink-dim);
   transition: all var(--transition);
 }
-.transport button:hover { background: rgba(0, 255, 163, .08); color: var(--accent); }
+.transport button:hover { background: rgba(var(--accent-rgb), .08); color: var(--accent); }
 .transport button.play {
   background: linear-gradient(135deg, var(--accent), var(--accent-dim));
   color: var(--accent-ink);
@@ -1019,28 +1098,31 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
    ═══════════════════════════════════════════════════════════════ */
 .video-slot {
   position: fixed;
-  left: -420px;
-  bottom: -420px;
+  right: 30px;
+  bottom: 68px;
   width: 340px;
   height: 190px;
   border-radius: 14px;
   overflow: hidden;
-  opacity: .01;
-  pointer-events: none;
   background: #000;
   z-index: 35;
-  border: 1px solid rgba(0, 255, 163, .1);
-  transition: all .3s ease;
+  border: 1px solid rgba(var(--accent-rgb), .1);
+  /* The panel stays mounted: display:none gave it no pre-transition state,
+     so the .3s transition could never run and it popped in instead of
+     sliding. visibility (discrete) collapses to hidden only after the fade. */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px) scale(.965);
+  pointer-events: none;
+  transition: opacity .3s ease, transform .3s cubic-bezier(.4, 0, .2, 1), visibility .3s;
 }
-.video-slot:not(.open) { display: none !important; }
 .video-slot iframe, #ytStage { width: 100%; height: 100%; border: 0; display: block; }
 .video-slot.open {
-  left: auto;
-  right: 30px;
-  bottom: 68px;
   opacity: 1;
+  visibility: visible;
+  transform: none;
   pointer-events: auto;
-  border-color: rgba(0, 255, 163, .2);
+  border-color: rgba(var(--accent-rgb), .2);
   box-shadow: 0 0 30px var(--accent-soft), 0 30px 80px rgba(0, 0, 0, .6);
 }
 
@@ -1101,7 +1183,7 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   opacity: 0;
   transition: opacity .4s ease, transform .4s cubic-bezier(.4, 0, .2, 1);
   background: linear-gradient(135deg, rgba(8, 14, 22, .95), rgba(5, 10, 16, .98));
-  border: 1px solid rgba(0, 255, 163, .15);
+  border: 1px solid rgba(var(--accent-rgb), .15);
   box-shadow: 0 0 40px var(--accent-soft), var(--shadow-lg);
 }
 .intro.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -1147,10 +1229,10 @@ input[type=checkbox] { width: 32px; height: 18px; accent-color: var(--accent); c
   transform: translateY(8px) scale(.96);
   transition: all .25s cubic-bezier(.4, 0, .2, 1);
   pointer-events: none;
-  background: linear-gradient(135deg, rgba(0, 255, 163, .1), rgba(8, 14, 22, .9));
-  border: 1px solid rgba(0, 255, 163, .15);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
-  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), .1), rgba(8, 14, 22, .9));
+  border: 1px solid rgba(var(--accent-rgb), .15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .07);
+  backdrop-filter: blur(12px);
 }
 .toast.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 .toast a { color: var(--accent); font-weight: 600; }
@@ -1207,8 +1289,7 @@ body.no-webgl::before {
   .dock button { padding: 0 10px; min-height: 38px; }
   .dock button span { display: none; }
   .dock { gap: 4px; }
-  .video-slot { width: min(320px, calc(100vw - 20px)); }
-  .video-slot.open { right: 10px; bottom: 228px; }
+  .video-slot { width: min(320px, calc(100vw - 20px)); right: 10px; bottom: 228px; }
   .toast { right: 10px; left: 10px; bottom: 228px; max-width: none; }
 }
 
@@ -1231,13 +1312,11 @@ body.no-webgl::before {
    MOTION PREFERENCES
    ═══════════════════════════════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  body::before, body::after { animation: none; }
+  body::before, body::after, body.no-webgl::before { animation: none; }
   .dot, .dot.live { animation: none; }
   .brand h1 { animation: none; -webkit-text-fill-color: var(--accent); }
-  .eyebrow { animation: none; }
   .now-pill { animation: none; }
-  #dialGlyph { animation: none; }
-  .hint { animation: none; opacity: .8; }
+  .hint { opacity: .8; }
   .radio.flash { animation: none; }
   .toast, .video-slot, .intro { transition: none; }
   .radio-status.live { animation: none; }
@@ -1262,5 +1341,5 @@ body.hide-chrome .bottom {
    SCROLLBAR GLOBAL
    ═══════════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-thumb { background: rgba(0, 255, 163, .15); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: rgba(var(--accent-rgb), .15); border-radius: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }

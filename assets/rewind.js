@@ -19,8 +19,8 @@
   var $ = function (id) { return document.getElementById(id); };
 
   /* Build stamp: F12 Console shows which player build the browser runs. */
-window.__prVersion = '20260918-neon';
-   try { if (window.console && console.info) console.info('[rewind] build 20260918-neon'); } catch (e) {}
+window.__prVersion = '20260919-neon';
+   try { if (window.console && console.info) console.info('[rewind] build 20260919-neon'); } catch (e) {}
 
   var state = {
     index: -1,
@@ -492,10 +492,20 @@ window.__prVersion = '20260918-neon';
     renderNow();
   }
 
+  /* The chrome wears the track's colours too. One attribute on <html> swaps
+     every accent channel in the stylesheet, so each song changes the room. */
+  var PALETTES = ['aurora', 'ember', 'lagoon', 'prism'];
+  function applyTint(name) {
+    if (PALETTES.indexOf(name) < 0) name = 'aurora';
+    try { document.documentElement.setAttribute('data-palette', name); } catch (e) {}
+  }
+
   function applyPalette(index) {
+    var name = paletteFor(index);
+    applyTint(state.palette === 'auto' ? name : state.palette);
     if (state.palette !== 'auto') return;
     if (window.PR && window.PR.Fluid && window.PR.Fluid.setPalette) {
-      window.PR.Fluid.setPalette(paletteFor(index));
+      window.PR.Fluid.setPalette(name);
     }
   }
 
@@ -724,6 +734,23 @@ window.__prVersion = '20260918-neon';
         num.className = 'num';
         num.textContent = (index === state.index && state.playing) ? '▶' : twoDigits(index + 1);
 
+        /* Real artwork from the video id the track already carries, with the
+           position number as its badge. Lazy and off the critical path. */
+        var art = document.createElement('span');
+        art.className = 'art';
+        var artwork = coverUrl(song, 'mqdefault');
+        if (artwork) {
+          var thumb = document.createElement('img');
+          thumb.src = artwork;
+          thumb.alt = '';
+          thumb.loading = 'lazy';
+          thumb.decoding = 'async';
+          thumb.width = 32;
+          thumb.height = 32;
+          art.appendChild(thumb);
+        }
+        art.appendChild(num);
+
         var meta = document.createElement('span');
         meta.className = 'meta';
         var strong = document.createElement('strong');
@@ -733,7 +760,7 @@ window.__prVersion = '20260918-neon';
         meta.appendChild(strong);
         meta.appendChild(sub);
 
-        play.appendChild(num);
+        play.appendChild(art);
         play.appendChild(meta);
 
         var fav = document.createElement('button');
@@ -925,6 +952,7 @@ function renderNow() {
         announce('Colour story now follows each track');
       } else {
         setInk('palette', state.palette);
+        applyTint(state.palette);
         if (engine) engine.bloom(1);
         announce(palette.options[palette.selectedIndex].text + ' colour story');
       }
@@ -932,7 +960,15 @@ function renderNow() {
 
     ['autoflow', 'glow'].forEach(function (key) {
       var box = $(key);
-      if (box) box.addEventListener('change', function () { setInk(key, box.checked); });
+      if (!box) return;
+      var sync = function () {
+        setInk(key, box.checked);
+        // Soft glow also owns the floating dust: two full-viewport animated
+        // layers over a real-time fluid sim is one layer too many.
+        if (key === 'glow') document.body.classList.toggle('no-dust', !box.checked);
+      };
+      box.addEventListener('change', sync);
+      sync();
     });
     var audioReactive = $('audioReactive');
     var reactiveControls = $('reactiveControls');
