@@ -4,7 +4,7 @@
    field are all simulated in WebGL 2 fragment shaders. No libraries, no network
    requests and no build step — only this file.
    Public API (window.PR.Fluid): init, set, setPalette, setEnergy, bloom, pulse,
-   togglePause, isPaused, clear, save, resize, destroy. */
+   stroke, togglePause, isPaused, clear, save, resize, destroy. */
 (function () {
   'use strict';
 
@@ -15,6 +15,9 @@
     ember: [[1, 0.12, 0.03], [1, 0.48, 0.06], [0.85, 0.05, 0.25], [1, 0.72, 0.28]],
     lagoon: [[0.01, 0.7, 0.8], [0.02, 0.3, 0.95], [0.1, 0.95, 0.55], [0.35, 0.7, 1]],
     prism: [[1, 0.1, 0.35], [0.95, 0.55, 0.04], [0.15, 0.9, 0.4], [0.2, 0.25, 1]],
+    /* Festival stories: Vaisakhi (saffron & harvest green), Diwali (lamps & night purple). */
+    vaisakhi: [[1, 0.6, 0.15], [0.05, 0.65, 0.3], [1, 0.85, 0.35], [0.9, 0.4, 0.05]],
+    diwali: [[0.65, 0.3, 0.98], [1, 0.8, 0.1], [0.5, 0.18, 0.9], [1, 0.62, 0.08]],
   };
 
   var qualities = {
@@ -384,6 +387,13 @@ function inkColor(index) {
     }
   }
 
+  /* The auto-painter's brush: one soft segment, queued like a real drag so it
+     flows through the same pipeline, cap and colour cycle as hand-drawn ink. */
+  function stroke(x, y, dx, dy) {
+    if (!resources || lost || splats.length >= 48) return;
+    splats.push([x, y, dx, dy, inkColor(), settings.brush / 1400, 0.32]);
+  }
+
   /* Ambient drift: only ever runs while "Living flow" is on. */
   function emit(dt) {
     var aspect = canvas.clientWidth / canvas.clientHeight;
@@ -710,6 +720,7 @@ function init(options) {
       if (!silent) hooks.announce('Added a bloom');
     },
     pulse: pulse,
+    stroke: stroke,
     clear: clear,
     togglePause: togglePause,
     isPaused: function () { return paused; },

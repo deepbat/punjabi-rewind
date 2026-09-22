@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://www.youtube.com">
 <link rel="preconnect" href="https://i.ytimg.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/fluid.css?v=20260919a">
+<link rel="stylesheet" href="assets/fluid.css?v=20260922a">
 </head>
 <body>
 
@@ -65,6 +65,8 @@
       <option value="ember">Ember</option>
       <option value="lagoon">Lagoon</option>
       <option value="prism">Prism</option>
+      <option value="vaisakhi">Vaisakhi · saffron &amp; green</option>
+      <option value="diwali">Diwali · purple &amp; gold</option>
     </select>
   </label>
   <label class="control"><span class="label-row">Swirl <output id="swirlValue">30</output></span><input id="swirl" type="range" min="0" max="60" value="30"></label>
@@ -72,6 +74,7 @@
   <label class="control"><span class="label-row">Brush size <output id="brushValue">Medium</output></span><input id="brush" type="range" min="8" max="50" value="24"></label>
   <div class="divider"></div>
   <label class="switch-row" for="autoflow">Living flow <input id="autoflow" type="checkbox" checked></label>
+  <label class="switch-row" for="autopaint" title="While music plays and you are idle, a faint brush wanders the canvas">Paint for me <input id="autopaint" type="checkbox" checked></label>
   <label class="switch-row" for="glow">Soft glow <input id="glow" type="checkbox" checked></label>
   <label class="switch-row" for="audioReactive">Audio Reactive <input id="audioReactive" type="checkbox" checked></label>
   <div class="reactive-controls" id="reactiveControls">
@@ -156,7 +159,11 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="13" rx="2.5"/><path d="M8 21h8"/></svg>
       </button>
     </div>
-    <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+    <div class="progress" id="progressTrack" role="slider" tabindex="0"
+         aria-label="Seek within the track · arrow keys nudge 5 seconds" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <b id="progressBuffer"></b><i id="progressBar"></i>
+      <span class="progress-tip" id="progressTip" hidden>0:00</span>
+    </div>
   </section>
   <div class="footer">PLAY SOMETHING. STAY A WHILE.</div>
 </div>
@@ -210,8 +217,8 @@
 <div class="sr-only" id="announcement" role="status" aria-live="polite"></div>
 
 <script src="https://www.youtube.com/iframe_api" async></script>
-<script src="assets/tracks.js?v=20260919a"></script>
-<script src="assets/fluid.js?v=20260919a"></script>
-<script src="assets/rewind.js?v=20260919a"></script>
+<script src="assets/tracks.js?v=20260922a"></script>
+<script src="assets/fluid.js?v=20260922a"></script>
+<script src="assets/rewind.js?v=20260922a"></script>
 </body>
 </html>

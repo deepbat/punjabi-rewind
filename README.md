@@ -16,7 +16,11 @@ freeze it, save it — and let it answer every track you play.
   stations with auto fail-over. Tuning pauses YouTube; picking a track stops
   the radio. `R` toggles radio.
 - **Colour story** follows the track by default (warm stories for Punjabi,
-  cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself.
+  cool ones for Hindi) or pick Aurora / Ember / Lagoon / Prism yourself —
+  plus two festival stories: **Vaisakhi** (saffron & green) and **Diwali**
+  (purple & gold). Palette swaps cross-fade smoothly instead of snapping.
+- **Album-art glow** — the now-playing card, cover and "now" pill sample the
+  dominant colour from the playing track's artwork and glow with it.
 - **Audio Reactive** (panel toggle, on by default) — the ink listens in five
   bands: Bass expands the ink, Beats fire bursts, Vocals drift the colour,
   Treble stirs fine turbulence, Energy drives overall movement. Everything is
@@ -27,9 +31,18 @@ freeze it, save it — and let it answer every track you play.
   Toggle off for plain fluid behaviour; sliders and performance untouched.
 - **Swirl, Ink lifetime, Brush size, Living flow, Soft glow, Quality** — the
   fluid controls, live, exactly as a fluid study should have them.
+- **Paint for me** (panel toggle) — while music plays and you haven't touched
+  the ink for a few seconds, a faint brush wanders the canvas on its own.
+  Your first drag instantly takes the brush back. Off by default under
+  `prefers-reduced-motion`.
+- **Beat-flash vignette** — the frame edges breathe accent light on every
+  detected beat, driven by the same audio-reactive engine as the ink.
 - **Dock**: Bloom · Freeze · Clear | Save (downloads the canvas as a PNG).
-- **Now playing card**: cover, transport, progress, and a video toggle that
-  slides the YouTube player in without ever leaving the page.
+- **Now playing card**: cover, transport, a **seekable progress bar**
+  (click/drag to scrub, buffered lane, hover time tooltip, ← → nudge when
+  focused), and a video toggle that slides the YouTube player in without
+  ever leaving the page. Track changes crossfade the title, pulse the
+  wordmark and ripple the play button.
 
 ### Keyboard
 

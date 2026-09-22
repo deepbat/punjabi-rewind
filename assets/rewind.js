@@ -19,8 +19,8 @@
   var $ = function (id) { return document.getElementById(id); };
 
   /* Build stamp: F12 Console shows which player build the browser runs. */
-window.__prVersion = '20260919-neon';
-   try { if (window.console && console.info) console.info('[rewind] build 20260919-neon'); } catch (e) {}
+window.__prVersion = '20260922-neon';
+   try { if (window.console && console.info) console.info('[rewind] build 20260922-neon'); } catch (e) {}
 
   var state = {
     index: -1,
@@ -113,6 +113,23 @@ window.__prVersion = '20260919-neon';
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { el.classList.remove('show'); }, hold || 5200);
   }
+
+  /* A ripple inside the round play button, centred on the pointer when there
+     is one (clicks) and on the button centre otherwise. */
+  function spawnRipple(button, event) {
+    try {
+      var rect = button.getBoundingClientRect();
+      var size = Math.max(rect.width, rect.height);
+      var ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      var hasPoint = event && typeof event.clientX === 'number' && (event.clientX || event.clientY);
+      ripple.style.left = (hasPoint ? event.clientX - rect.left - size / 2 : (rect.width - size) / 2) + 'px';
+      ripple.style.top = (hasPoint ? event.clientY - rect.top - size / 2 : (rect.height - size) / 2) + 'px';
+      button.appendChild(ripple);
+      setTimeout(function () { ripple.remove(); }, 600);
+    } catch (e) {}
+  }
 /* ── Playback: exactly ONE player, never two ────────────────────────────
    The YouTube IFrame API player is the only transport. While it loads,
    tracks queue up (a "Player is loading" note shows); only if the API is
@@ -201,6 +218,8 @@ window.__prVersion = '20260919-neon';
     var namespace = window.YT;
     if (!namespace || !namespace.PlayerState) return;
     var status = namespace.PlayerState;
+    var seekBar = $('progressTrack');
+    if (seekBar) seekBar.classList.toggle('loading', event.data === status.BUFFERING);
     if (event.data === status.PLAYING) {
       state.failures = 0;
       alog('api-playing', 'track ' + state.index);
@@ -235,12 +254,24 @@ window.__prVersion = '20260919-neon';
     try { return (yt.player && yt.player.getIframe) ? yt.player.getIframe() : null; }
     catch (error) { return null; }
   }
-  function commandFrame(frame, func) {
+  function commandFrame(frame, func, args) {
     if (!frame || !frame.contentWindow) return;
     try {
-      frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: [] }), '*');
+      frame.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
     } catch (error) { /* best effort only */ }
   }
+
+  /* The direct fallback embed reports time/duration over postMessage once we
+     say "listening" — so the seek bar and progress lane keep working even
+     when the IFrame API never loads. */
+  window.addEventListener('message', function (event) {
+    if (!directFrame || event.source !== directFrame.contentWindow) return;
+    var info = null;
+    try { info = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch (e) { return; }
+    if (!info || info.event !== 'infoDelivery' || !info.info) return;
+    if (typeof info.info.duration === 'number') state.duration = info.info.duration;
+    if (typeof info.info.currentTime === 'number') { state.position = info.info.currentTime; renderProgress(); }
+  });
   function stopApiPlayer() {
     var player = yt.player;
     if (player && player.pauseVideo) { try { player.pauseVideo(); } catch (e) {} }
@@ -325,6 +356,9 @@ window.__prVersion = '20260919-neon';
     frame.setAttribute('allowfullscreen', '');
     stage.appendChild(frame);
     directFrame = frame;
+    frame.addEventListener('load', function () {
+      try { frame.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*'); } catch (e) {}
+    });
     var params = ['autoplay=1', 'playsinline=1', 'rel=0', 'modestbranding=1', 'enablejsapi=1'];
     if (playerOrigin()) params.push('origin=' + encodeURIComponent(playerOrigin()));
     frame.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?' + params.join('&');
@@ -494,7 +528,7 @@ window.__prVersion = '20260919-neon';
 
   /* The chrome wears the track's colours too. One attribute on <html> swaps
      every accent channel in the stylesheet, so each song changes the room. */
-  var PALETTES = ['aurora', 'ember', 'lagoon', 'prism'];
+  var PALETTES = ['aurora', 'ember', 'lagoon', 'prism', 'vaisakhi', 'diwali'];
   function applyTint(name) {
     if (PALETTES.indexOf(name) < 0) name = 'aurora';
     try { document.documentElement.setAttribute('data-palette', name); } catch (e) {}
@@ -509,6 +543,76 @@ window.__prVersion = '20260919-neon';
     }
   }
 
+  /* ── Track-change chrome FX ─────────────────────────────────────────────
+     Every new track: the wordmark breathes light, the now-playing text
+     crossfades in, and the card's glow is sampled from the cover art. */
+  var artCache = {};   // videoId → 'r, g, b'
+  var lastFxIndex = -1;
+  function accentChannels() {
+    try {
+      var v = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb');
+      return v && v.trim() ? v.trim() : '0, 255, 163';
+    } catch (e) { return '0, 255, 163'; }
+  }
+  function setArtGlow(channels) {
+    try { document.documentElement.style.setProperty('--art-rgb', channels); } catch (e) {}
+  }
+  /* Dominant colour from the artwork, sampled on a tiny offscreen canvas.
+     A blocked image or a tainted canvas falls back to the current accent —
+     the card simply keeps the palette colour. */
+  function extractArtColor(song) {
+    var id = song && song.youtubeIds && song.youtubeIds[0];
+    if (!id) { setArtGlow(accentChannels()); return; }
+    if (artCache[id]) { setArtGlow(artCache[id]); return; }
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.decoding = 'async';
+    img.onload = function () {
+      try {
+        var c = document.createElement('canvas');
+        c.width = 8; c.height = 8;
+        var ctx = c.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, 8, 8);
+        var data = ctx.getImageData(0, 0, 8, 8).data;
+        var r = 0, g = 0, b = 0, n = 0, best = null, bestScore = -1;
+        for (var i = 0; i < data.length; i += 4) {
+          var pr = data[i], pg = data[i + 1], pb = data[i + 2];
+          r += pr; g += pg; b += pb; n++;
+          var mx = Math.max(pr, pg, pb), mn = Math.min(pr, pg, pb);
+          var score = (mx ? (mx - mn) / mx : 0) * (mx / 255); // vivid + bright wins
+          if (score > bestScore) { bestScore = score; best = [pr, pg, pb]; }
+        }
+        var channels;
+        if (best && bestScore > 0.12) {
+          // Blend the most vivid pixel with the average so the glow stays soft.
+          channels = Math.round((best[0] + r / n) / 2) + ', ' +
+                     Math.round((best[1] + g / n) / 2) + ', ' +
+                     Math.round((best[2] + b / n) / 2);
+        } else {
+          channels = Math.round(r / n) + ', ' + Math.round(g / n) + ', ' + Math.round(b / n);
+        }
+        artCache[id] = channels;
+        // Only paint if this track is still the one playing.
+        var current = SONGS[state.index];
+        if (current && current.youtubeIds && current.youtubeIds[0] === id) setArtGlow(channels);
+      } catch (e) { setArtGlow(accentChannels()); }
+    };
+    img.onerror = function () { setArtGlow(accentChannels()); };
+    img.src = 'https://i.ytimg.com/vi/' + id + '/mqdefault.jpg';
+  }
+
+  function trackChangeFx(song) {
+    if (state.index === lastFxIndex) return;
+    lastFxIndex = state.index;
+    var h1 = document.querySelector('.brand h1');
+    if (h1) { h1.classList.remove('pulse'); void h1.offsetWidth; h1.classList.add('pulse'); }
+    var meta = document.querySelector('.now-meta');
+    if (meta) { meta.classList.remove('swap'); void meta.offsetWidth; meta.classList.add('swap'); }
+    var pill = $('nowPill');
+    if (pill) { pill.classList.remove('swap'); void pill.offsetWidth; pill.classList.add('swap'); }
+    extractArtColor(song);
+  }
+
   function playTrack(index, options) {
     options = options || {};
     if (!SONGS.length) return;
@@ -518,11 +622,14 @@ window.__prVersion = '20260919-neon';
     var videoId = song.youtubeIds && song.youtubeIds[0];
     state.index = index;
     state.failures = 0;
+    state.position = 0;
+    state.duration = 0;
     var token = ++playToken; // stale async callbacks must never start audio
     rememberPlay(index);
     applyPalette(index);
     renderList();
     renderNow();
+    trackChangeFx(song);
     if (state.audioReactive && options.quiet !== true && window.PR && window.PR.Fluid && window.PR.Fluid.isReady && window.PR.Fluid.isReady()) {
       window.PR.Fluid.pulse(1); // the canvas answers every new track
     }
@@ -627,6 +734,10 @@ window.__prVersion = '20260919-neon';
     if (directMode || !yt.player || !yt.player.getCurrentTime) return;
     state.position = yt.player.getCurrentTime() || 0;
     state.duration = yt.player.getDuration() || 0;
+    var buffered = $('progressBuffer');
+    if (buffered && yt.player.getVideoLoadedFraction) {
+      try { buffered.style.width = (Math.min(1, yt.player.getVideoLoadedFraction()) * 100).toFixed(1) + '%'; } catch (e) {}
+    }
     renderProgress();
   }, 500);
 
@@ -803,6 +914,7 @@ function renderNow() {
       if (rPillArtist) rPillArtist.textContent = state.radioLive ? 'Live radio' : 'Tuning…';
       var rDot = $('liveDot');
       if (rDot) rDot.classList.toggle('live', state.radioLive);
+      setArtGlow(accentChannels()); // radio has no cover — the glow rejoins the palette
       return;
     }
     if (cover) {
@@ -838,11 +950,80 @@ function renderNow() {
     if (shuffle) shuffle.setAttribute('aria-pressed', String(state.shuffle));
   }
 
+  function fmtTime(s) {
+    s = Math.max(0, Math.floor(s || 0));
+    var m = Math.floor(s / 60), sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
   function renderProgress() {
     var bar = $('progressBar');
     if (!bar) return;
     var pct = state.duration > 0 ? Math.min(100, state.position / state.duration * 100) : 0;
     bar.style.width = pct.toFixed(1) + '%';
+    var slider = $('progressTrack');
+    if (slider) {
+      slider.setAttribute('aria-valuenow', String(Math.round(pct)));
+      slider.setAttribute('aria-valuetext', fmtTime(state.position) + ' of ' + fmtTime(state.duration));
+    }
+    var buffered = $('progressBuffer');
+    if (buffered && state.duration <= 0) buffered.style.width = '0';
+  }
+
+  /* ── Seek: click/drag scrub, hover time tooltip, ← → nudge ────────────── */
+  function seekTo(seconds) {
+    if (!isFinite(seconds) || seconds < 0) return;
+    if (state.duration > 0) seconds = Math.min(seconds, Math.max(0, state.duration - 0.25));
+    state.position = seconds;
+    renderProgress();
+    if (directFrame) { commandFrame(directFrame, 'seekTo', [seconds, true]); return; }
+    var player = yt.player;
+    if (player && player.seekTo) { try { player.seekTo(seconds, true); } catch (e) {} }
+  }
+
+  function wireSeek() {
+    var track = $('progressTrack');
+    var tip = $('progressTip');
+    if (!track) return;
+    var scrubbing = false;
+    function fractionAt(event) {
+      var rect = track.getBoundingClientRect();
+      return Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    }
+    function timeAt(fraction) { return state.duration > 0 ? fraction * state.duration : 0; }
+    function showTip(event) {
+      if (!tip || state.duration <= 0) return;
+      var f = fractionAt(event);
+      tip.textContent = fmtTime(timeAt(f)) + ' / ' + fmtTime(state.duration);
+      tip.style.left = (f * 100).toFixed(2) + '%';
+      tip.hidden = false;
+    }
+    track.addEventListener('pointerdown', function (event) {
+      if (state.index < 0 || state.duration <= 0) return;
+      scrubbing = true;
+      track.classList.add('scrubbing');
+      try { track.setPointerCapture(event.pointerId); } catch (e) {}
+      seekTo(timeAt(fractionAt(event)));
+      event.preventDefault();
+    });
+    track.addEventListener('pointermove', function (event) {
+      showTip(event);
+      if (scrubbing) seekTo(timeAt(fractionAt(event)));
+    });
+    ['pointerup', 'pointercancel'].forEach(function (name) {
+      track.addEventListener(name, function () { scrubbing = false; track.classList.remove('scrubbing'); });
+    });
+    track.addEventListener('pointerleave', function () { if (tip) tip.hidden = true; });
+    track.addEventListener('keydown', function (event) {
+      if (state.duration <= 0) return;
+      var handled = true;
+      if (event.key === 'ArrowLeft') seekTo(state.position - 5);
+      else if (event.key === 'ArrowRight') seekTo(state.position + 5);
+      else if (event.key === 'Home') seekTo(0);
+      else if (event.key === 'End') seekTo(state.duration);
+      else handled = false;
+      if (handled) { event.preventDefault(); event.stopPropagation(); } // keep ← → from skipping the track
+    });
   }
 
   function renderFilters() {
@@ -917,6 +1098,42 @@ function renderNow() {
     var box = $('autoflow');
     if (box) box.checked = !!autoflow;
   }
+
+  /* ── Paint for me: the idle auto-painter ────────────────────────────────
+     While music plays and no one has touched the ink for a few seconds, a
+     faint brush wanders the canvas on a slow lissajous path. It paints
+     through the engine's stroke API, so it obeys the same splat cap, brush
+     size and colour cycle as a hand drag. Off by default under
+     prefers-reduced-motion; one switch in the panel controls it. */
+  var paint = {
+    on: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches),
+    lastStir: 0,
+    x: 0.5, y: 0.5, t: Math.random() * 100,
+  };
+  function autoPaintTick() {
+    if (!paint.on || document.hidden) return;
+    if (!state.playing && !state.radioLive) return; // silence → no brush
+    var engine = ink();
+    if (!engine || !engine.isReady || !engine.isReady()) return;
+    if (engine.isPaused && engine.isPaused()) return; // frozen ink stays frozen
+    if (!engine.stroke) return;
+    if (Date.now() - paint.lastStir < 7000) return; // the human has the brush
+    paint.t += 0.9;
+    var cv = $('fluid');
+    var aspect = cv && cv.clientHeight ? cv.clientWidth / cv.clientHeight : 1;
+    var nx = 0.5 + Math.sin(paint.t * 0.43) * 0.3 / Math.max(1, aspect) + Math.sin(paint.t * 0.11) * 0.06;
+    var ny = 0.5 + Math.cos(paint.t * 0.31) * 0.26 + Math.sin(paint.t * 0.17) * 0.06;
+    nx = Math.max(0.08, Math.min(0.92, nx));
+    ny = Math.max(0.1, Math.min(0.9, ny));
+    var dx = nx - paint.x, dy = ny - paint.y;
+    paint.x = nx; paint.y = ny;
+    for (var i = 1; i <= 2; i++) {
+      try {
+        engine.stroke(nx - dx + dx * i / 2, ny - dy + dy * i / 2, dx * 450, dy * 450);
+      } catch (e) {}
+    }
+  }
+  setInterval(autoPaintTick, 900);
 /* ── Wiring ────────────────────────────────────────────────────────── */
   function ink() { return (window.PR && window.PR.Fluid) ? window.PR.Fluid : null; }
   function setInk(key, value) { var engine = ink(); if (engine && engine.set) engine.set(key, value); }
@@ -970,6 +1187,16 @@ function renderNow() {
       box.addEventListener('change', sync);
       sync();
     });
+    var autopaintBox = $('autopaint');
+    if (autopaintBox) {
+      autopaintBox.checked = paint.on;
+      autopaintBox.addEventListener('change', function () {
+        paint.on = autopaintBox.checked;
+        announce(paint.on
+          ? 'Paint for me on — a faint brush draws while you listen'
+          : 'Paint for me off');
+      });
+    }
     var audioReactive = $('audioReactive');
     var reactiveControls = $('reactiveControls');
     function syncReactiveVisibility() {
@@ -1056,7 +1283,10 @@ function renderNow() {
 
   function wireTransport() {
     var play = $('playToggle');
-    if (play) play.addEventListener('click', togglePlay);
+    if (play) play.addEventListener('click', function (event) {
+      spawnRipple(play, event);
+      togglePlay();
+    });
     var prev = $('prevBtn');
     if (prev) prev.addEventListener('click', function () { nextStep(-1); });
     var next = $('nextBtn');
@@ -1420,6 +1650,17 @@ function wireLibrary() {
     return damp[key];
   }
 
+  /* Beat-flash the frame edges: re-arms the .beat class so the vignette's
+     accent glow restarts on every detected beat. */
+  var vignetteEl = null;
+  function flashVignette() {
+    if (!vignetteEl) vignetteEl = document.querySelector('.vignette');
+    if (!vignetteEl) return;
+    vignetteEl.classList.remove('beat');
+    void vignetteEl.offsetWidth; // restart the flash
+    vignetteEl.classList.add('beat');
+  }
+
   function reactiveTick() {
     if (document.hidden || !state.audioReactive || !reactiveReady()) return;
     var sounding = state.playing || state.radioLive;
@@ -1450,6 +1691,7 @@ function wireLibrary() {
     if (flux > threshold && now - reactive.lastBeat > 350) {
       reactive.lastBeat = now;
       if (engine.pulse) { try { engine.pulse(1 + 0.4 * reactive.sens.beat); } catch (e) {} }
+      flashVignette();
       if (reactive.sens.beat > 0.02 && now - reactive.lastBloom > 2200 && engine.bloom) {
         reactive.lastBloom = now;
         try { engine.bloom(1, true); } catch (e) {} // silent: no announcement spam
@@ -1489,6 +1731,7 @@ function wireLibrary() {
     wireSliders();
     wireDock();
     wireTransport();
+    wireSeek();
     wireLibrary();
     wireChromeToggles();
     wireIntro();
@@ -1501,6 +1744,7 @@ function wireLibrary() {
         onStatus: function (text) { var el = $('performance'); if (el) el.textContent = text; },
         onAnnounce: announce,
         onStir: function () {
+          paint.lastStir = Date.now(); // a human hand pauses the auto-painter
           var hint = $('hint');
           if (hint) hint.textContent = 'Follow the flow. Make your own.';
         },
